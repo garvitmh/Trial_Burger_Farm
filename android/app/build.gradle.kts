@@ -3,10 +3,11 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.burger_farm_app"
+    namespace = "com.burgerfarm.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,11 +21,9 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.burger_farm_app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        applicationId = "com.burgerfarm.app"
+        // Firebase Phone Auth requires minSdk 21+
+        minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -41,4 +40,13 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Firebase BoM — manages all Firebase SDK versions automatically.
+    // Using 33.12.0 (latest stable as of April 2025). v34.x does NOT exist yet.
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+
+    // Firebase Authentication (required for Phone OTP)
+    implementation("com.google.firebase:firebase-auth")
 }

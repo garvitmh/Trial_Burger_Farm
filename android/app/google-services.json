@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "284811640366",
+    "project_id": "burger-farm-2cba9",
+    "storage_bucket": "burger-farm-2cba9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:284811640366:android:329840b61f6a67cbd769bf",
+        "android_client_info": {
+          "package_name": "com.burgerfarm.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3FIGKI3wro_8CW9XWIh-7QOibAE3kgXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
