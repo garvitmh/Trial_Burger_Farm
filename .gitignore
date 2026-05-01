@@ -196,3 +196,6 @@ Thumbs.db
 *.g.dart
 *.config.dart
 *.freezed.dart
+
+# Firebase Service Account
+server/src/config/firebase-service-account.json
