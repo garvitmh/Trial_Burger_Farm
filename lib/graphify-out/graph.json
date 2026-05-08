@@ -1,0 +1,913 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "main.dart",
+      "file_type": "code",
+      "source_file": "main.dart",
+      "source_location": null,
+      "id": "main_dart",
+      "community": 1,
+      "norm_label": "main.dart"
+    },
+    {
+      "label": "MyApp",
+      "file_type": "code",
+      "source_file": "main.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_main_dart_myapp",
+      "community": 1,
+      "norm_label": "myapp"
+    },
+    {
+      "label": "main",
+      "file_type": "code",
+      "source_file": "main.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_main_dart_main",
+      "community": 1,
+      "norm_label": "main"
+    },
+    {
+      "label": "ProviderScope",
+      "file_type": "code",
+      "source_file": "main.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_main_dart_providerscope",
+      "community": 1,
+      "norm_label": "providerscope"
+    },
+    {
+      "label": "build",
+      "file_type": "code",
+      "source_file": "main.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_main_dart_build",
+      "community": 1,
+      "norm_label": "build"
+    },
+    {
+      "label": "MaterialApp",
+      "file_type": "code",
+      "source_file": "main.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_main_dart_materialapp",
+      "community": 1,
+      "norm_label": "materialapp"
+    },
+    {
+      "label": "package:flutter/material.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "package_flutter_material_dart",
+      "community": 1,
+      "norm_label": "package:flutter/material.dart"
+    },
+    {
+      "label": "package:firebase_core/firebase_core.dart",
+      "file_type": "code",
+      "source_file": "main.dart",
+      "source_location": null,
+      "id": "package_firebase_core_firebase_core_dart",
+      "community": 1,
+      "norm_label": "package:firebase_core/firebase_core.dart"
+    },
+    {
+      "label": "package:flutter_riverpod/flutter_riverpod.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "package_flutter_riverpod_flutter_riverpod_dart",
+      "community": 1,
+      "norm_label": "package:flutter_riverpod/flutter_riverpod.dart"
+    },
+    {
+      "label": "test_auth_screen.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "features_auth_presentation_screens_test_auth_screen_dart",
+      "community": 0,
+      "norm_label": "test_auth_screen.dart"
+    },
+    {
+      "label": "firebase_auth_data_source.dart",
+      "file_type": "code",
+      "source_file": "features/auth/data/datasources/firebase_auth_data_source.dart",
+      "source_location": null,
+      "id": "features_auth_data_datasources_firebase_auth_data_source_dart",
+      "community": 4,
+      "norm_label": "firebase_auth_data_source.dart"
+    },
+    {
+      "label": "FirebaseAuthDataSource",
+      "file_type": "code",
+      "source_file": "features/auth/data/datasources/firebase_auth_data_source.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_data_datasources_firebase_auth_data_source_dart_firebaseauthdatasource",
+      "community": 4,
+      "norm_label": "firebaseauthdatasource"
+    },
+    {
+      "label": "dart:async",
+      "file_type": "code",
+      "source_file": "features/auth/data/datasources/firebase_auth_data_source.dart",
+      "source_location": null,
+      "id": "dart_async",
+      "community": 4,
+      "norm_label": "dart:async"
+    },
+    {
+      "label": "package:firebase_auth/firebase_auth.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "package_firebase_auth_firebase_auth_dart",
+      "community": 4,
+      "norm_label": "package:firebase_auth/firebase_auth.dart"
+    },
+    {
+      "label": "node_auth_remote_data_source.dart",
+      "file_type": "code",
+      "source_file": "features/auth/data/datasources/node_auth_remote_data_source.dart",
+      "source_location": null,
+      "id": "features_auth_data_datasources_node_auth_remote_data_source_dart",
+      "community": 5,
+      "norm_label": "node_auth_remote_data_source.dart"
+    },
+    {
+      "label": "NodeAuthRemoteDataSource",
+      "file_type": "code",
+      "source_file": "features/auth/data/datasources/node_auth_remote_data_source.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_data_datasources_node_auth_remote_data_source_dart_nodeauthremotedatasource",
+      "community": 5,
+      "norm_label": "nodeauthremotedatasource"
+    },
+    {
+      "label": "package:dio/dio.dart",
+      "file_type": "code",
+      "source_file": "features/auth/data/datasources/node_auth_remote_data_source.dart",
+      "source_location": null,
+      "id": "package_dio_dio_dart",
+      "community": 5,
+      "norm_label": "package:dio/dio.dart"
+    },
+    {
+      "label": "auth_repository_impl.dart",
+      "file_type": "code",
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "id": "features_auth_data_repositories_auth_repository_impl_dart",
+      "community": 3,
+      "norm_label": "auth_repository_impl.dart"
+    },
+    {
+      "label": "AuthRepositoryImpl",
+      "file_type": "code",
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_data_repositories_auth_repository_impl_dart_authrepositoryimpl",
+      "community": 3,
+      "norm_label": "authrepositoryimpl"
+    },
+    {
+      "label": "Exception",
+      "file_type": "code",
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_data_repositories_auth_repository_impl_dart_exception",
+      "community": 3,
+      "norm_label": "exception"
+    },
+    {
+      "label": "UserEntity",
+      "file_type": "code",
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_data_repositories_auth_repository_impl_dart_userentity",
+      "community": 3,
+      "norm_label": "userentity"
+    },
+    {
+      "label": "../../domain/entities/user_entity.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "domain_entities_user_entity_dart",
+      "community": 3,
+      "norm_label": "../../domain/entities/user_entity.dart"
+    },
+    {
+      "label": "../../domain/repositories/auth_repository.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "domain_repositories_auth_repository_dart",
+      "community": 3,
+      "norm_label": "../../domain/repositories/auth_repository.dart"
+    },
+    {
+      "label": "../datasources/firebase_auth_data_source.dart",
+      "file_type": "code",
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "id": "datasources_firebase_auth_data_source_dart",
+      "community": 3,
+      "norm_label": "../datasources/firebase_auth_data_source.dart"
+    },
+    {
+      "label": "../datasources/node_auth_remote_data_source.dart",
+      "file_type": "code",
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "id": "datasources_node_auth_remote_data_source_dart",
+      "community": 3,
+      "norm_label": "../datasources/node_auth_remote_data_source.dart"
+    },
+    {
+      "label": "user_entity.dart",
+      "file_type": "code",
+      "source_file": "features/auth/domain/entities/user_entity.dart",
+      "source_location": null,
+      "id": "features_auth_domain_entities_user_entity_dart",
+      "community": 7,
+      "norm_label": "user_entity.dart"
+    },
+    {
+      "label": "UserEntity",
+      "file_type": "code",
+      "source_file": "features/auth/domain/entities/user_entity.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_domain_entities_user_entity_dart_userentity",
+      "community": 7,
+      "norm_label": "userentity"
+    },
+    {
+      "label": "auth_repository.dart",
+      "file_type": "code",
+      "source_file": "features/auth/domain/repositories/auth_repository.dart",
+      "source_location": null,
+      "id": "features_auth_domain_repositories_auth_repository_dart",
+      "community": 6,
+      "norm_label": "auth_repository.dart"
+    },
+    {
+      "label": "AuthRepository",
+      "file_type": "code",
+      "source_file": "features/auth/domain/repositories/auth_repository.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_domain_repositories_auth_repository_dart_authrepository",
+      "community": 6,
+      "norm_label": "authrepository"
+    },
+    {
+      "label": "../entities/user_entity.dart",
+      "file_type": "code",
+      "source_file": "features/auth/domain/repositories/auth_repository.dart",
+      "source_location": null,
+      "id": "entities_user_entity_dart",
+      "community": 6,
+      "norm_label": "../entities/user_entity.dart"
+    },
+    {
+      "label": "auth_provider.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "features_auth_presentation_providers_auth_provider_dart",
+      "community": 2,
+      "norm_label": "auth_provider.dart"
+    },
+    {
+      "label": "AuthState",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_authstate",
+      "community": 2,
+      "norm_label": "authstate"
+    },
+    {
+      "label": "AuthNotifier",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_authnotifier",
+      "community": 2,
+      "norm_label": "authnotifier"
+    },
+    {
+      "label": "copyWith",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_copywith",
+      "community": 2,
+      "norm_label": "copywith"
+    },
+    {
+      "label": "AuthRepositoryImpl",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_authrepositoryimpl",
+      "community": 2,
+      "norm_label": "authrepositoryimpl"
+    },
+    {
+      "label": "resetVerificationId",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_resetverificationid",
+      "community": 2,
+      "norm_label": "resetverificationid"
+    },
+    {
+      "label": "../../data/repositories/auth_repository_impl.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "data_repositories_auth_repository_impl_dart",
+      "community": 2,
+      "norm_label": "../../data/repositories/auth_repository_impl.dart"
+    },
+    {
+      "label": "../../data/datasources/firebase_auth_data_source.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "data_datasources_firebase_auth_data_source_dart",
+      "community": 2,
+      "norm_label": "../../data/datasources/firebase_auth_data_source.dart"
+    },
+    {
+      "label": "../../data/datasources/node_auth_remote_data_source.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "id": "data_datasources_node_auth_remote_data_source_dart",
+      "community": 2,
+      "norm_label": "../../data/datasources/node_auth_remote_data_source.dart"
+    },
+    {
+      "label": "TestAuthScreen",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_testauthscreen",
+      "community": 0,
+      "norm_label": "testauthscreen"
+    },
+    {
+      "label": "_TestAuthScreenState",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_testauthscreenstate",
+      "community": 0,
+      "norm_label": "_testauthscreenstate"
+    },
+    {
+      "label": "dispose",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_dispose",
+      "community": 0,
+      "norm_label": "dispose"
+    },
+    {
+      "label": "build",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_build",
+      "community": 0,
+      "norm_label": "build"
+    },
+    {
+      "label": "Scaffold",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_scaffold",
+      "community": 0,
+      "norm_label": "scaffold"
+    },
+    {
+      "label": "SizedBox",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_sizedbox",
+      "community": 0,
+      "norm_label": "sizedbox"
+    },
+    {
+      "label": "Icon",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_icon",
+      "community": 0,
+      "norm_label": "icon"
+    },
+    {
+      "label": "Text",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_text",
+      "community": 0,
+      "norm_label": "text"
+    },
+    {
+      "label": "../providers/auth_provider.dart",
+      "file_type": "code",
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "id": "providers_auth_provider_dart",
+      "community": 0,
+      "norm_label": "../providers/auth_provider.dart"
+    }
+  ],
+  "links": [
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "main_dart",
+      "target": "c_desktop_burger_farm_app_lib_main_dart_myapp"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "main_dart",
+      "target": "c_desktop_burger_farm_app_lib_main_dart_main"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "main_dart",
+      "target": "c_desktop_burger_farm_app_lib_main_dart_providerscope"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "main_dart",
+      "target": "c_desktop_burger_farm_app_lib_main_dart_build"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "main_dart",
+      "target": "c_desktop_burger_farm_app_lib_main_dart_materialapp"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "main_dart",
+      "target": "package_flutter_material_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "main_dart",
+      "target": "package_firebase_core_firebase_core_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "main_dart",
+      "target": "package_flutter_riverpod_flutter_riverpod_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "main_dart",
+      "target": "features_auth_presentation_screens_test_auth_screen_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "package_flutter_material_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "package_flutter_riverpod_flutter_riverpod_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "package_flutter_riverpod_flutter_riverpod_dart"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_testauthscreen"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_testauthscreenstate"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_dispose"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_build"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_scaffold"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_sizedbox"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_icon"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_screens_test_auth_screen_dart_text"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/screens/test_auth_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_screens_test_auth_screen_dart",
+      "target": "providers_auth_provider_dart"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/datasources/firebase_auth_data_source.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_datasources_firebase_auth_data_source_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_data_datasources_firebase_auth_data_source_dart_firebaseauthdatasource"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/datasources/firebase_auth_data_source.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_datasources_firebase_auth_data_source_dart",
+      "target": "dart_async"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/datasources/firebase_auth_data_source.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_datasources_firebase_auth_data_source_dart",
+      "target": "package_firebase_auth_firebase_auth_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "package_firebase_auth_firebase_auth_dart"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/datasources/node_auth_remote_data_source.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_datasources_node_auth_remote_data_source_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_data_datasources_node_auth_remote_data_source_dart_nodeauthremotedatasource"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/datasources/node_auth_remote_data_source.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_datasources_node_auth_remote_data_source_dart",
+      "target": "package_dio_dio_dart"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_repositories_auth_repository_impl_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_data_repositories_auth_repository_impl_dart_authrepositoryimpl"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_repositories_auth_repository_impl_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_data_repositories_auth_repository_impl_dart_exception"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_repositories_auth_repository_impl_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_data_repositories_auth_repository_impl_dart_userentity"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_repositories_auth_repository_impl_dart",
+      "target": "domain_entities_user_entity_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_repositories_auth_repository_impl_dart",
+      "target": "domain_repositories_auth_repository_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_repositories_auth_repository_impl_dart",
+      "target": "datasources_firebase_auth_data_source_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/data/repositories/auth_repository_impl.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_data_repositories_auth_repository_impl_dart",
+      "target": "datasources_node_auth_remote_data_source_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "domain_entities_user_entity_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "domain_repositories_auth_repository_dart"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/domain/entities/user_entity.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_domain_entities_user_entity_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_domain_entities_user_entity_dart_userentity"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/domain/repositories/auth_repository.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_domain_repositories_auth_repository_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_domain_repositories_auth_repository_dart_authrepository"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/domain/repositories/auth_repository.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_domain_repositories_auth_repository_dart",
+      "target": "entities_user_entity_dart"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_authstate"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_authnotifier"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_copywith"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_authrepositoryimpl"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "c_desktop_burger_farm_app_lib_features_auth_presentation_providers_auth_provider_dart_resetverificationid"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "data_repositories_auth_repository_impl_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "data_datasources_firebase_auth_data_source_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/auth/presentation/providers/auth_provider.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "features_auth_presentation_providers_auth_provider_dart",
+      "target": "data_datasources_node_auth_remote_data_source_dart"
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "824ce35e50129acd57ac0d582326955f3d202701"
+}

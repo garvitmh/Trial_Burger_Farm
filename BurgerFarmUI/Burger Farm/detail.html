@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Burger Farm - Address Detail</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#E8560A', hover: '#C94208', light: '#FFF0E5' },
+            brown: { DEFAULT: '#271200', muted: 'rgba(39, 18, 0, 0.42)', light: 'rgba(39, 18, 0, 0.06)' },
+            cream: '#FBF7F2',
+            line: '#EBE1D6',
+            success: '#1A7A38',
+            danger: '#C0001A',
+          },
+          fontFamily: {
+            display: ['"Montreux Classic"', 'sans-serif'],
+            sans: ['"Recoleta"', 'serif'],
+          },
+          boxShadow: {
+            soft: '0 4px 24px rgba(39, 18, 0, 0.04), 0 1px 2px rgba(39, 18, 0, 0.02)',
+            premium: '0 20px 40px -10px rgba(39,18,0,0.08), 0 1px 3px rgba(39,18,0,0.05)',
+            glow: '0 8px 24px rgba(232, 86, 10, 0.25)',
+            'brand-glow': '0 10px 30px -10px rgba(232,86,10,0.4), 0 4px 10px rgba(232,86,10,0.2)',
+            float: '0 -12px 32px rgba(39, 18, 0, 0.04)',
+            inset_soft: 'inset 0 2px 8px rgba(39, 18, 0, 0.04)',
+          },
+          transitionTimingFunction: {
+            'spring': 'cubic-bezier(0.16, 1, 0.3, 1)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-semibold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    
+    body { background-color: #F5EFE6; }
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+
+    input[type="radio"] { display: none; }
+  </style>
+</head>
+
+<body class="antialiased text-brown font-sans flex justify-center min-h-screen sm:p-8">
+
+  <main class="w-full max-w-[400px] bg-white sm:rounded-[40px] sm:shadow-2xl overflow-hidden relative flex flex-col h-[100dvh] sm:h-[850px]">
+    
+    <!-- Top Area: Premium Map Snapshot -->
+    <div class="relative h-[25%] bg-[#FDFCFB] flex flex-col z-0 overflow-hidden">
+      <!-- Premium Map Pattern -->
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg width=%22400%22 height=%22200%22 viewBox=%220 0 400 200%22 xmlns=%22http://www.w3.org/2000/svg%22><path d=%22M0 50 Q 100 25, 200 75 T 400 50 M 0 100 Q 100 75, 200 125 T 400 100%22 stroke=%22%23EBE1D6%22 fill=%22none%22 stroke-width=%223%22 opacity=%220.6%22/><path d=%22M50 0 V 200 M 150 0 V 200 M 250 0 V 200 M 350 0 V 200%22 stroke=%22%23EBE1D6%22 fill=%22none%22 stroke-width=%223%22 opacity=%220.6%22/></svg>')] bg-cover"></div>
+      
+      <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-white z-10 pointer-events-none"></div>
+
+      <!-- Header Nav -->
+      <header class="px-6 pt-12 pb-4 flex justify-between items-center z-20 relative">
+        <button class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors" onclick="window.history.back()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        </button>
+      </header>
+
+      <!-- Location Pin -->
+      <div class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none pt-4">
+        <div class="w-10 h-10 rounded-full bg-brand text-white flex items-center justify-center shadow-glow border-2 border-white">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Form Sheet -->
+    <div class="flex-1 bg-white flex flex-col z-20 relative -mt-4 rounded-t-3xl border-t border-line/50">
+      
+      <!-- Selected Address Summary -->
+      <div class="px-6 pt-6 pb-6 border-b border-line flex items-start gap-4">
+        <div class="w-12 h-12 rounded-full bg-brand-light flex items-center justify-center text-brand shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+        </div>
+        <div>
+          <h2 class="font-display text-[18px] font-black text-brown mb-0.5 leading-tight">Delivery Location</h2>
+          <p class="text-[13px] font-medium text-brown-muted leading-tight">42, Golf Link Road<br><span class="text-[12px]">Near Metro Station</span></p>
+        </div>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6 hide-scrollbar">
+        
+        <!-- Field 1 -->
+        <div class="animate-fade-up" style="animation-delay: 0.1s;">
+          <label class="block font-sans text-[12px] font-bold text-brown-muted uppercase tracking-[0.1em] mb-2.5 ml-1">Flat / House No. <span class="text-brand">*</span></label>
+          <div class="flex items-center gap-3 bg-[#FAFAFA] border-[1.5px] border-line rounded-2xl px-4 py-4 shadow-inset_soft focus-within:border-brand focus-within:bg-white focus-within:shadow-[0_8px_24px_rgba(232,86,10,0.15)] transition-all duration-300 ease-spring">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="text-brand"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <input type="text" placeholder="e.g., 12A, Floor 2" class="flex-1 bg-transparent border-none outline-none text-[16px] font-bold text-brown w-full placeholder:text-brown-muted/40" />
+          </div>
+        </div>
+
+        <!-- Field 2 -->
+        <div class="animate-fade-up" style="animation-delay: 0.2s;">
+          <label class="block font-sans text-[12px] font-bold text-brown-muted uppercase tracking-[0.1em] mb-2.5 ml-1">Building / Society</label>
+          <div class="flex items-center gap-3 bg-[#FAFAFA] border-[1.5px] border-line rounded-2xl px-4 py-4 shadow-inset_soft focus-within:border-brand focus-within:bg-white focus-within:shadow-[0_8px_24px_rgba(232,86,10,0.15)] transition-all duration-300 ease-spring">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="text-brown-muted/60"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+            <input type="text" placeholder="e.g., Green Valley Apartments" class="flex-1 bg-transparent border-none outline-none text-[16px] font-bold text-brown w-full placeholder:text-brown-muted/40" />
+          </div>
+        </div>
+
+        <!-- Field 3 -->
+        <div class="animate-fade-up" style="animation-delay: 0.3s;">
+          <label class="block font-sans text-[12px] font-bold text-brown-muted uppercase tracking-[0.1em] mb-2.5 ml-1">Landmark <span class="text-[10px] lowercase font-medium tracking-normal opacity-60">(Optional)</span></label>
+          <div class="flex items-center gap-3 bg-[#FAFAFA] border-[1.5px] border-line rounded-2xl px-4 py-4 shadow-inset_soft focus-within:border-brand focus-within:bg-white focus-within:shadow-[0_8px_24px_rgba(232,86,10,0.15)] transition-all duration-300 ease-spring">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="text-brown-muted/60"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <input type="text" placeholder="e.g., Near the park" class="flex-1 bg-transparent border-none outline-none text-[16px] font-bold text-brown w-full placeholder:text-brown-muted/40" />
+          </div>
+        </div>
+
+        <!-- Save As Tags -->
+        <div class="mt-2 animate-fade-up" style="animation-delay: 0.4s;">
+          <label class="block font-sans text-[12px] font-bold text-brown-muted uppercase tracking-[0.1em] mb-3 ml-1">Save As</label>
+          <div class="flex gap-4">
+            <label class="cursor-pointer group flex-1 active:scale-[0.96] transition-transform duration-300 ease-spring">
+              <input type="radio" name="tag" value="home" checked class="peer hidden" />
+              <div class="flex flex-col items-center justify-center gap-2 border-[1.5px] border-line rounded-2xl py-4 transition-all duration-300 ease-spring peer-checked:border-brand peer-checked:bg-brand/5 peer-checked:shadow-soft">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-brown-muted/60 peer-checked:text-brand transition-colors"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <span class="text-[12px] font-bold text-brown-muted/60 peer-checked:text-brand transition-colors">Home</span>
+              </div>
+            </label>
+            <label class="cursor-pointer group flex-1 active:scale-[0.96] transition-transform duration-300 ease-spring">
+              <input type="radio" name="tag" value="work" class="peer hidden" />
+              <div class="flex flex-col items-center justify-center gap-2 border-[1.5px] border-line rounded-2xl py-4 transition-all duration-300 ease-spring peer-checked:border-brand peer-checked:bg-brand/5 peer-checked:shadow-soft">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-brown-muted/60 peer-checked:text-brand transition-colors"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+                <span class="text-[12px] font-bold text-brown-muted/60 peer-checked:text-brand transition-colors">Work</span>
+              </div>
+            </label>
+            <label class="cursor-pointer group flex-1 active:scale-[0.96] transition-transform duration-300 ease-spring">
+              <input type="radio" name="tag" value="other" class="peer hidden" />
+              <div class="flex flex-col items-center justify-center gap-2 border-[1.5px] border-line rounded-2xl py-4 transition-all duration-300 ease-spring peer-checked:border-brand peer-checked:bg-brand/5 peer-checked:shadow-soft">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-brown-muted/60 peer-checked:text-brand transition-colors"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                <span class="text-[12px] font-bold text-brown-muted/60 peer-checked:text-brand transition-colors">Other</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer CTA -->
+      <div class="mt-auto p-6 bg-white border-t border-line/40 z-30 shadow-float">
+        <button class="w-full relative overflow-hidden bg-brand text-white font-bold text-[17px] py-4.5 rounded-[20px] shadow-brand-glow active:scale-[0.97] transition-all duration-300 ease-spring flex items-center justify-center gap-2 group mb-4 h-14" onclick="window.location.href='home.html'">
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700"></div>
+          <span class="relative z-10 text-[16px]">Save & Continue</span>
+        </button>
+        <p class="text-center text-[12px] font-medium text-brown-muted/60">
+          Your address will be saved for future orders.
+        </p>
+      </div>
+      
+    </div>
+    
+  </main>
+
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @keyframes fade-up { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+    .animate-fade-up { animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof gsap !== 'undefined') {
+        gsap.from(".animate-fade-up", { 
+          y: 20, opacity: 0, duration: 0.8, stagger: 0.1, ease: "expo.out", clearProps: "all" 
+        });
+        gsap.from(".mt-auto", { y: 20, opacity: 0, duration: 0.8, delay: 0.5, ease: "back.out(1.5)", clearProps: "all" });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Burger Farm - Address</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#E8560A', hover: '#C94208', light: '#FFF0E5' },
+            brown: { DEFAULT: '#271200', muted: 'rgba(39, 18, 0, 0.42)', light: 'rgba(39, 18, 0, 0.06)' },
+            cream: '#FBF7F2',
+            line: '#EBE1D6',
+            success: '#1A7A38',
+            danger: '#C0001A',
+          },
+          fontFamily: {
+            display: ['"Montreux Classic"', 'sans-serif'],
+            sans: ['"Recoleta"', 'serif'],
+          },
+          boxShadow: {
+            soft: '0 4px 24px rgba(39, 18, 0, 0.04), 0 1px 2px rgba(39, 18, 0, 0.02)',
+            premium: '0 20px 40px -10px rgba(39,18,0,0.08), 0 1px 3px rgba(39,18,0,0.05)',
+            glow: '0 8px 24px rgba(232, 86, 10, 0.25)',
+            'brand-glow': '0 10px 30px -10px rgba(232,86,10,0.4), 0 4px 10px rgba(232,86,10,0.2)',
+            float: '0 -12px 32px rgba(39, 18, 0, 0.04)',
+            inset_soft: 'inset 0 2px 8px rgba(39, 18, 0, 0.04)',
+          },
+          transitionTimingFunction: {
+            'spring': 'cubic-bezier(0.16, 1, 0.3, 1)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-semibold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    
+    body { background-color: #F5EFE6; }
+    
+    /* Map Pattern Background */
+    .bg-map {
+      background-color: #F0EAE1;
+      background-image: 
+        radial-gradient(#D5CFC6 2px, transparent 2px),
+        radial-gradient(#D5CFC6 2px, transparent 2px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+    }
+
+    /* Hide scrollbar for clean UI */
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+
+<body class="antialiased text-brown font-sans flex justify-center min-h-screen sm:p-8">
+
+  <!-- Main App Container (Simulates Mobile Screen) -->
+  <main class="w-full max-w-[400px] bg-white sm:rounded-[40px] sm:shadow-2xl overflow-hidden relative flex flex-col h-[100dvh] sm:h-[850px]">
+    
+    <!-- Header -->
+    <header class="pt-12 pb-6 px-6 bg-white z-20 shadow-soft relative rounded-b-[32px] border-b border-line/30">
+      <div class="flex items-center justify-between mb-6">
+        <button class="w-10 h-10 rounded-full bg-[#FAFAFA] border border-line/50 flex items-center justify-center hover:bg-line/20 active:scale-95 transition-all" onclick="window.history.back()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <h1 class="font-display font-black tracking-widest text-[16px] text-brown uppercase drop-shadow-sm">Delivery Address</h1>
+        <div class="w-10"></div> <!-- Spacer for centering -->
+      </div>
+      
+      <!-- Premium Search Bar -->
+      <div class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-brand">
+            <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <input type="text" placeholder="Search area, street, landmark..." class="w-full bg-[#FAFAFA] border-[1.5px] border-line/60 focus:border-brand/40 focus:bg-white transition-all duration-300 ease-spring rounded-[20px] py-4 pl-12 pr-14 text-[14px] font-bold text-brown outline-none placeholder:text-brown-muted/40 shadow-inset_soft focus:shadow-[0_8px_24px_rgba(232,86,10,0.12)]">
+        <button class="absolute inset-y-2 right-2 w-10 bg-brand rounded-xl flex items-center justify-center text-white hover:bg-brand-hover active:scale-95 transition-all shadow-glow">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2c-3.86 0-7 3.14-7 7 0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Map Area -->
+    <div class="flex-1 bg-map relative -mt-8 z-10 overflow-hidden group cursor-crosshair">
+      <!-- Decorative UI Elements on Map -->
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <!-- Pin Animation -->
+        <div class="relative">
+          <div class="w-16 h-16 bg-brand/20 rounded-full animate-ping absolute -top-4 -left-4"></div>
+          <div class="w-8 h-8 bg-brand rounded-full border-4 border-white shadow-lg relative z-10 flex items-center justify-center">
+            <div class="w-2 h-2 bg-white rounded-full"></div>
+          </div>
+          <!-- Pin Shadow -->
+          <div class="w-4 h-1 bg-black/20 rounded-full absolute -bottom-2 left-2 blur-sm"></div>
+        </div>
+      </div>
+      
+      <!-- Floating Map Info Card -->
+      <div class="absolute bottom-6 inset-x-6">
+        <div class="bg-white/90 backdrop-blur-md border border-white/50 p-4 rounded-2xl shadow-soft flex items-center gap-4 animate-fade-up">
+          <div class="w-12 h-12 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--o, #E8560A)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-brand tracking-widest uppercase mb-1">Selected Location</p>
+            <p class="text-sm font-medium leading-snug">42, Golf Link Road, near Metro Station</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Sheet -->
+    <div class="bg-white rounded-t-[32px] shadow-float pt-6 px-6 pb-24 z-30 relative mt-[-20px]">
+      <div class="w-12 h-1.5 bg-line rounded-full mx-auto mb-6"></div>
+      
+      <!-- Recent -->
+      <div class="mb-8">
+        <h3 class="text-[10px] font-black text-brown-muted uppercase tracking-[0.2em] mb-4 ml-1">Recent</h3>
+        
+        <div class="flex items-center gap-4 p-4 rounded-2xl border-[1.5px] border-line/40 hover:border-brand/30 hover:bg-[#FAFAFA] shadow-sm hover:shadow-premium transition-all duration-300 ease-spring cursor-pointer group active:scale-[0.97]" onclick="window.location.href='detail.html'">
+          <div class="w-11 h-11 rounded-full bg-cream border border-line/50 flex items-center justify-center group-hover:bg-brand text-brown group-hover:text-white transition-colors flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-[14px] font-bold text-brown mb-0.5 group-hover:text-brand transition-colors">Home <span class="font-medium text-brown-muted/70 tracking-tight">— C-12, Greater Kailash</span></p>
+            <p class="text-[11px] text-brown-muted/60 font-bold uppercase tracking-wider">Yesterday, 7:30 PM • 5 orders</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Saved -->
+      <div>
+        <h3 class="text-[10px] font-black text-brown-muted uppercase tracking-[0.2em] mb-4 ml-1">Saved</h3>
+        
+        <div class="flex items-center gap-4 p-4 rounded-2xl border-[1.5px] border-line/40 hover:border-brand/30 hover:bg-[#FAFAFA] shadow-sm hover:shadow-premium transition-all duration-300 ease-spring cursor-pointer group active:scale-[0.97]" onclick="window.location.href='detail.html'">
+          <div class="w-11 h-11 rounded-full bg-cream border border-line/50 flex items-center justify-center group-hover:bg-brand text-brown group-hover:text-white transition-colors flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-[14px] font-bold text-brown mb-0.5 group-hover:text-brand transition-colors">Work <span class="font-medium text-brown-muted/70 tracking-tight">— Cyber City, Phase 2</span></p>
+            <p class="text-[11px] text-brown-muted/60 font-bold uppercase tracking-wider">Office address • 12 orders</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky Bottom CTA -->
+    <div class="absolute bottom-0 left-0 right-0 p-6 pb-8 bg-gradient-to-t from-white via-white/95 to-transparent z-40">
+      <button class="w-full relative overflow-hidden bg-brand text-white font-bold text-[17px] py-4.5 rounded-[20px] shadow-brand-glow active:scale-[0.97] transition-all duration-300 ease-spring flex items-center justify-center gap-2 group h-14" onclick="window.location.href='detail.html'">
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700"></div>
+        <span class="relative z-10 text-[16px] flex items-center gap-2">
+          Confirm Location
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </span>
+      </button>
+    </div>
+    
+  </main>
+
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @keyframes fade-up {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up { animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  </style>
+  
+  <script>
+    // Subtle entry animations with GSAP
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof gsap !== 'undefined') {
+        gsap.from("header", { y: -50, opacity: 0, duration: 0.8, ease: "expo.out" });
+        gsap.from(".bg-white.rounded-t-\\[32px\\]", { y: 100, opacity: 0, duration: 0.8, delay: 0.2, ease: "expo.out" });
+        gsap.from(".mb-8, .mb-4", { y: 20, opacity: 0, duration: 0.8, stagger: 0.1, delay: 0.4, ease: "expo.out", clearProps: "all" });
+        gsap.from(".bottom-0 button", { y: 30, opacity: 0, duration: 0.8, delay: 0.5, ease: "back.out(1.5)" });
+      }
+    });
+  </script>
+</body>
+</html>

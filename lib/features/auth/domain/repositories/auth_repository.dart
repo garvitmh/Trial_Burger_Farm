@@ -12,4 +12,9 @@ abstract class AuthRepository {
     required String verificationId,
     required String smsCode,
   });
+
+  /// Signs in the user using Google Sign-In.
+  /// Then sends the Firebase idToken to the Node.js backend.
+  /// Returns the UserEntity with the backend JWT token.
+  Future<UserEntity?> signInWithGoogle();
 }

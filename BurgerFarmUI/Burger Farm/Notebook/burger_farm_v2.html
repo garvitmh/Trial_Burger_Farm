@@ -1,0 +1,3471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Burger Farm — UI Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,300;9..144,0,400;9..144,0,600;9..144,0,700;9..144,0,800;9..144,0,900;9..144,1,700&family=DM+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/MotionPathPlugin.min.js"></script>
+  <style>
+    :root {
+      --o: #E8560A;
+      --o2: #C94208;
+      --o-glow: rgba(232, 86, 10, 0.22);
+      --cream: #FBF7F2;
+      --warm: #F5EFE6;
+      --brown: #271200;
+      --brown2: #4A2800;
+      --muted: rgba(39, 18, 0, 0.42);
+      --line: #EBE1D6;
+      --green: #1A7A38;
+      --red: #C0001A;
+      --fd: 'Fraunces', Georgia, serif;
+      --fu: 'DM Sans', sans-serif;
+      --sh-btn: 0 8px 28px rgba(232, 86, 10, 0.42), 0 2px 8px rgba(0, 0, 0, 0.12);
+      --sh-card: 0 1px 3px rgba(39, 18, 0, 0.06), 0 4px 16px rgba(39, 18, 0, 0.05);
+      --sh-sheet: 0 -12px 48px rgba(39, 18, 0, 0.09);
+      --r-card: 20px;
+      --r-btn: 100px;
+      --r-input: 14px;
+      --r-sheet: 28px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale
+    }
+
+    body {
+      background: #130A02;
+      background-image: radial-gradient(ellipse 55% 38% at 50% 0%, rgba(232, 86, 10, 0.07) 0%, transparent 60%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 56px 24px 88px;
+      font-family: var(--fu);
+    }
+
+    /* ─── PAGE CHROME ─── */
+    .ph {
+      text-align: center;
+      margin-bottom: 48px
+    }
+
+    .ph-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(232, 86, 10, 0.10);
+      border: 1px solid rgba(232, 86, 10, 0.18);
+      border-radius: 100px;
+      padding: 4px 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(232, 86, 10, 0.75);
+      margin-bottom: 10px
+    }
+
+    .ph-t {
+      font-family: var(--fd);
+      font-size: 24px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, .88);
+      letter-spacing: .07em;
+      display: block
+    }
+
+    .ph-s {
+      font-size: 11px;
+      color: rgba(255, 255, 255, .22);
+      margin-top: 4px;
+      display: block
+    }
+
+    .row {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 72px
+    }
+
+    .rl {
+      font-family: var(--fu);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .18);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .rl::before,
+    .rl::after {
+      content: '';
+      height: 1px;
+      width: 44px;
+      background: rgba(255, 255, 255, .07)
+    }
+
+    .fr {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: center
+    }
+
+    .fw {
+      display: flex;
+      flex-direction: column;
+      align-items: center
+    }
+
+    .fl {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, .25);
+      margin-top: 14px;
+      letter-spacing: .04em
+    }
+
+    /* ─── PHONE SHELL ─── */
+    .ph-out {
+      width: 390px;
+      height: 844px;
+      border-radius: 50px;
+      background: linear-gradient(158deg, #2a2a2a 0%, #191919 45%, #222 100%);
+      padding: 6px;
+      position: relative;
+      box-shadow: 0 0 0 .5px rgba(255, 255, 255, .11), inset 0 0 0 .5px rgba(255, 255, 255, .04),
+        0 0 0 1.5px rgba(0, 0, 0, 1), 0 28px 80px rgba(0, 0, 0, .85), 0 6px 20px rgba(0, 0, 0, .45);
+    }
+
+    .ph-out::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50px;
+      background: linear-gradient(142deg, rgba(255, 255, 255, .055) 0%, transparent 30%, transparent 70%, rgba(255, 255, 255, .022) 100%);
+      pointer-events: none;
+      z-index: 1
+    }
+
+    .ph-out::after {
+      content: '';
+      position: absolute;
+      right: -3px;
+      top: 168px;
+      width: 3px;
+      height: 68px;
+      background: linear-gradient(180deg, #2e2e2e, #1a1a1a);
+      border-radius: 0 2px 2px 0
+    }
+
+    .ph-vol {
+      position: absolute;
+      left: -3px;
+      top: 148px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      z-index: 2
+    }
+
+    .ph-vb {
+      width: 3px;
+      height: 38px;
+      background: linear-gradient(180deg, #2e2e2e, #1a1a1a);
+      border-radius: 2px 0 0 2px
+    }
+
+    .ph-sl {
+      position: absolute;
+      left: -3px;
+      top: 112px;
+      width: 3px;
+      height: 24px;
+      background: linear-gradient(180deg, #2e2e2e, #1a1a1a);
+      border-radius: 2px 0 0 2px
+    }
+
+    .ph-frame {
+      width: 100%;
+      height: 100%;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      background: #fff;
+      isolation: isolate
+    }
+
+    .di {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 34px;
+      background: #080808;
+      border-radius: 18px;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      pointer-events: none
+    }
+
+    .di-s {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #111;
+      border: 1.5px solid #1a1a1a
+    }
+
+    .di-c {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #111;
+      border: 1.5px solid #1b1b1b;
+      position: relative
+    }
+
+    .di-c::after {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: #0a1118;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 1.5px rgba(40, 80, 220, .14)
+    }
+
+    .hi {
+      position: absolute;
+      bottom: 7px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 128px;
+      height: 4px;
+      background: rgba(0, 0, 0, .16);
+      border-radius: 3px;
+      z-index: 400;
+      pointer-events: none
+    }
+
+    .hi.w {
+      background: rgba(255, 255, 255, .38)
+    }
+
+    .sb {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 26px 8px;
+      pointer-events: none
+    }
+
+    .sb-t {
+      font-family: var(--fu);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.02em
+    }
+
+    .sb-i {
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .sb.light .sb-t,
+    .sb.light .sb-i {
+      color: #fff
+    }
+
+    .sb.dark .sb-t,
+    .sb.dark .sb-i {
+      color: var(--brown)
+    }
+
+    /* ─── SCREEN BASE ─── */
+    .sc {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      display: none;
+      flex-direction: column
+    }
+
+    .sc.on {
+      display: flex
+    }
+
+    /* ─── SHARED TOKENS ─── */
+    .btn {
+      cursor: pointer;
+      width: 100%;
+      height: 52px;
+      background: var(--o);
+      border: none;
+      border-radius: var(--r-btn);
+      font-family: var(--fu);
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: .01em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--sh-btn);
+      transition: transform .12s, box-shadow .12s;
+      flex-shrink: 0
+    }
+
+    .btn:active {
+      transform: scale(.975);
+      box-shadow: 0 3px 12px rgba(232, 86, 10, .3)
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 52% 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .09), transparent)
+    }
+
+    .btn-ghost {
+      cursor: pointer;
+      width: 100%;
+      height: 50px;
+      background: rgba(255, 255, 255, .10);
+      border: 1.5px solid rgba(255, 255, 255, .18);
+      border-radius: var(--r-btn);
+      font-family: var(--fu);
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .btn-outline {
+      cursor: pointer;
+      width: 100%;
+      height: 50px;
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: var(--r-btn);
+      font-family: var(--fu);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--brown);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      box-shadow: 0 1px 4px rgba(39, 18, 0, .05);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0
+    }
+
+    .inp {
+      width: 100%;
+      height: 52px;
+      border: 1.5px solid var(--line);
+      border-radius: var(--r-input);
+      padding: 0 16px;
+      font-family: var(--fu);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--brown);
+      background: #fff;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s;
+      box-shadow: 0 1px 4px rgba(39, 18, 0, .04)
+    }
+
+    .inp:focus {
+      border-color: var(--o);
+      box-shadow: 0 0 0 3px rgba(232, 86, 10, .10)
+    }
+
+    .inp::placeholder {
+      color: rgba(39, 18, 0, .28);
+      font-size: 13px
+    }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all .15s;
+      box-shadow: 0 1px 3px rgba(39, 18, 0, .04)
+    }
+
+    .chip[data-on="true"] {
+      background: rgba(232, 86, 10, .08);
+      border-color: var(--o)
+    }
+
+    .chip-t {
+      font-family: var(--fu);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--brown)
+    }
+
+    .chip[data-on="true"] .chip-t {
+      color: var(--o)
+    }
+
+    /* ─── SURFACE CARD ─── */
+    .card {
+      background: #fff;
+      border-radius: var(--r-card);
+      box-shadow: var(--sh-card);
+      border: 1px solid var(--line)
+    }
+
+    .card.sel {
+      border: 2px solid var(--o);
+      box-shadow: 0 4px 20px rgba(232, 86, 10, .13)
+    }
+
+    /* ─── BADGE ─── */
+    .badge {
+      padding: 3px 9px;
+      border-radius: 7px;
+      font-family: var(--fu);
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0
+    }
+
+    .bg-open {
+      background: rgba(26, 122, 56, .10);
+      color: var(--green)
+    }
+
+    .bg-soon {
+      background: rgba(217, 119, 6, .10);
+      color: #B45309
+    }
+
+    .bg-closed {
+      background: rgba(192, 0, 26, .08);
+      color: var(--red)
+    }
+
+    /* ══════════════════════════════════════
+   SCREEN: SPLASH
+══════════════════════════════════════ */
+    .sc-splash {
+      background: var(--o);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer
+    }
+
+    .sc-splash::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(255, 255, 255, .12) 0%, transparent 55%);
+      pointer-events: none
+    }
+
+    .sp-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+      gap: 0
+    }
+
+    .sp-logo {
+      margin-bottom: 14px
+    }
+
+    .sp-word {
+      font-family: var(--fd);
+      font-size: 54px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -.03em;
+      text-align: center;
+      line-height: .95
+    }
+
+    .sp-wave {
+      margin: 12px 0 10px;
+      opacity: .6
+    }
+
+    .sp-tag {
+      font-family: var(--fd);
+      font-size: 20px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, .88);
+      font-style: italic;
+      letter-spacing: .01em
+    }
+
+    .sp-loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: absolute;
+      bottom: 68px
+    }
+
+    .sp-orbit {
+      position: relative;
+      width: 200px;
+      height: 88px
+    }
+
+    .sp-arc {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      overflow: visible
+    }
+
+    .sp-icon {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .18);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .sp-bag {
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .26);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center
+    }
+
+    .sp-bar {
+      width: 130px;
+      height: 2.5px;
+      background: rgba(255, 255, 255, .18);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 14px;
+      position: relative
+    }
+
+    .sp-fill {
+      height: 100%;
+      background: rgba(255, 255, 255, .75);
+      border-radius: 2px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      animation: spfill 1.2s linear infinite
+    }
+
+    @keyframes spfill {
+      0% {
+        transform: translateX(-100%);
+        width: 40%
+      }
+
+      50% {
+        width: 58%
+      }
+
+      100% {
+        transform: translateX(260%);
+        width: 40%
+      }
+    }
+
+    .sp-hint {
+      position: absolute;
+      bottom: 24px;
+      font-family: var(--fu);
+      font-size: 9px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, .25);
+      letter-spacing: .15em;
+      text-transform: uppercase
+    }
+
+    /* ══════════════════════════════════════
+   SCREEN: ONBOARDING
+══════════════════════════════════════ */
+    .sc-ob {
+      background: var(--o)
+    }
+
+    .ob-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 37%;
+      background: var(--o);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden
+    }
+
+    .ob-top::before {
+      content: '';
+      position: absolute;
+      bottom: -30px;
+      left: -30px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .07);
+      pointer-events: none
+    }
+
+    .ob-top::after {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -20px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .06);
+      pointer-events: none
+    }
+
+    .ob-brand {
+      font-family: var(--fd);
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: .11em;
+      margin-top: 8px;
+      position: relative;
+      z-index: 2
+    }
+
+    .ob-skip {
+      position: absolute;
+      top: 56px;
+      right: 18px;
+      z-index: 200;
+      font-family: var(--fu);
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255, 255, 255, .14);
+      padding: 6px 14px;
+      border-radius: 100px;
+      cursor: pointer
+    }
+
+    .ob-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: 36%;
+      background: #fff;
+      border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+      padding: 32px 24px 28px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--sh-sheet)
+    }
+
+    .ob-dots {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 18px
+    }
+
+    .ob-d-on {
+      width: 24px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--o)
+    }
+
+    .ob-d-off {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--line)
+    }
+
+    .ob-h {
+      font-family: var(--fd);
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--brown);
+      line-height: 1.08;
+      letter-spacing: -.02em
+    }
+
+    .ob-uw {
+      position: relative;
+      display: inline-block
+    }
+
+    .ob-ul {
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 52px;
+      height: 3px;
+      background: #F5C200;
+      border-radius: 2px
+    }
+
+    .ob-p {
+      font-family: var(--fu);
+      font-size: 13.5px;
+      color: rgba(39, 18, 0, .50);
+      line-height: 1.65;
+      margin-top: 12px
+    }
+
+    .ob-social {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      padding: 11px 14px;
+      background: var(--warm);
+      border-radius: 14px;
+      border: 1px solid var(--line)
+    }
+
+    .ob-avs {
+      display: flex
+    }
+
+    .ob-av {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      margin-left: -6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #FFD3B0, var(--o));
+      flex-shrink: 0
+    }
+
+    .ob-av:first-child {
+      margin-left: 0
+    }
+
+    .ob-pm {
+      font-family: var(--fu);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--brown)
+    }
+
+    .ob-ps {
+      font-family: var(--fu);
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 1px
+    }
+
+    .ob-feats {
+      display: flex;
+      gap: 7px;
+      margin-top: 12px
+    }
+
+    .ob-feat {
+      flex: 1;
+      background: var(--warm);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 9px 7px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center
+    }
+
+    .ob-fi {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(232, 86, 10, .10);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .ob-fl {
+      font-family: var(--fu);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--brown);
+      line-height: 1.2;
+      margin-top: 2px
+    }
+
+    .ob-fs {
+      font-family: var(--fu);
+      font-size: 9px;
+      color: var(--muted)
+    }
+
+    .ob-cta {
+      margin-top: auto;
+      padding-top: 16px
+    }
+
+    /* ══════════════════════════════════════
+   SCREEN: LOGIN
+══════════════════════════════════════ */
+    .sc-lg {
+      background: var(--o)
+    }
+
+    .lg-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 28%;
+      background: var(--o);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden
+    }
+
+    .lg-brand {
+      font-family: var(--fd);
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: .11em;
+      margin-top: 6px;
+      position: relative;
+      z-index: 2
+    }
+
+    .lg-sub {
+      font-family: var(--fu);
+      font-size: 12px;
+      color: rgba(255, 255, 255, .72);
+      margin-top: 2px;
+      z-index: 2
+    }
+
+    .lg-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: calc(28% - 1px);
+      background: #fff;
+      border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+      padding: 26px 22px 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--sh-sheet);
+      overflow: hidden
+    }
+
+    .lg-h {
+      font-family: var(--fd);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--brown)
+    }
+
+    .lg-p {
+      font-family: var(--fu);
+      font-size: 12.5px;
+      color: rgba(39, 18, 0, .45);
+      margin-top: 2px;
+      margin-bottom: 16px
+    }
+
+    .lg-inp-wrap {
+      width: 100%;
+      height: 52px;
+      border: 1.5px solid var(--line);
+      border-radius: var(--r-input);
+      display: flex;
+      align-items: center;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(39, 18, 0, .04)
+    }
+
+    .lg-flag {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 12px;
+      font-family: var(--fu);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--brown);
+      height: 100%;
+      flex-shrink: 0
+    }
+
+    .lg-div {
+      width: 1px;
+      height: 22px;
+      background: var(--line);
+      flex-shrink: 0
+    }
+
+    .lg-num {
+      flex: 1;
+      padding: 0 12px;
+      font-family: var(--fu);
+      font-size: 14px;
+      color: rgba(39, 18, 0, .28)
+    }
+
+    .lg-trust {
+      font-family: var(--fu);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--green);
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px
+    }
+
+    .lg-or {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 12px 0;
+      font-family: var(--fu);
+      font-size: 11px;
+      color: rgba(39, 18, 0, .35)
+    }
+
+    .lg-or::before,
+    .lg-or::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--line)
+    }
+
+    .lg-guest {
+      font-family: var(--fu);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--o);
+      text-align: center;
+      margin-top: 10px;
+      cursor: pointer
+    }
+
+    .lg-terms {
+      font-family: var(--fu);
+      font-size: 10.5px;
+      color: rgba(39, 18, 0, .32);
+      text-align: center;
+      margin-top: 7px;
+      line-height: 1.6
+    }
+
+    .lg-terms a {
+      color: var(--o);
+      font-weight: 600;
+      text-decoration: none
+    }
+
+    /* ══════════════════════════════════════
+   SCREEN: PREFERENCES
+══════════════════════════════════════ */
+    .sc-pref {
+      background: var(--o)
+    }
+
+    .pf-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 30%;
+      background: var(--o);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 16px;
+      overflow: hidden
+    }
+
+    .pf-ring {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .14);
+      border: 1.5px solid rgba(255, 255, 255, .22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: float 3.2s ease-in-out infinite
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0)
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(-5px)
+      }
+    }
+
+    .pf-name {
+      font-family: var(--fd);
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: .11em;
+      z-index: 2
+    }
+
+    .pf-sub {
+      font-family: var(--fu);
+      font-size: 11px;
+      color: rgba(255, 255, 255, .65);
+      margin-top: 2px;
+      z-index: 2
+    }
+
+    .pf-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: 26%;
+      background: var(--cream);
+      border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+      padding: 22px 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: var(--sh-sheet);
+      overflow-y: auto;
+      scrollbar-width: none
+    }
+
+    .pf-sheet::-webkit-scrollbar {
+      display: none
+    }
+
+    .pf-prog {
+      display: flex;
+      gap: 5px
+    }
+
+    .pf-pd {
+      width: 24px;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--o)
+    }
+
+    .pf-pa {
+      width: 30px;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--o);
+      box-shadow: 0 0 0 2.5px rgba(232, 86, 10, .14)
+    }
+
+    .pf-ey {
+      font-family: var(--fu);
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--o)
+    }
+
+    .pf-lbl {
+      font-family: var(--fd);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--brown);
+      margin-top: 2px
+    }
+
+    .pf-inp-w {
+      position: relative
+    }
+
+    .pf-ico {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      z-index: 2
+    }
+
+    .pf-inp {
+      width: 100%;
+      height: 50px;
+      border: 1.5px solid var(--line);
+      border-radius: var(--r-input);
+      padding: 0 16px 0 46px;
+      font-family: var(--fd);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--brown);
+      background: #fff;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s;
+      box-shadow: 0 1px 4px rgba(39, 18, 0, .04)
+    }
+
+    .pf-inp:focus {
+      border-color: var(--o);
+      box-shadow: 0 0 0 3px rgba(232, 86, 10, .09)
+    }
+
+    .pf-inp::placeholder {
+      color: rgba(39, 18, 0, .25);
+      font-family: var(--fu);
+      font-size: 13px;
+      font-weight: 400
+    }
+
+    .pf-ml {
+      font-family: var(--fd);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--brown)
+    }
+
+    .pf-togs {
+      display: flex;
+      gap: 8px;
+      margin-top: 7px
+    }
+
+    .pf-tog {
+      flex: 1;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-family: var(--fu);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1.5px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      transition: all .18s
+    }
+
+    .pf-tog.veg {
+      background: rgba(26, 122, 56, .07);
+      border-color: var(--green);
+      color: var(--green)
+    }
+
+    .pf-tog.nveg {
+      background: rgba(192, 0, 26, .06);
+      border-color: var(--red);
+      color: var(--red)
+    }
+
+    .pf-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 7px
+    }
+
+    /* ══════════════════════════════════════
+   SCREEN: LOCATION PERMISSION
+══════════════════════════════════════ */
+    .sc-loc {
+      background: linear-gradient(168deg, #E8560A 0%, #C44008 55%, #F4732A 100%);
+      align-items: center
+    }
+
+    .sc-loc::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle 200px at 25% 75%, rgba(255, 255, 255, .08) 0%, transparent 50%), radial-gradient(circle 120px at 80% 20%, rgba(255, 255, 255, .06) 0%, transparent 50%);
+      pointer-events: none
+    }
+
+    .lc-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 32px;
+      text-align: center;
+      z-index: 2
+    }
+
+    .lc-icon {
+      width: 108px;
+      height: 108px;
+      background: rgba(255, 255, 255, .16);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .16);
+      border: 2px solid rgba(255, 255, 255, .20);
+      position: relative
+    }
+
+    .lc-ring {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 1.5px dashed rgba(255, 255, 255, .22);
+      animation: spin 14s linear infinite
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg)
+      }
+    }
+
+    .lc-h {
+      font-family: var(--fd);
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 10px;
+      letter-spacing: -.01em
+    }
+
+    .lc-p {
+      font-family: var(--fu);
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, .78);
+      line-height: 1.55;
+      max-width: 270px
+    }
+
+    .lc-cta {
+      width: 100%;
+      padding: 0 22px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      z-index: 2
+    }
+
+    /* ══════════════════════════════════════
+   SCREEN: OUTLET SELECTOR
+══════════════════════════════════════ */
+    .sc-out {
+      background: var(--cream);
+      flex-direction: column
+    }
+
+    .out-hdr {
+      padding: 12px 18px 11px;
+      background: #fff;
+      box-shadow: 0 1px 8px rgba(39, 18, 0, .06);
+      z-index: 10;
+      flex-shrink: 0
+    }
+
+    .out-h {
+      font-family: var(--fd);
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--brown);
+      margin-bottom: 9px
+    }
+
+    .out-tabs {
+      display: flex;
+      gap: 5px;
+      background: var(--warm);
+      padding: 3px;
+      border-radius: 12px
+    }
+
+    .out-tab {
+      flex: 1;
+      padding: 9px 0;
+      text-align: center;
+      border-radius: 9px;
+      font-family: var(--fu);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .22s;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px
+    }
+
+    .out-tab.on {
+      background: var(--o);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(232, 86, 10, .28)
+    }
+
+    .out-map {
+      height: 150px;
+      background: linear-gradient(148deg, #EAE6DF 0%, #D8D3CA 100%);
+      position: relative;
+      overflow: hidden;
+      margin: 10px;
+      border-radius: 16px;
+      box-shadow: 0 2px 10px rgba(39, 18, 0, .07);
+      flex-shrink: 0
+    }
+
+    .map-grid {
+      position: absolute;
+      inset: 0;
+      opacity: .30
+    }
+
+    .map-road {
+      position: absolute;
+      top: 52%;
+      left: 0;
+      right: 0;
+      height: 16px;
+      background: linear-gradient(90deg, #CBC4BA, #D5CFC7, #CBC4BA);
+      transform: translateY(-50%)
+    }
+
+    .map-road2 {
+      position: absolute;
+      left: 40%;
+      top: 0;
+      bottom: 0;
+      width: 14px;
+      background: linear-gradient(180deg, #CBC4BA, #D5CFC7, #CBC4BA)
+    }
+
+    .map-pin {
+      position: absolute;
+      top: 22%;
+      left: 26%
+    }
+
+    .map-pin-dot {
+      width: 34px;
+      height: 34px;
+      background: var(--o);
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 4px 14px rgba(232, 86, 10, .42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2.5px solid #fff
+    }
+
+    .map-pin-dot span {
+      transform: rotate(45deg);
+      display: flex
+    }
+
+    .map-badge {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, .96);
+      padding: 5px 11px;
+      border-radius: 9px;
+      box-shadow: 0 2px 8px rgba(39, 18, 0, .10);
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .map-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%
+    }
+
+    .map-badge span {
+      font-family: var(--fu);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--brown)
+    }
+
+    .out-list {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      scrollbar-width: none
+    }
+
+    .out-list::-webkit-scrollbar {
+      display: none
+    }
+
+    .out-lbl {
+      font-family: var(--fu);
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 9px
+    }
+
+    .out-card {
+      background: #fff;
+      border-radius: var(--r-card);
+      padding: 13px;
+      margin-bottom: 9px;
+      box-shadow: var(--sh-card);
+      border: 1.5px solid var(--line)
+    }
+
+    .out-card.p {
+      border: 2px solid var(--o);
+      box-shadow: 0 3px 16px rgba(232, 86, 10, .12);
+      cursor: pointer
+    }
+
+    .out-ct {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between
+    }
+
+    .out-cn {
+      font-family: var(--fd);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--brown)
+    }
+
+    .out-ca {
+      font-family: var(--fu);
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.4
+    }
+
+    .out-cm {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 9px;
+      padding-top: 9px;
+      border-top: 1px solid var(--line)
+    }
+
+    .out-mi {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--fu);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--brown)
+    }
+
+    .out-sel {
+      margin-left: auto;
+      background: var(--o);
+      color: #fff;
+      padding: 5px 13px;
+      border-radius: 8px;
+      font-family: var(--fu);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer
+    }
+
+    /* ══════════════════════════════════════
+   SCREEN: DELIVERY ADDRESS
+══════════════════════════════════════ */
+    .sc-addr {
+      background: var(--cream);
+      flex-direction: column
+    }
+
+    .addr-hdr {
+      padding: 12px 18px;
+      background: #fff;
+      box-shadow: 0 1px 8px rgba(39, 18, 0, .06);
+      flex-shrink: 0
+    }
+
+    .addr-ht {
+      font-family: var(--fd);
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--brown);
+      margin-bottom: 9px
+    }
+
+    .addr-srch {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--warm);
+      border: 1.5px solid var(--line);
+      border-radius: var(--r-input);
+      padding: 11px 14px
+    }
+
+    .addr-srch input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: var(--fu);
+      font-size: 13.5px;
+      color: var(--brown);
+      outline: none
+    }
+
+    .addr-srch input::placeholder {
+      color: rgba(39, 18, 0, .30)
+    }
+
+    .addr-map {
+      height: 164px;
+      background: linear-gradient(148deg, #EAE6DF 0%, #D8D3CA 100%);
+      position: relative;
+      margin: 10px;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 3px 14px rgba(39, 18, 0, .09);
+      flex-shrink: 0
+    }
+
+    .addr-pin-w {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -100%)
+    }
+
+    .addr-pin {
+      width: 46px;
+      height: 46px;
+      background: var(--o);
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 7px 22px rgba(232, 86, 10, .42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #fff
+    }
+
+    .addr-pin span {
+      transform: rotate(45deg);
+      display: flex
+    }
+
+    .addr-lcard {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, .98);
+      padding: 9px 13px;
+      border-radius: 12px;
+      box-shadow: 0 3px 14px rgba(39, 18, 0, .12);
+      border-left: 3px solid var(--o)
+    }
+
+    .addr-ll {
+      font-family: var(--fu);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--o);
+      margin-bottom: 1px
+    }
+
+    .addr-ln {
+      font-family: var(--fd);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--brown);
+      line-height: 1.3
+    }
+
+    .addr-sec {
+      padding: 0 16px 10px
+    }
+
+    .addr-sl {
+      font-family: var(--fu);
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      gap: 7px
+    }
+
+    .addr-sl::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--line)
+    }
+
+    .addr-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      padding: 11px 13px;
+      cursor: pointer;
+      box-shadow: var(--sh-card)
+    }
+
+    .addr-item+.addr-item {
+      margin-top: 7px
+    }
+
+    .addr-ico {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .addr-ico.h {
+      background: linear-gradient(135deg, var(--o), #F97316);
+      box-shadow: 0 3px 9px rgba(232, 86, 10, .22)
+    }
+
+    .addr-ico.w {
+      background: linear-gradient(135deg, #5B6CF6, #8B5CF6);
+      box-shadow: 0 3px 9px rgba(91, 108, 246, .22)
+    }
+
+    .addr-im {
+      font-family: var(--fu);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--brown)
+    }
+
+    .addr-is {
+      font-family: var(--fu);
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-top: 1px
+    }
+
+    .addr-ar {
+      width: 26px;
+      height: 26px;
+      background: var(--warm);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+      flex-shrink: 0
+    }
+
+    .addr-cta {
+      padding: 12px 16px 22px;
+      background: var(--cream);
+      flex-shrink: 0
+    }
+
+    /* ══════════════════════════════════════
+   SCREEN: ADDRESS DETAIL
+══════════════════════════════════════ */
+    .sc-det {
+      background: var(--cream);
+      flex-direction: column
+    }
+
+    .det-form {
+      padding: 16px 18px 0;
+      background: #fff;
+      box-shadow: 0 4px 20px rgba(39, 18, 0, .07);
+      border-radius: 0 0 24px 24px;
+      flex-shrink: 0
+    }
+
+    .det-loc {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 12px;
+      background: rgba(232, 86, 10, .05);
+      border-radius: 14px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(232, 86, 10, .11)
+    }
+
+    .det-lic {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--o), #F97316);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 11px rgba(232, 86, 10, .22);
+      flex-shrink: 0
+    }
+
+    .det-lt {
+      font-family: var(--fd);
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--brown);
+      margin-bottom: 3px
+    }
+
+    .det-la {
+      font-family: var(--fu);
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.45
+    }
+
+    .det-la span {
+      color: var(--o);
+      font-weight: 600
+    }
+
+    .det-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 16px
+    }
+
+    .det-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px
+    }
+
+    .det-label {
+      font-family: var(--fu);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted)
+    }
+
+    .det-inw {
+      position: relative
+    }
+
+    .det-inp {
+      width: 100%;
+      height: 48px;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 0 14px 0 44px;
+      font-family: var(--fu);
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--brown);
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(39, 18, 0, .04);
+      outline: none;
+      transition: border-color .18s, box-shadow .18s
+    }
+
+    .det-inp:focus {
+      border-color: var(--o);
+      box-shadow: 0 0 0 3px rgba(232, 86, 10, .09)
+    }
+
+    .det-inp::placeholder {
+      color: rgba(39, 18, 0, .25);
+      font-size: 12.5px
+    }
+
+    .det-ico {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none
+    }
+
+    .det-tags-lbl {
+      font-family: var(--fu);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: block
+    }
+
+    .det-tags {
+      display: flex;
+      gap: 7px;
+      padding-bottom: 16px
+    }
+
+    .det-tag {
+      flex: 1;
+      height: 44px;
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: all .18s;
+      box-shadow: 0 1px 3px rgba(39, 18, 0, .04)
+    }
+
+    .det-tag span:last-child {
+      font-family: var(--fu);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--muted)
+    }
+
+    .det-tag.on {
+      background: rgba(232, 86, 10, .08);
+      border-color: var(--o)
+    }
+
+    .det-tag.on span:last-child {
+      color: var(--o)
+    }
+
+    .det-cta {
+      padding: 14px 18px 26px;
+      background: var(--cream);
+      flex-shrink: 0
+    }
+
+    .det-hint {
+      text-align: center;
+      margin-top: 7px;
+      font-family: var(--fu);
+      font-size: 10.5px;
+      color: var(--muted)
+    }
+
+    /* HOME */
+    .sc-home {
+      background: var(--cream);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 7px
+    }
+
+    .home-t {
+      font-family: var(--fd);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--brown)
+    }
+
+    .home-s {
+      font-family: var(--fu);
+      font-size: 13px;
+      color: var(--muted)
+    }
+
+    .home-r {
+      margin-top: 14px;
+      padding: 11px 22px;
+      background: var(--o);
+      color: #fff;
+      border-radius: 100px;
+      cursor: pointer;
+      font-family: var(--fu);
+      font-weight: 600;
+      font-size: 13px;
+      box-shadow: var(--sh-btn)
+    }
+
+    /* ═══════════════════════════════════════
+   SMALL PHONE (Row 2 & 3 static frames)
+═══════════════════════════════════════ */
+    .ph-sm {
+      width: 310px;
+      height: 672px;
+      border-radius: 42px;
+      padding: 5px
+    }
+
+    .ph-sm .ph-frame {
+      border-radius: 38px
+    }
+
+    .ph-sm .di {
+      width: 96px;
+      height: 28px;
+      top: 10px;
+      border-radius: 14px
+    }
+
+    .ph-sm .hi {
+      width: 104px;
+      height: 3.5px;
+      bottom: 6px
+    }
+
+    .ph-sm .sb {
+      height: 44px;
+      padding: 0 22px 7px
+    }
+
+    .ph-sm .sb-t {
+      font-size: 12.5px
+    }
+
+    /* Scale down text in sm frames */
+    .ph-sm .sp-word {
+      font-size: 40px
+    }
+
+    .ph-sm .sp-tag {
+      font-size: 15px
+    }
+
+    .ph-sm .ob-h {
+      font-size: 25px
+    }
+
+    .ph-sm .lg-h {
+      font-size: 19px
+    }
+
+    .ph-sm .pf-lbl {
+      font-size: 15px
+    }
+
+    .ph-sm .out-h,
+    .ph-sm .addr-ht,
+    .ph-sm .det-lt {
+      font-size: 16px
+    }
+
+    .ph-sm .btn {
+      height: 44px;
+      font-size: 13.5px
+    }
+
+    .ph-sm .btn-ghost {
+      height: 42px
+    }
+
+    .ph-sm .btn-outline {
+      height: 42px;
+      font-size: 13px
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- PAGE HEADER -->
+  <div class="ph">
+    <div class="ph-pill">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="12" cy="12" r="10" />
+      </svg>
+      Mobile UI · L99+ Fresh
+    </div>
+    <span class="ph-t">BURGER FARM</span>
+    <span class="ph-s">8 Screens · Interactive Flow · Zone 1–2</span>
+  </div>
+
+  <!-- ════════════════════════════════════════
+     ROW 1 — INTERACTIVE FLOW
+════════════════════════════════════════ -->
+  <div class="row">
+    <div class="rl">Interactive Flow · Tap to proceed</div>
+    <div class="fw">
+      <div class="ph-out">
+        <div class="ph-vol">
+          <div class="ph-vb"></div>
+          <div class="ph-vb"></div>
+        </div>
+        <div class="ph-sl"></div>
+        <div class="ph-frame" id="protoFrame">
+          <div class="di">
+            <div class="di-s"></div>
+            <div class="di-c"></div>
+          </div>
+
+          <!-- SPLASH -->
+          <div class="sc sc-splash on" id="pSplash" onclick="handleSplash()">
+            <div class="sb light"><span class="sb-t">9:41</span>
+              <div class="sb-i">
+                <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor">
+                  <rect x="0" y="5" width="2.5" height="6" rx=".5" opacity=".3" />
+                  <rect x="4" y="3.5" width="2.5" height="7.5" rx=".5" opacity=".55" />
+                  <rect x="8" y="1.5" width="2.5" height="9.5" rx=".5" opacity=".8" />
+                  <rect x="12" y="0" width="2.5" height="11" rx=".5" />
+                </svg>
+                <svg width="25" height="11" viewBox="0 0 25 11" fill="currentColor" style="margin-left:3px">
+                  <rect x=".5" y=".5" width="21" height="10" rx="3" stroke="currentColor" stroke-width="1.2" fill="none"
+                    opacity=".35" />
+                  <rect x="22.2" y="3" width="2.8" height="5" rx="1.4" opacity=".35" />
+                  <rect x="2" y="2" width="16" height="7" rx="1.5" />
+                </svg>
+              </div>
+            </div>
+            <div class="sp-main">
+              <div class="sp-logo">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                  <circle cx="24" cy="24" r="22" fill="rgba(255,255,255,0.18)" />
+                  <g transform="translate(10,12)">
+                    <rect x="2" y="14" width="24" height="8" rx="4" fill="#fff" opacity=".9" />
+                    <rect x="0" y="10" width="28" height="5" rx="2.5" fill="rgba(255,255,255,0.6)" />
+                    <rect x="3" y="7" width="22" height="4" rx="2" fill="#fff" opacity=".85" />
+                    <rect x="1" y="4" width="26" height="4" rx="2" fill="rgba(255,255,255,0.45)" />
+                  </g>
+                </svg>
+              </div>
+              <div class="sp-word">BURGER<br>FARM</div>
+              <svg class="sp-wave" width="100" height="10" viewBox="0 0 100 10">
+                <path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" stroke="#fff" stroke-width="2" fill="none"
+                  stroke-linecap="round" />
+              </svg>
+              <div class="sp-tag">Farm-Fresh. Always.</div>
+            </div>
+            <div class="sp-loader">
+              <div class="sp-orbit" id="spOrbit">
+                <svg class="sp-arc" width="200" height="80" viewBox="0 0 200 80" style="overflow:visible;">
+                  <path id="spArcPath" d="M10,70 A90,90 0 0,1 190,70" fill="none" stroke="transparent" />
+                </svg>
+                <div class="sp-icon" id="spI0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                    <path d="M4 10a8 8 0 0 1 16 0H4zm16 3H4v2h16v-2zm-2 4H6v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1z" />
+                  </svg>
+                </div>
+                <div class="sp-icon" id="spI1">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                    <path
+                      d="M7.5 12c0 1.5.5 2.5 1 3.5H4a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1h3.5zm9 0H20a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-4.5c.5-1 1-2 1-3.5zM12 2a4 4 0 0 1 4 4 7 7 0 0 1-8 0 4 4 0 0 1 4-4zm0 7c1.7 0 3-.9 3.5-2.2A5 5 0 0 0 12 5a5 5 0 0 0-3.5 1.8C9 8.1 10.3 9 12 9z" />
+                  </svg>
+                </div>
+                <div class="sp-icon" id="spI2">
+                  <svg width="18" height="22" viewBox="0 0 18 22" fill="#fff">
+                    <rect x="3" y="0" width="12" height="2" rx="1" />
+                    <path d="M2 2h14l-2 14H4L2 2z" opacity=".6" />
+                    <rect x="1" y="16" width="16" height="6" rx="3" />
+                  </svg>
+                </div>
+                <div class="sp-bag" id="spBag">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff">
+                    <path
+                      d="M6 2 4 6H2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6h-2L18 2H6zm3 1h6l1.5 3h-9L9 3zm3 7a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="sp-bar">
+                <div class="sp-fill"></div>
+              </div>
+            </div>
+            <div class="sp-hint">Tap to continue</div>
+            <div class="hi w"></div>
+          </div>
+
+          <!-- ONBOARDING -->
+          <div class="sc sc-ob" id="pOb">
+            <div class="ob-top">
+              <div class="sb light"><span class="sb-t">9:41</span></div>
+              <div class="ob-brand">BURGER FARM</div>
+            </div>
+            <div class="ob-skip" onclick="go('pLogin')">Skip</div>
+            <div class="ob-sheet">
+              <div class="ob-dots">
+                <div class="ob-d-on"></div>
+                <div class="ob-d-off"></div>
+              </div>
+              <div class="ob-h">Real Burgers.<br><span class="ob-uw">Real Fast.<div class="ob-ul"></div></span></div>
+              <p class="ob-p">Farm-fresh ingredients. Made to order.<br>Delivered while it's still sizzling.</p>
+              <div class="ob-social">
+                <div class="ob-avs">
+                  <div class="ob-av"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff">
+                      <path
+                        d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm0 14.2a7.2 7.2 0 0 1-6-3.22c.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08A7.2 7.2 0 0 1 12 19.2z" />
+                    </svg></div>
+                  <div class="ob-av"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff">
+                      <path
+                        d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm0 14.2a7.2 7.2 0 0 1-6-3.22c.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08A7.2 7.2 0 0 1 12 19.2z" />
+                    </svg></div>
+                  <div class="ob-av"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff">
+                      <path
+                        d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm0 14.2a7.2 7.2 0 0 1-6-3.22c.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08A7.2 7.2 0 0 1 12 19.2z" />
+                    </svg></div>
+                </div>
+                <div style="flex:1">
+                  <div class="ob-pm">1.2L+ happy customers</div>
+                  <div class="ob-ps">Avg delivery in 18 mins ·&thinsp;★ 4.8</div>
+                </div>
+              </div>
+              <div class="ob-feats">
+                <div class="ob-feat">
+                  <div class="ob-fi"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--o)">
+                      <path
+                        d="M17 8C8 10 5.9 16.17 3.82 19.34A1 1 0 0 0 5 21c1-1 3-2 5-1 3 1 4 3 8 3 3 0 5-2 5-5 0-6-4-10-6-10z" />
+                    </svg></div>
+                  <div class="ob-fl">Farm Fresh</div>
+                  <div class="ob-fs">Daily sourced</div>
+                </div>
+                <div class="ob-feat">
+                  <div class="ob-fi"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--o)">
+                      <path
+                        d="M13 2.05V2h-2v.05A10 10 0 0 0 2.05 11H2v2h.05A10 10 0 0 0 11 21.95V22h2v-.05A10 10 0 0 0 21.95 13H22v-2h-.05A10 10 0 0 0 13 2.05zM12 20a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm1-8.06V7h-2v5.06L8.59 14.5l1.41 1.41L13 13.41l2.59 2.5 1.41-1.41L13 11.94z" />
+                    </svg></div>
+                  <div class="ob-fl">18 Min Avg</div>
+                  <div class="ob-fs">Piping hot</div>
+                </div>
+                <div class="ob-feat">
+                  <div class="ob-fi"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--o)">
+                      <path
+                        d="M20 6h-2.18c.07-.44.18-.88.18-1.35A4.6 4.6 0 0 0 13.35 0c-1.61 0-3.11.84-3.97 2.12A4.73 4.73 0 0 0 5.47 0 4.6 4.6 0 0 0 1 4.65c0 .47.06.91.18 1.35H1a1 1 0 0 0-1 1V9a1 1 0 0 0 1 1h1v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z" />
+                    </svg></div>
+                  <div class="ob-fl">Free ₹199+</div>
+                  <div class="ob-fs">Delivery</div>
+                </div>
+              </div>
+              <div class="ob-cta">
+                <div class="btn" onclick="go('pLogin')">Grab Your Meal <svg width="16" height="16" viewBox="0 0 24 24"
+                    fill="currentColor" style="margin-left:2px">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                  </svg></div>
+              </div>
+            </div>
+            <div class="hi"></div>
+          </div>
+
+          <!-- LOGIN -->
+          <div class="sc sc-lg" id="pLogin">
+            <div class="lg-top">
+              <div class="sb light"><span class="sb-t">9:41</span></div>
+              <div class="lg-brand">BURGER FARM</div>
+              <div class="lg-sub">Welcome to the Farm</div>
+            </div>
+            <div class="lg-sheet">
+              <div class="lg-h">Let's get you in.</div>
+              <div class="lg-p">Enter your number — we'll send an OTP.</div>
+              <div class="lg-inp-wrap">
+                <div class="lg-flag">
+                  <svg width="20" height="14" viewBox="0 0 20 14">
+                    <rect width="20" height="14" rx="2" fill="#fff" />
+                    <rect width="20" height="4.67" fill="#FF9933" />
+                    <rect y="4.67" width="20" height="4.66" fill="#fff" />
+                    <rect y="9.33" width="20" height="4.67" fill="#138808" />
+                    <circle cx="10" cy="7" r="2" stroke="#000080" stroke-width="1" fill="none" />
+                    <circle cx="10" cy="7" r=".5" fill="#000080" />
+                  </svg>
+                  <span style="font-size:14px;font-weight:700;color:var(--brown)">+91</span>
+                </div>
+                <div class="lg-div"></div>
+                <div class="lg-num">98765 43210</div>
+              </div>
+              <div class="lg-trust">
+                <svg width="11" height="13" viewBox="0 0 11 13" fill="var(--green)">
+                  <path
+                    d="M5.5 0 1 2v4c0 3.31 1.92 6.12 4.5 7C8.08 12.12 10 9.31 10 6V2L5.5 0zm-.5 8.5L3 6.5l.7-.7L5 7.09l2.8-2.79.7.71L5 8.5z" />
+                </svg>
+                OTP sent instantly. No spam, ever.
+              </div>
+              <div class="btn" style="margin-top:14px;" onclick="go('pPref')">Send OTP</div>
+              <div class="lg-or">or</div>
+              <div class="btn-outline">
+                <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+                  <path
+                    d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+                    fill="#4285F4" />
+                  <path
+                    d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+                    fill="#34A853" />
+                  <path
+                    d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+                    fill="#FBBC05" />
+                  <path
+                    d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+                    fill="#EA4335" />
+                </svg>
+                Continue with Google
+              </div>
+              <div class="btn-outline" style="margin-top:8px;">
+                <svg width="14" height="17" viewBox="0 0 14 17" fill="var(--brown)">
+                  <path
+                    d="M11.07 8.76c0-2.28 1.87-3.38 1.96-3.44-1.07-1.55-2.72-1.77-3.31-1.79-1.41-.14-2.75.82-3.46.82-.71 0-1.81-.8-2.98-.78C1.85 3.59.39 4.31-.3 5.79c-1.44 2.49-.37 6.18 1.03 8.2.69.99 1.5 2.1 2.57 2.06 1.03-.04 1.42-.66 2.67-.66 1.24 0 1.6.66 2.69.64 1.11-.02 1.82-1.01 2.5-2 .79-1.14 1.11-2.25 1.13-2.31-.03-.01-2.17-.86-2.22-3.24zM8.95 1.86C9.53 1.16 9.92.19 9.8 0c-.85.04-1.88.57-2.48 1.26-.55.63-1.02 1.63-.89 2.6.95.07 1.91-.48 2.52-2z" />
+                </svg>
+                Continue with Apple
+              </div>
+              <div class="lg-guest" onclick="go('pPref')">Continue as Guest →</div>
+              <div class="lg-terms">By continuing you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy
+                  Policy</a></div>
+            </div>
+            <div class="hi"></div>
+          </div>
+
+          <!-- PREFERENCES -->
+          <div class="sc sc-pref" id="pPref">
+            <div class="pf-top">
+              <div class="sb light"><span class="sb-t">9:41</span></div>
+              <div class="pf-ring">
+                <svg width="38" height="38" viewBox="0 0 48 48" fill="none">
+                  <g transform="translate(10,12)">
+                    <rect x="2" y="14" width="24" height="8" rx="4" fill="#fff" opacity=".95" />
+                    <rect x="0" y="10" width="28" height="5" rx="2.5" fill="rgba(255,255,255,0.6)" />
+                    <rect x="3" y="7" width="22" height="4" rx="2" fill="#fff" opacity=".85" />
+                    <rect x="1" y="4" width="26" height="4" rx="2" fill="rgba(255,255,255,0.45)" />
+                  </g>
+                </svg>
+              </div>
+              <div class="pf-name">BURGER FARM</div>
+              <div class="pf-sub">Tell us how you like it</div>
+            </div>
+            <div class="pf-sheet">
+              <div class="pf-prog">
+                <div class="pf-pd"></div>
+                <div class="pf-pd"></div>
+                <div class="pf-pa"></div>
+              </div>
+              <div>
+                <div class="pf-ey">Step 3 of 3</div>
+                <div class="pf-lbl">What do we call you?</div>
+                <div class="pf-inp-w" style="margin-top:9px">
+                  <div class="pf-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="var(--o)">
+                      <path
+                        d="M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2zm0 12c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z" />
+                    </svg></div>
+                  <input type="text" placeholder="Your first name" class="pf-inp">
+                </div>
+              </div>
+              <div>
+                <div class="pf-ml">Food preference?</div>
+                <div class="pf-togs">
+                  <div class="pf-tog veg" id="vegBtn" onclick="setDiet('veg')">
+                    <svg width="13" height="13" viewBox="0 0 13 13">
+                      <rect width="13" height="13" rx="2" fill="none" stroke="var(--green)" stroke-width="1.5" />
+                      <circle cx="6.5" cy="6.5" r="3" fill="var(--green)" />
+                    </svg>
+                    Pure Veg
+                  </div>
+                  <div class="pf-tog" id="nvBtn" onclick="setDiet('nv')">
+                    <svg width="13" height="13" viewBox="0 0 13 13">
+                      <rect width="13" height="13" rx="2" fill="none" stroke="var(--red)" stroke-width="1.5" />
+                      <polygon points="6.5,2 11,10 2,10" fill="var(--red)" />
+                    </svg>
+                    Non-Veg
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="pf-ml">Usually craving?</div>
+                <div class="pf-chips" id="pfChips">
+                  <div class="chip" data-on="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--o)">
+                      <path d="M4 10a8 8 0 0 1 16 0H4zm16 3H4v2h16v-2zm-2 4H6v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1z" />
+                    </svg><span class="chip-t">Burgers</span></div>
+                  <div class="chip" data-on="false"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)">
+                      <path
+                        d="M7.5 12c0 1.5.5 2.5 1 3.5H4a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1h3.5zm9 0H20a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-4.5c.5-1 1-2 1-3.5zM12 2a4 4 0 0 1 4 4 7 7 0 0 1-8 0 4 4 0 0 1 4-4z" />
+                    </svg><span class="chip-t">Sides</span></div>
+                  <div class="chip" data-on="false"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)">
+                      <rect x="3" y="0" width="18" height="2" rx="1" />
+                      <path d="M3 2h18l-2 14H5L3 2z" opacity=".6" />
+                      <rect x="2" y="16" width="20" height="6" rx="3" />
+                    </svg><span class="chip-t">Drinks</span></div>
+                  <div class="chip" data-on="false"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)">
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" />
+                    </svg><span class="chip-t">Spicy</span></div>
+                  <div class="chip" data-on="false"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)">
+                      <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm1-11V7h-2v6l4 2.5 1-1.73L13 11z" />
+                    </svg><span class="chip-t">Light</span></div>
+                </div>
+              </div>
+              <div style="padding-top:4px">
+                <div class="btn" onclick="go('pLoc')">
+                  Let's Eat
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="hi w"></div>
+          </div>
+
+          <!-- LOCATION PERMISSION -->
+          <div class="sc sc-loc" id="pLoc">
+            <div class="sb light"><span class="sb-t">9:41</span></div>
+            <div class="lc-body">
+              <div class="lc-icon">
+                <div class="lc-ring"></div>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="#fff">
+                  <path
+                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                </svg>
+              </div>
+              <h2 class="lc-h">Find your nearest<br>Burger Farm</h2>
+              <p class="lc-p">We'll show you the closest outlet and your estimated delivery time.</p>
+            </div>
+            <div class="lc-cta">
+              <div class="btn" onclick="go('pOutlet')">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                </svg>
+                Allow Location
+              </div>
+              <div class="btn-ghost" onclick="go('pAddr')">Enter manually</div>
+            </div>
+            <div class="hi w"></div>
+          </div>
+
+          <!-- OUTLET SELECTOR -->
+          <div class="sc sc-out" id="pOutlet">
+            <div class="sb dark" style="position:relative;flex-shrink:0;background:#fff"><span class="sb-t">9:41</span>
+            </div>
+            <div class="out-hdr">
+              <div class="out-h">Select Outlet</div>
+              <div class="out-tabs">
+                <div class="out-tab on" id="delTab" onclick="setFilter('del')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-5l-3-4zm-.5 1.5 1.96 2.5H17V9.5h2.5zM6 18.5A1.5 1.5 0 0 1 4.5 17 1.5 1.5 0 0 1 6 15.5 1.5 1.5 0 0 1 7.5 17 1.5 1.5 0 0 1 6 18.5zm12 0a1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5z" />
+                  </svg>
+                  Delivery
+                </div>
+                <div class="out-tab" id="pickTab" onclick="setFilter('pick')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M20 6h-2.18c.07-.44.18-.88.18-1.35A4.6 4.6 0 0 0 13.35 0c-1.61 0-3.11.84-3.97 2.12A4.73 4.73 0 0 0 5.47 0 4.6 4.6 0 0 0 1 4.65c0 .47.06.91.18 1.35H1a1 1 0 0 0-1 1V9a1 1 0 0 0 1 1h1v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z" />
+                  </svg>
+                  Pickup
+                </div>
+              </div>
+            </div>
+            <div class="out-map">
+              <div class="map-grid">
+                <svg width="100%" height="100%" viewBox="0 0 400 150">
+                  <path d="M0 37 Q100 22 200 45 T400 32 M0 75 Q100 60 200 82 T400 68 M0 112 Q100 96 200 120 T400 105"
+                    stroke="#C2BDB4" fill="none" stroke-width="1" />
+                  <path d="M65 0 V150 M130 0 V150 M195 0 V150 M260 0 V150 M325 0 V150" stroke="#C2BDB4"
+                    stroke-width="1" />
+                </svg>
+              </div>
+              <div class="map-road"></div>
+              <div class="map-road2"></div>
+              <div class="map-pin">
+                <div class="map-pin-dot"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
+                      <path d="M4 10a8 8 0 0 1 16 0H4zm16 3H4v2h16v-2zm-2 4H6v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1z" />
+                    </svg></span></div>
+              </div>
+              <div class="map-badge">
+                <div class="map-dot"></div><span>Delivery available in this area</span>
+              </div>
+              <!-- User location dot -->
+              <div style="position:absolute;top:52%;left:58%">
+                <div
+                  style="width:12px;height:12px;background:#3B82F6;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(59,130,246,.5)">
+                </div>
+                <div
+                  style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;background:rgba(59,130,246,.12);border-radius:50%">
+                </div>
+              </div>
+            </div>
+            <div class="out-list">
+              <div class="out-lbl">Nearest Outlets</div>
+              <div class="out-card p" onclick="go('pAddr')">
+                <div class="out-ct">
+                  <div>
+                    <div class="out-cn">Burger Farm — CP</div>
+                    <div class="out-ca">Shop 12, Block B, Connaught Place, New Delhi</div>
+                  </div>
+                  <div class="badge bg-open">Open</div>
+                </div>
+                <div class="out-cm">
+                  <div class="out-mi"><svg width="11" height="11" viewBox="0 0 24 24" fill="var(--muted)">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                    </svg> 1.2 km</div>
+                  <div class="out-mi"><svg width="11" height="11" viewBox="0 0 24 24" fill="var(--muted)">
+                      <path
+                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z" />
+                    </svg> 18–22 min</div>
+                  <div class="out-sel">Select →</div>
+                </div>
+              </div>
+              <div class="out-card" style="opacity:.78">
+                <div class="out-ct">
+                  <div>
+                    <div class="out-cn">Burger Farm — Rajouri Garden</div>
+                    <div class="out-ca">J-14, Main Market Road</div>
+                  </div>
+                  <div class="badge bg-soon">Closing Soon</div>
+                </div>
+                <div class="out-cm">
+                  <div class="out-mi"><svg width="11" height="11" viewBox="0 0 24 24" fill="var(--muted)">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                    </svg> 2.8 km</div>
+                  <div class="out-mi"><svg width="11" height="11" viewBox="0 0 24 24" fill="var(--muted)">
+                      <path
+                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z" />
+                    </svg> 28–32 min</div>
+                </div>
+              </div>
+              <div class="out-card" style="opacity:.42">
+                <div class="out-ct">
+                  <div>
+                    <div class="out-cn">Burger Farm — Saket</div>
+                    <div class="out-ca">Select Citywalk, Ground Floor</div>
+                  </div>
+                  <div class="badge bg-closed">Closed</div>
+                </div>
+                <div class="out-cm">
+                  <div class="out-mi"><svg width="11" height="11" viewBox="0 0 24 24" fill="var(--muted)">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                    </svg> 4.5 km</div>
+                  <div class="out-mi"><svg width="11" height="11" viewBox="0 0 24 24" fill="var(--muted)">
+                      <path
+                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z" />
+                    </svg> Opens 11 AM</div>
+                </div>
+              </div>
+            </div>
+            <div class="hi"></div>
+          </div>
+
+          <!-- DELIVERY ADDRESS -->
+          <div class="sc sc-addr" id="pAddr">
+            <div class="sb dark" style="position:relative;flex-shrink:0;background:#fff"><span class="sb-t">9:41</span>
+            </div>
+            <div class="addr-hdr">
+              <div class="addr-ht">Delivery Address</div>
+              <div class="addr-srch">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--o)">
+                  <path
+                    d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 0 0 9.5 3 6.5 6.5 0 0 0 3 9.5 6.5 6.5 0 0 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                </svg>
+                <input type="text" placeholder="Search area, street, landmark">
+                <div
+                  style="width:32px;height:32px;background:var(--o);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
+                    <path
+                      d="M12 14c-3.86 0-7 3.14-7 7h2c0-2.76 2.24-5 5-5s5 2.24 5 5h2c0-3.86-3.14-7-7-7zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
+                      opacity=".5" />
+                    <circle cx="12" cy="8" r="2" fill="#fff" />
+                    <path
+                      d="M12 2a6 6 0 0 0-6 6c0 3.31 6 11 6 11s6-7.69 6-11a6 6 0 0 0-6-6zm0 8.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="addr-map">
+              <div class="map-grid"><svg width="100%" height="100%" viewBox="0 0 400 164">
+                  <path d="M0 41 Q100 22 200 50 T400 36 M0 82 Q100 63 200 91 T400 77 M0 123 Q100 104 200 132 T400 118"
+                    stroke="#C2BDB4" fill="none" stroke-width="1" />
+                  <path d="M50 0 V164 M100 0 V164 M150 0 V164 M200 0 V164 M250 0 V164 M300 0 V164 M350 0 V164"
+                    stroke="#C2BDB4" stroke-width="1" />
+                </svg></div>
+              <div class="map-road"></div>
+              <div class="addr-pin-w">
+                <div class="addr-pin"><span><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                      <path
+                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                    </svg></span></div>
+              </div>
+              <div class="addr-lcard">
+                <div class="addr-ll">Selected Location</div>
+                <div class="addr-ln">42, Golf Link Road, near Metro Station</div>
+              </div>
+            </div>
+            <div class="addr-sec">
+              <div class="addr-sl">Recent</div>
+              <div class="addr-item" onclick="go('pDet')">
+                <div class="addr-ico h"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                  </svg></div>
+                <div>
+                  <div class="addr-im">Home — C-12, Greater Kailash</div>
+                  <div class="addr-is">Yesterday, 7:30 PM · 5 orders</div>
+                </div>
+                <div class="addr-ar"><svg width="12" height="12" viewBox="0 0 24 24" fill="var(--muted)">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                  </svg></div>
+              </div>
+            </div>
+            <div class="addr-sec">
+              <div class="addr-sl">Saved</div>
+              <div class="addr-item" onclick="go('pDet')">
+                <div class="addr-ico w"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff">
+                    <path
+                      d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
+                  </svg></div>
+                <div>
+                  <div class="addr-im">Work — Cyber City, Phase 2</div>
+                  <div class="addr-is">Office address · 12 orders</div>
+                </div>
+                <div class="addr-ar"><svg width="12" height="12" viewBox="0 0 24 24" fill="var(--muted)">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                  </svg></div>
+              </div>
+            </div>
+            <div class="addr-cta">
+              <div class="btn" onclick="go('pDet')">Confirm Location</div>
+            </div>
+            <div class="hi"></div>
+          </div>
+
+          <!-- ADDRESS DETAIL -->
+          <div class="sc sc-det" id="pDet">
+            <div class="sb dark" style="position:relative;flex-shrink:0;background:#fff"><span class="sb-t">9:41</span>
+            </div>
+            <div class="det-form">
+              <div class="det-loc">
+                <div class="det-lic"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                    <path
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                  </svg></div>
+                <div>
+                  <div class="det-lt">Delivery Location</div>
+                  <div class="det-la">42, Golf Link Road<br><span>near Metro Station</span></div>
+                </div>
+              </div>
+              <div class="det-fields">
+                <div class="det-field">
+                  <label class="det-label">Flat / House No. <span style="color:var(--o)">*</span></label>
+                  <div class="det-inw"><input type="text" placeholder="e.g., 12A, Floor 2" class="det-inp">
+                    <div class="det-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="var(--o)">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                      </svg></div>
+                  </div>
+                </div>
+                <div class="det-field">
+                  <label class="det-label">Building / Society</label>
+                  <div class="det-inw"><input type="text" placeholder="e.g., Green Valley Apartments" class="det-inp">
+                    <div class="det-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="var(--muted)">
+                        <path
+                          d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm10 4h-2v2h2v-2zm0-4h-2v2h2v-2z" />
+                      </svg></div>
+                  </div>
+                </div>
+                <div class="det-field">
+                  <label class="det-label">Landmark <span
+                      style="color:var(--muted);font-weight:400;text-transform:none;font-size:10px">(Optional)</span></label>
+                  <div class="det-inw"><input type="text" placeholder="e.g., Near the park" class="det-inp">
+                    <div class="det-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="var(--muted)">
+                        <path
+                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                      </svg></div>
+                  </div>
+                </div>
+              </div>
+              <span class="det-tags-lbl">Save as</span>
+              <div class="det-tags">
+                <div class="det-tag on" data-tag="home" onclick="setTag(this)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--o)">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                  </svg>
+                  <span>Home</span>
+                </div>
+                <div class="det-tag" data-tag="work" onclick="setTag(this)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--muted)">
+                    <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2z" />
+                  </svg>
+                  <span>Work</span>
+                </div>
+                <div class="det-tag" data-tag="other" onclick="setTag(this)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--muted)">
+                    <path
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                  </svg>
+                  <span>Other</span>
+                </div>
+              </div>
+            </div>
+            <div class="det-cta">
+              <div class="btn" onclick="go('pHome')">Save &amp; Continue</div>
+              <div class="det-hint">Your address will be saved for future orders</div>
+            </div>
+            <div class="hi"></div>
+          </div>
+
+          <!-- HOME PLACEHOLDER -->
+          <div class="sc sc-home" id="pHome">
+            <div class="sb dark" style="position:relative;background:var(--cream)"><span class="sb-t">9:41</span></div>
+            <div class="home-t">Home Screen</div>
+            <div class="home-s">Coming soon</div>
+            <div class="home-r" onclick="restart()">← Restart</div>
+            <div class="hi"></div>
+          </div>
+
+        </div>
+      </div>
+      <p class="fl">Interactive Flow — Tap to click through all screens</p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+     ROW 2 — STATIC: SPLASH → PREFERENCES
+════════════════════════════════════════ -->
+  <div class="row">
+    <div class="rl">All Screens · Splash to Name Entry</div>
+    <div class="fr">
+
+      <!-- SPLASH static -->
+      <div class="fw">
+        <div class="ph-out ph-sm">
+          <div class="ph-vol">
+            <div class="ph-vb"></div>
+            <div class="ph-vb"></div>
+          </div>
+          <div class="ph-sl"></div>
+          <div class="ph-frame">
+            <div class="di">
+              <div class="di-s"></div>
+              <div class="di-c"></div>
+            </div>
+            <div class="sc sc-splash on">
+              <div class="sb light"><span class="sb-t">9:41</span></div>
+              <div class="sp-main">
+                <div class="sp-logo"><svg width="38" height="38" viewBox="0 0 48 48" fill="none">
+                    <circle cx="24" cy="24" r="21" fill="rgba(255,255,255,0.18)" />
+                    <g transform="translate(10,12)">
+                      <rect x="2" y="14" width="24" height="8" rx="4" fill="#fff" opacity=".9" />
+                      <rect x="0" y="10" width="28" height="5" rx="2.5" fill="rgba(255,255,255,0.6)" />
+                      <rect x="3" y="7" width="22" height="4" rx="2" fill="#fff" opacity=".85" />
+                      <rect x="1" y="4" width="26" height="4" rx="2" fill="rgba(255,255,255,0.45)" />
+                    </g>
+                  </svg></div>
+                <div class="sp-word" style="font-size:38px">BURGER<br>FARM</div>
+                <svg width="80" height="8" viewBox="0 0 80 8" style="margin:10px 0 8px;opacity:.55">
+                  <path d="M0 4 Q10 0 20 4 T40 4 T60 4 T80 4" stroke="#fff" stroke-width="2" fill="none"
+                    stroke-linecap="round" />
+                </svg>
+                <div class="sp-tag" style="font-size:14px">Farm-Fresh. Always.</div>
+              </div>
+              <div class="sp-loader" style="bottom:50px">
+                <div class="sp-orbit" style="width:160px;height:70px">
+                  <div class="sp-icon" style="left:10px;top:32px"><svg width="16" height="16" viewBox="0 0 24 24"
+                      fill="#fff">
+                      <path d="M4 10a8 8 0 0 1 16 0H4zm16 3H4v2h16v-2zm-2 4H6v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1z" />
+                    </svg></div>
+                  <div class="sp-icon" style="left:59px;top:6px"><svg width="16" height="16" viewBox="0 0 24 24"
+                      fill="#fff">
+                      <path
+                        d="M7.5 12c0 1.5.5 2.5 1 3.5H4a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1h3.5zm9 0H20a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-4.5c.5-1 1-2 1-3.5zM12 2a4 4 0 0 1 4 4 7 7 0 0 1-8 0 4 4 0 0 1 4-4z" />
+                    </svg></div>
+                  <div class="sp-icon" style="right:10px;top:32px"><svg width="14" height="18" viewBox="0 0 18 22"
+                      fill="#fff">
+                      <rect x="3" y="0" width="12" height="2" rx="1" />
+                      <path d="M2 2h14l-2 14H4L2 2z" opacity=".6" />
+                      <rect x="1" y="16" width="16" height="6" rx="3" />
+                    </svg></div>
+                  <div class="sp-bag" style="transform:translateX(-50%) scale(0.8);opacity:0.45"><svg width="22"
+                      height="22" viewBox="0 0 24 24" fill="#fff">
+                      <path
+                        d="M6 2 4 6H2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6h-2L18 2H6zm3 1h6l1.5 3h-9L9 3zm3 7a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3z" />
+                    </svg></div>
+                </div>
+                <div class="sp-bar" style="margin-top:10px">
+                  <div class="sp-fill"></div>
+                </div>
+              </div>
+              <div class="hi w"></div>
+            </div>
+          </div>
+        </div>
+        <p class="fl">1 — Splash</p>
+      </div>
+
+      <!-- ONBOARDING static -->
+      <div class="fw">
+        <div class="ph-out ph-sm">
+          <div class="ph-vol">
+            <div class="ph-vb"></div>
+            <div class="ph-vb"></div>
+          </div>
+          <div class="ph-sl"></div>
+          <div class="ph-frame">
+            <div class="di">
+              <div class="di-s"></div>
+              <div class="di-c"></div>
+            </div>
+            <div class="sc sc-ob on">
+              <div class="ob-top">
+                <div class="sb light"><span class="sb-t">9:41</span></div>
+                <div class="ob-brand">BURGER FARM</div>
+              </div>
+              <div class="ob-skip">Skip</div>
+              <div class="ob-sheet" style="padding:26px 20px 22px">
+                <div class="ob-dots">
+                  <div class="ob-d-on"></div>
+                  <div class="ob-d-off"></div>
+                </div>
+                <div class="ob-h" style="font-size:26px">Real Burgers.<br><span class="ob-uw">Real Fast.<div
+                      class="ob-ul"></div></span></div>
+                <p class="ob-p" style="font-size:12.5px;margin-top:9px">Farm-fresh ingredients. Made to order. Delivered
+                  while it's still sizzling.</p>
+                <div class="ob-social" style="margin-top:12px;padding:9px 12px">
+                  <div class="ob-avs">
+                    <div class="ob-av"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fff">
+                        <path
+                          d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm0 14.2a7.2 7.2 0 0 1-6-3.22c.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08A7.2 7.2 0 0 1 12 19.2z" />
+                      </svg></div>
+                    <div class="ob-av"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fff">
+                        <path
+                          d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm0 14.2a7.2 7.2 0 0 1-6-3.22c.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08A7.2 7.2 0 0 1 12 19.2z" />
+                      </svg></div>
+                  </div>
+                  <div style="flex:1">
+                    <div class="ob-pm" style="font-size:10.5px">1.2L+ happy customers</div>
+                    <div class="ob-ps" style="font-size:9px">18 min avg · ★ 4.8</div>
+                  </div>
+                </div>
+                <div class="ob-feats" style="margin-top:9px">
+                  <div class="ob-feat" style="padding:8px 6px">
+                    <div class="ob-fi" style="width:24px;height:24px;border-radius:7px"><svg width="12" height="12"
+                        viewBox="0 0 24 24" fill="var(--o)">
+                        <path
+                          d="M17 8C8 10 5.9 16.17 3.82 19.34A1 1 0 0 0 5 21c1-1 3-2 5-1 3 1 4 3 8 3 3 0 5-2 5-5 0-6-4-10-6-10z" />
+                      </svg></div>
+                    <div class="ob-fl" style="font-size:9px">Farm Fresh</div>
+                  </div>
+                  <div class="ob-feat" style="padding:8px 6px">
+                    <div class="ob-fi" style="width:24px;height:24px;border-radius:7px"><svg width="12" height="12"
+                        viewBox="0 0 24 24" fill="var(--o)">
+                        <path
+                          d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z" />
+                      </svg></div>
+                    <div class="ob-fl" style="font-size:9px">18 Min Avg</div>
+                  </div>
+                  <div class="ob-feat" style="padding:8px 6px">
+                    <div class="ob-fi" style="width:24px;height:24px;border-radius:7px"><svg width="12" height="12"
+                        viewBox="0 0 24 24" fill="var(--o)">
+                        <path
+                          d="M20 6h-2.18c.07-.44.18-.88.18-1.35A4.6 4.6 0 0 0 13.35 0c-1.61 0-3.11.84-3.97 2.12A4.73 4.73 0 0 0 5.47 0 4.6 4.6 0 0 0 1 4.65c0 .47.06.91.18 1.35H1a1 1 0 0 0-1 1V9a1 1 0 0 0 1 1h1v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z" />
+                      </svg></div>
+                    <div class="ob-fl" style="font-size:9px">Free ₹199+</div>
+                  </div>
+                </div>
+                <div class="ob-cta">
+                  <div class="btn" style="height:44px;font-size:13px">Grab Your Meal →</div>
+                </div>
+              </div>
+              <div class="hi"></div>
+            </div>
+          </div>
+        </div>
+        <p class="fl">2 — Onboarding</p>
+      </div>
+
+      <!-- LOGIN static -->
+      <div class="fw">
+        <div class="ph-out ph-sm">
+          <div class="ph-vol">
+            <div class="ph-vb"></div>
+            <div class="ph-vb"></div>
+          </div>
+          <div class="ph-sl"></div>
+          <div class="ph-frame">
+            <div class="di">
+              <div class="di-s"></div>
+              <div class="di-c"></div>
+            </div>
+            <div class="sc sc-lg on">
+              <div class="lg-top">
+                <div class="sb light"><span class="sb-t">9:41</span></div>
+                <div class="lg-brand">BURGER FARM</div>
+                <div class="lg-sub">Welcome to the Farm</div>
+              </div>
+              <div class="lg-sheet" style="padding:22px 18px 18px">
+                <div class="lg-h">Let's get you in.</div>
+                <div class="lg-p">Enter your number — we'll send an OTP.</div>
+                <div class="lg-inp-wrap">
+                  <div class="lg-flag"><svg width="18" height="13" viewBox="0 0 20 14">
+                      <rect width="20" height="14" rx="2" fill="#fff" />
+                      <rect width="20" height="4.67" fill="#FF9933" />
+                      <rect y="4.67" width="20" height="4.66" fill="#fff" />
+                      <rect y="9.33" width="20" height="4.67" fill="#138808" />
+                    </svg><span style="font-size:13px;font-weight:700;color:var(--brown)">+91</span></div>
+                  <div class="lg-div"></div>
+                  <div class="lg-num">98765 43210</div>
+                </div>
+                <div class="lg-trust" style="font-size:10.5px"><svg width="10" height="12" viewBox="0 0 11 13"
+                    fill="var(--green)">
+                    <path
+                      d="M5.5 0 1 2v4c0 3.31 1.92 6.12 4.5 7C8.08 12.12 10 9.31 10 6V2L5.5 0zm-.5 8.5L3 6.5l.7-.7L5 7.09l2.8-2.79.7.71L5 8.5z" />
+                  </svg>OTP sent instantly.</div>
+                <div class="btn" style="height:44px;font-size:13px;margin-top:12px">Send OTP</div>
+                <div class="lg-or">or</div>
+                <div class="btn-outline" style="height:42px;font-size:12.5px"><svg width="15" height="15"
+                    viewBox="0 0 18 18" fill="none">
+                    <path
+                      d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+                      fill="#4285F4" />
+                    <path
+                      d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+                      fill="#34A853" />
+                    <path
+                      d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+                      fill="#FBBC05" />
+                    <path
+                      d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+                      fill="#EA4335" />
+                  </svg>Continue with Google</div>
+                <div class="btn-outline" style="height:42px;font-size:12.5px;margin-top:7px"><svg width="13" height="16"
+                    viewBox="0 0 14 17" fill="var(--brown)">
+                    <path
+                      d="M11.07 8.76c0-2.28 1.87-3.38 1.96-3.44-1.07-1.55-2.72-1.77-3.31-1.79-1.41-.14-2.75.82-3.46.82-.71 0-1.81-.8-2.98-.78C1.85 3.59.39 4.31-.3 5.79c-1.44 2.49-.37 6.18 1.03 8.2.69.99 1.5 2.1 2.57 2.06 1.03-.04 1.42-.66 2.67-.66 1.24 0 1.6.66 2.69.64 1.11-.02 1.82-1.01 2.5-2 .79-1.14 1.11-2.25 1.13-2.31-.03-.01-2.17-.86-2.22-3.24zM8.95 1.86C9.53 1.16 9.92.19 9.8 0c-.85.04-1.88.57-2.48 1.26-.55.63-1.02 1.63-.89 2.6.95.07 1.91-.48 2.52-2z" />
+                  </svg>Continue with Apple</div>
+                <div class="lg-guest" style="font-size:12px;margin-top:8px">Continue as Guest →</div>
+              </div>
+              <div class="hi"></div>
+            </div>
+          </div>
+        </div>
+        <p class="fl">3 — Login</p>
+      </div>
+
+      <!-- PREFERENCES static -->
+      <div class="fw">
+        <div class="ph-out ph-sm">
+          <div class="ph-vol">
+            <div class="ph-vb"></div>
+            <div class="ph-vb"></div>
+          </div>
+          <div class="ph-sl"></div>
+          <div class="ph-frame">
+            <div class="di">
+              <div class="di-s"></div>
+              <div class="di-c"></div>
+            </div>
+            <div class="sc sc-pref on">
+              <div class="pf-top" style="height:28%">
+                <div class="sb light"><span class="sb-t">9:41</span></div>
+                <div class="pf-ring" style="width:64px;height:64px;top:12px"><svg width="30" height="30"
+                    viewBox="0 0 48 48" fill="none">
+                    <g transform="translate(10,12)">
+                      <rect x="2" y="14" width="24" height="8" rx="4" fill="#fff" opacity=".9" />
+                      <rect x="0" y="10" width="28" height="5" rx="2.5" fill="rgba(255,255,255,0.6)" />
+                      <rect x="3" y="7" width="22" height="4" rx="2" fill="#fff" opacity=".85" />
+                      <rect x="1" y="4" width="26" height="4" rx="2" fill="rgba(255,255,255,0.45)" />
+                    </g>
+                  </svg></div>
+                <div class="pf-name">BURGER FARM</div>
+                <div class="pf-sub">Tell us how you like it</div>
+              </div>
+              <div class="pf-sheet" style="top:25%;padding:18px 18px 16px;gap:13px">
+                <div class="pf-prog">
+                  <div class="pf-pd"></div>
+                  <div class="pf-pd"></div>
+                  <div class="pf-pa"></div>
+                </div>
+                <div>
+                  <div class="pf-ey">Step 3 of 3</div>
+                  <div class="pf-lbl" style="font-size:15px">What do we call you?</div>
+                  <div class="pf-inp-w" style="margin-top:7px">
+                    <div class="pf-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="var(--o)">
+                        <path
+                          d="M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2zm0 12c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z" />
+                      </svg></div><input type="text" placeholder="Your first name" class="pf-inp"
+                      style="height:44px;font-size:15px;padding-left:40px">
+                  </div>
+                </div>
+                <div>
+                  <div class="pf-ml" style="font-size:13px">Food preference?</div>
+                  <div class="pf-togs" style="gap:6px;margin-top:5px">
+                    <div class="pf-tog veg" style="height:38px;font-size:12px"><svg width="11" height="11"
+                        viewBox="0 0 13 13">
+                        <rect width="13" height="13" rx="2" fill="none" stroke="var(--green)" stroke-width="1.5" />
+                        <circle cx="6.5" cy="6.5" r="3" fill="var(--green)" />
+                      </svg>Pure Veg</div>
+                    <div class="pf-tog" style="height:38px;font-size:12px"><svg width="11" height="11"
+                        viewBox="0 0 13 13">
+                        <rect width="13" height="13" rx="2" fill="none" stroke="var(--red)" stroke-width="1.5" />
+                        <polygon points="6.5,2 11,10 2,10" fill="var(--red)" />
+                      </svg>Non-Veg</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="pf-ml" style="font-size:13px">Usually craving?</div>
+                  <div class="pf-chips" style="margin-top:5px;gap:5px">
+                    <div class="chip" data-on="true" style="padding:6px 11px"><svg width="12" height="12"
+                        viewBox="0 0 24 24" fill="var(--o)">
+                        <path d="M4 10a8 8 0 0 1 16 0H4zm16 3H4v2h16v-2zm-2 4H6v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1z" />
+                      </svg><span class="chip-t" style="font-size:11px">Burgers</span></div>
+                    <div class="chip" data-on="false" style="padding:6px 11px"><svg width="12" height="12"
+                        viewBox="0 0 24 24" fill="var(--muted)">
+                        <path
+                          d="M7.5 12c0 1.5.5 2.5 1 3.5H4a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1h3.5zm9 0H20a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-4.5c.5-1 1-2 1-3.5z" />
+                      </svg><span class="chip-t" style="font-size:11px">Sides</span></div>
+                    <div class="chip" data-on="false" style="padding:6px 11px"><svg width="12" height="12"
+                        viewBox="0 0 24 24" fill="var(--muted)">
+                        <rect x="3" y="0" width="18" height="2" rx="1" />
+                        <path d="M3 2h18l-2 14H5L3 2z" opacity=".6" />
+                        <rect x="2" y="16" width="20" height="6" rx="3" />
+                      </svg><span class="chip-t" style="font-size:11px">Drinks</span></div>
+                  </div>
+                </div>
+                <div style="padding-top:2px">
+                  <div class="btn" style="height:44px;font-size:13px">Let's Eat →</div>
+                </div>
+              </div>
+              <div class="hi w"></div>
+            </div>
+          </div>
+        </div>
+        <p class="fl">4 — Name & Preferences</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+     ROW 3 — STATIC: ZONE 2
+════════════════════════════════════════ -->
+  <div class="row">
+    <div class="rl">Zone 2 · Location & Outlet Selection</div>
+    <div class="fr">
+
+      <!-- LOC PERM static -->
+      <div class="fw">
+        <div class="ph-out ph-sm">
+          <div class="ph-vol">
+            <div class="ph-vb"></div>
+            <div class="ph-vb"></div>
+          </div>
+          <div class="ph-sl"></div>
+          <div class="ph-frame">
+            <div class="di">
+              <div class="di-s"></div>
+              <div class="di-c"></div>
+            </div>
+            <div class="sc sc-loc on">
+              <div class="sb light"><span class="sb-t">9:41</span></div>
+              <div class="lc-body">
+                <div class="lc-icon" style="width:90px;height:90px;margin-bottom:20px">
+                  <div class="lc-ring"></div><svg width="40" height="40" viewBox="0 0 24 24" fill="#fff">
+                    <path
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                  </svg>
+                </div>
+                <h2 class="lc-h" style="font-size:22px;margin-bottom:8px">Find your nearest<br>Burger Farm</h2>
+                <p class="lc-p" style="font-size:12.5px">We'll show you the closest outlet and your estimated delivery
+                  time.</p>
+              </div>
+              <div class="lc-cta" style="padding:0 18px 26px;gap:9px">
+                <div class="btn" style="height:46px;font-size:13.5px"><svg width="15" height="15" viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <path
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                  </svg>Allow Location</div>
+                <div class="btn-ghost" style="height:42px;font-size:13px">Enter manually</div>
+              </div>
+              <div class="hi w"></div>
+            </div>
+          </div>
+        </div>
+        <p class="fl">2.1 — Location Permission</p>
+      </div>
+
+      <!-- OUTLET static -->
+      <div class="fw">
+        <div class="ph-out ph-sm">
+          <div class="ph-vol">
+            <div class="ph-vb"></div>
+            <div class="ph-vb"></div>
+          </div>
+          <div class="ph-sl"></div>
+          <div class="ph-frame">
+            <div class="di">
+              <div class="di-s"></div>
+              <div class="di-c"></div>
+            </div>
+            <div class="sc sc-out on">
+              <div class="sb dark" style="position:relative;flex-shrink:0;background:#fff"><span
+                  class="sb-t">9:41</span></div>
+              <div class="out-hdr">
+                <div class="out-h" style="font-size:16px">Select Outlet</div>
+                <div class="out-tabs">
+                  <div class="out-tab on" style="font-size:11.5px"><svg width="11" height="11" viewBox="0 0 24 24"
+                      fill="currentColor">
+                      <path
+                        d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-5l-3-4zm-.5 1.5 1.96 2.5H17V9.5h2.5zM6 18.5A1.5 1.5 0 0 1 4.5 17 1.5 1.5 0 0 1 6 15.5 1.5 1.5 0 0 1 7.5 17 1.5 1.5 0 0 1 6 18.5zm12 0a1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5z" />
+                    </svg>Delivery</div>
+                  <div class="out-tab" style="font-size:11.5px"><svg width="11" height="11" viewBox="0 0 24 24"
+                      fill="currentColor">
+                      <path
+                        d="M20 6h-2.18c.07-.44.18-.88.18-1.35A4.6 4.6 0 0 0 13.35 0c-1.61 0-3.11.84-3.97 2.12A4.73 4.73 0 0 0 5.47 0 4.6 4.6 0 0 0 1 4.65c0 .47.06.91.18 1.35H1a1 1 0 0 0-1 1V9a1 1 0 0 0 1 1h1v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z" />
+                    </svg>Pickup</div>
+                </div>
+              </div>
+              <div class="out-map" style="height:120px;margin:8px">
+                <div class="map-grid"><svg width="100%" height="100%" viewBox="0 0 400 120">
+                    <path d="M0 30 Q100 17 200 36 T400 26 M0 60 Q100 47 200 66 T400 56 M0 90 Q100 76 200 96 T400 86"
+                      stroke="#C2BDB4" fill="none" stroke-width="1" />
+                  </svg></div>
+                <div class="map-road" style="height:13px"></div>
+                <div class="map-road2" style="width:11px"></div>
+                <div class="map-pin" style="top:18%;left:22%">
+                  <div class="map-pin-dot" style="width:28px;height:28px"><span><svg width="13" height="13"
+                        viewBox="0 0 24 24" fill="#fff">
+                        <path d="M4 10a8 8 0 0 1 16 0H4zm16 3H4v2h16v-2zm-2 4H6v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1z" />
+                      </svg></span></div>
+                </div>
+                <div class="map-badge" style="bottom:8px;left:8px;padding:4px 9px">
+                  <div class="map-dot" style="width:5px;height:5px"></div><span style="font-size:9.5px">Delivery
+                    available</span>
+                </div>
+              </div>
+              <div class="out-list" style="padding:8px">
+                <div class="out-lbl">Nearest Outlets</div>
+                <div class="out-card p" style="padding:10px;margin-bottom:7px">
+                  <div class="out-ct">
+                    <div>
+                      <div class="out-cn" style="font-size:12.5px">Burger Farm — CP</div>
+                      <div class="out-ca" style="font-size:9.5px">Shop 12, Block B, Connaught Place</div>
+                    </div>
+                    <div class="badge bg-open" style="font-size:8.5px">Open</div>
+                  </div>
+                  <div class="out-cm" style="margin-top:7px;padding-top:7px">
+                    <div class="out-mi" style="font-size:9.5px"><svg width="9" height="9" viewBox="0 0 24 24"
+                        fill="var(--muted)">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                      </svg> 1.2 km</div>
+                    <div class="out-mi" style="font-size:9.5px"><svg width="9" height="9" viewBox="0 0 24 24"
+                        fill="var(--muted)">
+                        <path
+                          d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z" />
+                      </svg> 18–22 min</div>
+                    <div class="out-sel" style="font-size:9.5px;padding:4px 10px">Select →</div>
+                  </div>
+                </div>
+                <div class="out-card" style="opacity:.76;padding:10px;margin-bottom:7px">
+                  <div class="out-ct">
+                    <div>
+                      <div class="out-cn" style="font-size:12.5px">Burger Farm — Rajouri Garden</div>
+                      <div class="out-ca" style="font-size:9.5px">J-14, Main Market Road</div>
+                    </div>
+                    <div class="badge bg-soon" style="font-size:8.5px">Closing</div>
+                  </div>
+                  <div class="out-cm" style="margin-top:7px;padding-top:7px">
+                    <div class="out-mi" style="font-size:9.5px"><svg width="9" height="9" viewBox="0 0 24 24"
+                        fill="var(--muted)">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                      </svg> 2.8 km</div>
+                    <div class="out-mi" style="font-size:9.5px"><svg width="9" height="9" viewBox="0 0 24 24"
+                        fill="var(--muted)">
+                        <path
+                          d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z" />
+                      </svg> 28–32 min</div>
+                  </div>
+                </div>
+                <div class="out-card" style="opacity:.38;padding:10px">
+                  <div class="out-ct">
+                    <div>
+                      <div class="out-cn" style="font-size:12.5px">Burger Farm — Saket</div>
+                      <div class="out-ca" style="font-size:9.5px">Select Citywalk, Ground Floor</div>
+                    </div>
+                    <div class="badge bg-closed" style="font-size:8.5px">Closed</div>
+                  </div>
+                  <div class="out-cm" style="margin-top:7px;padding-top:7px">
+                    <div class="out-mi" style="font-size:9.5px"><svg width="9" height="9" viewBox="0 0 24 24"
+                        fill="var(--muted)">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                      </svg> 4.5 km</div>
+                    <div class="out-mi" style="font-size:9.5px">Opens 11 AM</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hi"></div>
+            </div>
+          </div>
+        </div>
+        <p class="fl">2.2 — Outlet Selector</p>
+      </div>
+
+      <!-- ADDR static -->
+      <div class="fw">
+        <div class="ph-out ph-sm">
+          <div class="ph-vol">
+            <div class="ph-vb"></div>
+            <div class="ph-vb"></div>
+          </div>
+          <div class="ph-sl"></div>
+          <div class="ph-frame">
+            <div class="di">
+              <div class="di-s"></div>
+              <div class="di-c"></div>
+            </div>
+            <div class="sc sc-addr on">
+              <div class="sb dark" style="position:relative;flex-shrink:0;background:#fff"><span
+                  class="sb-t">9:41</span></div>
+              <div class="addr-hdr" style="padding:10px 15px">
+                <div class="addr-ht" style="font-size:16px;margin-bottom:8px">Delivery Address</div>
+                <div class="addr-srch" style="padding:9px 12px"><svg width="13" height="13" viewBox="0 0 24 24"
+                    fill="var(--o)">
+                    <path
+                      d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 0 0 9.5 3 6.5 6.5 0 0 0 3 9.5 6.5 6.5 0 0 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                  </svg><input type="text" placeholder="Search area, street, landmark"
+                    style="font-size:12px;flex:1;border:none;background:transparent;outline:none;color:var(--brown)">
+                </div>
+              </div>
+              <div class="addr-map" style="height:136px;margin:8px">
+                <div class="map-grid"><svg width="100%" height="100%" viewBox="0 0 400 136">
+                    <path d="M0 34 Q100 17 200 42 T400 30 M0 68 Q100 51 200 76 T400 64 M0 102 Q100 85 200 110 T400 98"
+                      stroke="#C2BDB4" fill="none" stroke-width="1" />
+                  </svg></div>
+                <div class="map-road" style="height:13px"></div>
+                <div class="addr-pin-w">
+                  <div class="addr-pin" style="width:36px;height:36px;border-width:2.5px"><span><svg width="16"
+                        height="16" viewBox="0 0 24 24" fill="#fff">
+                        <path
+                          d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                      </svg></span></div>
+                </div>
+                <div class="addr-lcard" style="bottom:8px;left:8px;right:8px;padding:7px 11px">
+                  <div class="addr-ll">Selected</div>
+                  <div class="addr-ln" style="font-size:11px">42, Golf Link Road, near Metro Station</div>
+                </div>
+              </div>
+              <div class="addr-sec" style="padding:0 13px 9px">
+                <div class="addr-sl">Recent</div>
+                <div class="addr-item" style="padding:9px 11px">
+                  <div class="addr-ico h" style="width:32px;height:32px;border-radius:9px"><svg width="15" height="15"
+                      viewBox="0 0 24 24" fill="#fff">
+                      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                    </svg></div>
+                  <div>
+                    <div class="addr-im" style="font-size:11.5px">Home — C-12, Greater Kailash</div>
+                    <div class="addr-is" style="font-size:10px">Yesterday · 5 orders</div>
+                  </div>
+                  <div class="addr-ar" style="width:22px;height:22px"><svg width="10" height="10" viewBox="0 0 24 24"
+                      fill="var(--muted)">
+                      <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                    </svg></div>
+                </div>
+              </div>
+              <div class="addr-sec" style="padding:0 13px 9px">
+                <div class="addr-sl">Saved</div>
+                <div class="addr-item" style="padding:9px 11px">
+                  <div class="addr-ico w" style="width:32px;height:32px;border-radius:9px"><svg width="15" height="15"
+                      viewBox="0 0 24 24" fill="#fff">
+                      <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2z" />
+                    </svg></div>
+                  <div>
+                    <div class="addr-im" style="font-size:11.5px">Work — Cyber City, Phase 2</div>
+                    <div class="addr-is" style="font-size:10px">Office · 12 orders</div>
+                  </div>
+                  <div class="addr-ar" style="width:22px;height:22px"><svg width="10" height="10" viewBox="0 0 24 24"
+                      fill="var(--muted)">
+                      <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                    </svg></div>
+                </div>
+              </div>
+              <div class="addr-cta" style="padding:9px 13px 18px">
+                <div class="btn" style="height:46px;font-size:13.5px">Confirm Location</div>
+              </div>
+              <div class="hi"></div>
+            </div>
+          </div>
+        </div>
+        <p class="fl">2.3 — Delivery Address</p>
+      </div>
+
+      <!-- ADDR DETAIL static -->
+      <div class="fw">
+        <div class="ph-out ph-sm">
+          <div class="ph-vol">
+            <div class="ph-vb"></div>
+            <div class="ph-vb"></div>
+          </div>
+          <div class="ph-sl"></div>
+          <div class="ph-frame">
+            <div class="di">
+              <div class="di-s"></div>
+              <div class="di-c"></div>
+            </div>
+            <div class="sc sc-det on">
+              <div class="sb dark" style="position:relative;flex-shrink:0;background:#fff"><span
+                  class="sb-t">9:41</span></div>
+              <div class="det-form" style="padding:13px 14px 0">
+                <div class="det-loc" style="padding:10px;margin-bottom:13px">
+                  <div class="det-lic" style="width:36px;height:36px;border-radius:10px"><svg width="17" height="17"
+                      viewBox="0 0 24 24" fill="#fff">
+                      <path
+                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                    </svg></div>
+                  <div>
+                    <div class="det-lt" style="font-size:14px">Delivery Location</div>
+                    <div class="det-la" style="font-size:11px">42, Golf Link Road<br><span>near Metro Station</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="det-fields" style="gap:8px;padding-bottom:12px">
+                  <div class="det-field"><label class="det-label">Flat / House No. <span
+                        style="color:var(--o)">*</span></label>
+                    <div class="det-inw"><input type="text" placeholder="e.g., 12A, Floor 2" class="det-inp"
+                        style="height:42px;font-size:12.5px;padding-left:40px">
+                      <div class="det-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--o)">
+                          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                        </svg></div>
+                    </div>
+                  </div>
+                  <div class="det-field"><label class="det-label">Building / Society</label>
+                    <div class="det-inw"><input type="text" placeholder="e.g., Green Valley Apartments" class="det-inp"
+                        style="height:42px;font-size:12.5px;padding-left:40px">
+                      <div class="det-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)">
+                          <path d="M12 7V3H2v18h20V7H12z" />
+                        </svg></div>
+                    </div>
+                  </div>
+                  <div class="det-field"><label class="det-label">Landmark</label>
+                    <div class="det-inw"><input type="text" placeholder="e.g., Near the park" class="det-inp"
+                        style="height:42px;font-size:12.5px;padding-left:40px">
+                      <div class="det-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)">
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                        </svg></div>
+                    </div>
+                  </div>
+                </div>
+                <span class="det-tags-lbl" style="font-size:9.5px">Save as</span>
+                <div class="det-tags" style="gap:6px;padding-bottom:12px">
+                  <div class="det-tag on" style="height:40px"><svg width="13" height="13" viewBox="0 0 24 24"
+                      fill="var(--o)">
+                      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                    </svg><span style="font-size:11px">Home</span></div>
+                  <div class="det-tag" style="height:40px"><svg width="13" height="13" viewBox="0 0 24 24"
+                      fill="var(--muted)">
+                      <path d="M12 7V3H2v18h20V7H12z" />
+                    </svg><span style="font-size:11px">Work</span></div>
+                  <div class="det-tag" style="height:40px"><svg width="13" height="13" viewBox="0 0 24 24"
+                      fill="var(--muted)">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                    </svg><span style="font-size:11px">Other</span></div>
+                </div>
+              </div>
+              <div class="det-cta" style="padding:11px 14px 20px">
+                <div class="btn" style="height:46px;font-size:13.5px">Save &amp; Continue</div>
+                <div class="det-hint" style="font-size:10px">Saved for future orders</div>
+              </div>
+              <div class="hi"></div>
+            </div>
+          </div>
+        </div>
+        <p class="fl">2.4 — Address Detail</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    gsap.registerPlugin(MotionPathPlugin);
+
+    /* ── SPLASH ORBIT ── */
+    const ICONS = ['#spI0', '#spI1', '#spI2'];
+    let orbits = [], ready = true;
+    gsap.set(ICONS, { xPercent: -50, yPercent: -50 });
+
+    function startOrbit() {
+      ready = true;
+      gsap.set(ICONS, { x: 0, y: 0, scale: 1, opacity: 1 });
+      gsap.set('#spBag', { scale: 0 });
+      orbits = ICONS.map((s, i) => gsap.to(s, {
+        duration: 4, repeat: -1, ease: 'none',
+        motionPath: { path: '#spArcPath', align: '#spArcPath', alignOrigin: [.5, .5], start: i * .333, end: i * .333 + 1 }
+      }));
+    }
+
+    function packAndGo(cb) {
+      ready = false;
+      orbits.forEach(t => t.kill());
+      const bag = document.getElementById('spBag');
+      const tl = gsap.timeline({ onComplete: cb });
+      tl.to('#spBag', { scale: 1, duration: .3, ease: 'back.out(2)' });
+      ICONS.forEach((s, i) => {
+        const el = document.querySelector(s);
+        tl.add(() => {
+          const ir = el.getBoundingClientRect(), br = bag.getBoundingClientRect();
+          gsap.to(s, {
+            x: '+=' + (br.left + br.width / 2 - (ir.left + ir.width / 2)),
+            y: '+=' + (br.top + br.height / 2 - (ir.top + ir.height / 2)),
+            scale: .15, opacity: 0, duration: .38, ease: 'power2.in'
+          });
+        }, i * .10);
+      });
+      tl.to('#spBag', { y: -7, duration: .09, yoyo: true, repeat: 1, ease: 'power2.out' }, '+=.28');
+    }
+
+    function handleSplash() {
+      if (!ready) return;
+      packAndGo(() => setTimeout(() => go('pOb'), 120));
+    }
+
+    /* ── SCREEN ROUTER ── */
+    const SCREENS = ['pSplash', 'pOb', 'pLogin', 'pPref', 'pLoc', 'pOutlet', 'pAddr', 'pDet', 'pHome'];
+
+    function go(id) {
+      SCREENS.forEach(sid => {
+        const el = document.getElementById(sid);
+        if (el) { el.classList.remove('on'); el.style.display = ''; }
+      });
+      const t = document.getElementById(id);
+      if (!t) return;
+      t.classList.add('on');
+      gsap.fromTo(t, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .28, ease: 'power2.out', clearProps: 'all' });
+      if (id === 'pSplash') startOrbit();
+    }
+
+    function restart() { go('pSplash'); }
+
+    /* ── DIET TOGGLE ── */
+    function setDiet(d) {
+      const v = document.getElementById('vegBtn'), n = document.getElementById('nvBtn');
+      if (!v || !n) return;
+      v.className = 'pf-tog' + (d === 'veg' ? ' veg' : '');
+      n.className = 'pf-tog' + (d === 'nv' ? ' nveg' : '');
+    }
+
+    /* ── FILTER TABS ── */
+    function setFilter(f) {
+      const d = document.getElementById('delTab'), p = document.getElementById('pickTab');
+      if (!d || !p) return;
+      if (f === 'del') { d.classList.add('on'); p.classList.remove('on'); }
+      else { p.classList.add('on'); d.classList.remove('on'); }
+    }
+
+    /* ── ADDRESS TAGS ── */
+    function setTag(el) {
+      document.querySelectorAll('#pDet .det-tag').forEach(t => t.classList.remove('on'));
+      el.classList.add('on');
+    }
+
+    /* ── CHIP TOGGLE ── */
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(startOrbit, 260);
+      document.querySelectorAll('#pPref .chip').forEach(c => {
+        c.addEventListener('click', function () {
+          const cur = this.getAttribute('data-on') === 'true';
+          this.setAttribute('data-on', !cur);
+          const ico = this.querySelector('svg');
+          if (ico) ico.setAttribute('fill', !cur ? 'var(--o)' : 'var(--muted)');
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

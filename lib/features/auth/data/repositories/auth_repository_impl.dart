@@ -60,4 +60,38 @@ class AuthRepositoryImpl implements AuthRepository {
       token: backendData['token'],
     );
   }
+
+  @override
+  Future<UserEntity?> signInWithGoogle() async {
+    final userCredential = await firebaseDataSource.signInWithGoogle();
+    
+    if (userCredential == null) {
+      return null; // User canceled
+    }
+
+    final firebaseUser = userCredential.user;
+    if (firebaseUser == null) {
+      throw Exception('Firebase Google Auth failed');
+    }
+
+    if (_phase0FirebaseOnlyMode) {
+      return UserEntity(
+        id: firebaseUser.uid,
+        phone: firebaseUser.phoneNumber ?? firebaseUser.email ?? 'Unknown',
+        token: null,
+      );
+    }
+
+    final idToken = await firebaseUser.getIdToken();
+    if (idToken == null) {
+      throw Exception('Failed to get Firebase ID Token');
+    }
+
+    final backendData = await nodeDataSource.verifyIdToken(idToken);
+    return UserEntity(
+      id: backendData['user']['_id'],
+      phone: backendData['user']['phone'] ?? backendData['user']['email'],
+      token: backendData['token'],
+    );
+  }
 }

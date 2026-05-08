@@ -1,0 +1,902 @@
+{
+  "C:\\Desktop\\burger_farm_app\\android\\build.gradle.kts": {
+    "mtime": 1777541998.8062203,
+    "hash": "a519cd27efbb04840bbf30bbbe4364e1"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\gradlew": {
+    "mtime": 1777468009.9375105,
+    "hash": "7f1cd7eb3f75a1dc85cd37753972a6e2"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\settings.gradle.kts": {
+    "mtime": 1778219986.2353232,
+    "hash": "3d94579a3ee3bdecacbbaf1a3da16b01"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\app\\build.gradle.kts": {
+    "mtime": 1778220500.7017384,
+    "hash": "3276a248bc88ab482ed3c28cd68f36dc"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\app\\src\\main\\java\\io\\flutter\\plugins\\GeneratedPluginRegistrant.java": {
+    "mtime": 1778217401.2238817,
+    "hash": "44fc50b79107b61acde15a980e00e2e4"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\app\\src\\main\\kotlin\\com\\burgerfarm\\app\\MainActivity.kt": {
+    "mtime": 1777540135.8770072,
+    "hash": "ff5edead502ce96c2039e65f26f26380"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_auth\\generated\\source\\buildConfig\\debug\\io\\flutter\\plugins\\firebase\\auth\\BuildConfig.java": {
+    "mtime": 1778144813.5779827,
+    "hash": "8b341aaff98f0fb375ded3fede02540d"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_core\\generated\\source\\buildConfig\\debug\\io\\flutter\\plugins\\firebase\\core\\BuildConfig.java": {
+    "mtime": 1778144814.5486343,
+    "hash": "afb7c3d19e9a9ff51d775448f2bbe328"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\flutter_secure_storage\\generated\\source\\buildConfig\\debug\\com\\it_nomads\\fluttersecurestorage\\BuildConfig.java": {
+    "mtime": 1778144814.6226852,
+    "hash": "329f97faf72a8a0022e3a812a0db9c22"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\app.js": {
+    "mtime": 1778130960.1825333,
+    "hash": "6b6f872cd1e5dfba3104de414fac47a9"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshot.py": {
+    "mtime": 1778130960.4315288,
+    "hash": "c5df7f0dcfe09a7029ad5e9ccce59eef"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\update_config.py": {
+    "mtime": 1778130960.5424805,
+    "hash": "45afb155c094930d8efa87a78150f78b"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Flutter\\ephemeral\\flutter_lldb_helper.py": {
+    "mtime": 1778218909.0661848,
+    "hash": "98fc75412162af387e2e3461e4e58094"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\AppDelegate.swift": {
+    "mtime": 1778216639.7217047,
+    "hash": "53c85786ec847d8ccadb96bc875b704c"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\GeneratedPluginRegistrant.h": {
+    "mtime": 1777468357.4349866,
+    "hash": "decb9041b5e91a07e66f4664e5dac408"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\GeneratedPluginRegistrant.m": {
+    "mtime": 1778217401.2418926,
+    "hash": "c0537983d211f1d5886bf515277035d9"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Runner-Bridging-Header.h": {
+    "mtime": 1777533942.400773,
+    "hash": "7ad7b5cea096132de13ba526b2b9efbe"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\SceneDelegate.swift": {
+    "mtime": 1777533942.4013345,
+    "hash": "0c3e86af131f6a9e547c80b5ed058914"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\RunnerTests\\RunnerTests.swift": {
+    "mtime": 1777533942.4013345,
+    "hash": "24e5d095048eb86c30423f4e04b6e57b"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\main.dart": {
+    "mtime": 1778141114.0437858,
+    "hash": "2e3271dca2020184cb7930fa53f63177"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\app\\router\\app_router.dart": {
+    "mtime": 1778220758.4443657,
+    "hash": "9942d6b0441aab59efbee6fe54f1077e"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\core\\theme\\app_animations.dart": {
+    "mtime": 1778140632.103016,
+    "hash": "36103e263b41ec29c652f5d94f48786b"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\core\\theme\\app_colors.dart": {
+    "mtime": 1778140624.7690442,
+    "hash": "18315fc475281d9f30c77c78ad6b21ce"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\core\\theme\\app_shadows.dart": {
+    "mtime": 1778140634.1653197,
+    "hash": "cfc6e14a8f642f715e702c933ea6fa06"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\core\\theme\\app_typography.dart": {
+    "mtime": 1778147030.6678562,
+    "hash": "e3968c39cd962d591f6df11dc9b46eef"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\core\\utils\\responsive.dart": {
+    "mtime": 1778140659.7019334,
+    "hash": "6cf22f331e566cf01ae6ffdbf4501579"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\data\\datasources\\firebase_auth_data_source.dart": {
+    "mtime": 1778218879.9688177,
+    "hash": "645fe85d53ed092827e6724430071e1d"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\data\\datasources\\node_auth_remote_data_source.dart": {
+    "mtime": 1777535360.3166997,
+    "hash": "af54d9ee52346a847873d3d13153a243"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\data\\repositories\\auth_repository_impl.dart": {
+    "mtime": 1778216814.560607,
+    "hash": "d06fd3873a1f575c678f6faf52c4b85a"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\domain\\entities\\user_entity.dart": {
+    "mtime": 1777535327.1003344,
+    "hash": "e3c153f4bf78b7fcfa28817c87fb6da5"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\domain\\repositories\\auth_repository.dart": {
+    "mtime": 1778216802.3443704,
+    "hash": "9e29196b8c843f5a4876896e4b313722"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\presentation\\providers\\auth_provider.dart": {
+    "mtime": 1778216816.5807955,
+    "hash": "9726077a43b6391b45bcf309906dc1c8"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\presentation\\screens\\login_screen.dart": {
+    "mtime": 1778217221.1236947,
+    "hash": "a6c8e517dd0e92271cc386f47a7276ca"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\presentation\\screens\\onboarding_screen.dart": {
+    "mtime": 1778220758.4458747,
+    "hash": "4aac8e41c6faf8c9db41e7c0cb5600e0"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\presentation\\screens\\otp_screen.dart": {
+    "mtime": 1778220758.4423678,
+    "hash": "ff7ec6874652907e17412c6d02b2eff7"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\presentation\\screens\\splash_screen.dart": {
+    "mtime": 1778220758.499827,
+    "hash": "79d53b86d47ba547b9e5d881d4adb653"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\auth\\presentation\\screens\\test_auth_screen.dart": {
+    "mtime": 1777542095.520126,
+    "hash": "4cf88adb6bdbe3a2677cf6823e419269"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\home\\presentation\\screens\\home_screen.dart": {
+    "mtime": 1778141074.0645704,
+    "hash": "519d518ce309b488306f8dc96107399f"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\location\\presentation\\screens\\address_screen.dart": {
+    "mtime": 1778140938.3283641,
+    "hash": "a02aa9849fbc3aaefd1925cfd0e7fed3"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\location\\presentation\\screens\\location_screen.dart": {
+    "mtime": 1778220758.5008366,
+    "hash": "d456cded523f684cc406480af0fc33c5"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\location\\presentation\\screens\\outlet_screen.dart": {
+    "mtime": 1778217262.3834972,
+    "hash": "c20fcf7ff971c797c9c5363e37190649"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\menu\\presentation\\screens\\detail_screen.dart": {
+    "mtime": 1778141191.9496255,
+    "hash": "5c18c658777ad2a5aac6840201b49d77"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\features\\preferences\\presentation\\screens\\preferences_screen.dart": {
+    "mtime": 1778140931.6544747,
+    "hash": "7a0f94ba0563ae16f83b775f5ffac0c4"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\shared\\widgets\\burger_icon.dart": {
+    "mtime": 1778140681.8256066,
+    "hash": "9a687fdb0060103f8def1f2a90f6aa69"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\shared\\widgets\\noise_overlay.dart": {
+    "mtime": 1778140683.8469064,
+    "hash": "5fc2b3ed5298eb362377887f1a873b7f"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\shared\\widgets\\premium_button.dart": {
+    "mtime": 1778140714.2769265,
+    "hash": "45b0c76cb36521d1a7434b260bdb6595"
+  },
+  "C:\\Desktop\\burger_farm_app\\lib\\shared\\widgets\\premium_input.dart": {
+    "mtime": 1778140716.2941017,
+    "hash": "39c9660c1039946c01bf43b26e5a75a6"
+  },
+  "C:\\Desktop\\burger_farm_app\\linux\\flutter\\generated_plugin_registrant.cc": {
+    "mtime": 1777534621.6955297,
+    "hash": "e51606128f6c2595af1393720bb05539"
+  },
+  "C:\\Desktop\\burger_farm_app\\linux\\flutter\\generated_plugin_registrant.h": {
+    "mtime": 1777534621.693018,
+    "hash": "d295462c9da9f7fef22dc86c34492318"
+  },
+  "C:\\Desktop\\burger_farm_app\\linux\\runner\\main.cc": {
+    "mtime": 1777533942.4068313,
+    "hash": "539395bcd63dba20afed0838d136189f"
+  },
+  "C:\\Desktop\\burger_farm_app\\linux\\runner\\my_application.cc": {
+    "mtime": 1777533942.4088175,
+    "hash": "ec9e739883c4d0132bb62fd283e33e6a"
+  },
+  "C:\\Desktop\\burger_farm_app\\linux\\runner\\my_application.h": {
+    "mtime": 1777533942.4093347,
+    "hash": "ffa1a7c0a2ad45a2c14a921596516ff8"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Flutter\\GeneratedPluginRegistrant.swift": {
+    "mtime": 1778217401.2437985,
+    "hash": "3c636e65840cac84c37860f56f8e0d01"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Runner\\AppDelegate.swift": {
+    "mtime": 1777538803.8034885,
+    "hash": "4b52e0b89ebfef9baf45b04548c463d6"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Runner\\MainFlutterWindow.swift": {
+    "mtime": 1777538803.8261886,
+    "hash": "93c22dae2d93f3dc1402e121901f582b"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\RunnerTests\\RunnerTests.swift": {
+    "mtime": 1777538803.8277018,
+    "hash": "8059f5d27a19c556eeafb49b3f9b7bdd"
+  },
+  "C:\\Desktop\\burger_farm_app\\scratch\\doc_gen\\generate_doc.js": {
+    "mtime": 1777556927.9451158,
+    "hash": "9ecc26250f425e1c50ac9f6577f480c9"
+  },
+  "C:\\Desktop\\burger_farm_app\\server\\server.js": {
+    "mtime": 1777533942.8692188,
+    "hash": "1e328e364e53831c95b46938ae5d4565"
+  },
+  "C:\\Desktop\\burger_farm_app\\server\\src\\app.js": {
+    "mtime": 1777533942.8702245,
+    "hash": "43112796d1601158ec3041f280b4bbf6"
+  },
+  "C:\\Desktop\\burger_farm_app\\server\\src\\config\\db.js": {
+    "mtime": 1777533942.8712199,
+    "hash": "83c441c90eb4fa4eb21ed176a81aa2a4"
+  },
+  "C:\\Desktop\\burger_farm_app\\server\\src\\config\\firebase.js": {
+    "mtime": 1777533942.8722203,
+    "hash": "23e332727d85e59cb020af642da94eee"
+  },
+  "C:\\Desktop\\burger_farm_app\\server\\src\\controllers\\auth.controller.js": {
+    "mtime": 1777533942.8722203,
+    "hash": "cae84768a368e22f7f9e2536a62ed6e8"
+  },
+  "C:\\Desktop\\burger_farm_app\\server\\src\\middleware\\auth.middleware.js": {
+    "mtime": 1777533942.8732193,
+    "hash": "61eb63bc1b0845f15e8a8bd8a01ac009"
+  },
+  "C:\\Desktop\\burger_farm_app\\server\\src\\models\\user.model.js": {
+    "mtime": 1777533942.8739126,
+    "hash": "04199697c33cc58239ff9b57ea99baeb"
+  },
+  "C:\\Desktop\\burger_farm_app\\server\\src\\routes\\auth.routes.js": {
+    "mtime": 1777533942.8749208,
+    "hash": "e3597f1b513dcb96588fc027f9814e94"
+  },
+  "C:\\Desktop\\burger_farm_app\\server\\src\\utils\\generateToken.js": {
+    "mtime": 1777533942.8749208,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\test\\widget_test.dart": {
+    "mtime": 1777533942.4341176,
+    "hash": "81fc84a591c1197ec805e6d0970d1119"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\flutter\\generated_plugin_registrant.cc": {
+    "mtime": 1778217401.235829,
+    "hash": "ee0913b45c27b5a4543f28ab91ea4dc5"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\flutter\\generated_plugin_registrant.h": {
+    "mtime": 1777538809.3970487,
+    "hash": "0ea33875f9f8e118f9c2ded03e2e2835"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\runner\\flutter_window.cpp": {
+    "mtime": 1777538803.837921,
+    "hash": "2f463f9b7da67a2d692a012f9ea85e0c"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\runner\\flutter_window.h": {
+    "mtime": 1777538803.8391383,
+    "hash": "7defcc89d4a26d56e801241d624d48fb"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\runner\\main.cpp": {
+    "mtime": 1777538803.8406436,
+    "hash": "d5835beea37ed17fc0b731708764c6c6"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\runner\\resource.h": {
+    "mtime": 1777538803.8406436,
+    "hash": "1ade5dd15e613479a15e8832ed276f2b"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\runner\\utils.cpp": {
+    "mtime": 1777538803.845161,
+    "hash": "432461b09d862a2f8dadf380ff0e34e5"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\runner\\utils.h": {
+    "mtime": 1777538803.845161,
+    "hash": "fd81e143f5614eb6fd75efe539002853"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\runner\\win32_window.cpp": {
+    "mtime": 1777538803.8461628,
+    "hash": "571eb8234dbc2661be03aa5f2a4d2fca"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\runner\\win32_window.h": {
+    "mtime": 1777538803.848171,
+    "hash": "7569387d58711ab975940f4df3b4bcda"
+  },
+  "C:\\Desktop\\burger_farm_app\\analysis_options.yaml": {
+    "mtime": 1777533942.361123,
+    "hash": "9e65f4b9beebb674c0dc252f70a5c177"
+  },
+  "C:\\Desktop\\burger_farm_app\\pubspec.yaml": {
+    "mtime": 1778218869.3937192,
+    "hash": "7d58836603a5c3df6ade4e53e2e434b1"
+  },
+  "C:\\Desktop\\burger_farm_app\\README.md": {
+    "mtime": 1777533942.3595223,
+    "hash": "20db5a4ee711c07ccf2a6b59184ac8c3"
+  },
+  "C:\\Desktop\\burger_farm_app\\assets\\fonts\\montreux-font\\iFonts-License.txt": {
+    "mtime": 1778130960.2057548,
+    "hash": "5a51a2ac709f35dd7a1ab125d02589c6"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\gmpAppId\\debug.txt": {
+    "mtime": 1778144795.7273624,
+    "hash": "444c2fce54db941fd656d9e052df231c"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\apk_ide_redirect_file\\debug\\createDebugApkListingFileRedirect\\redirect.txt": {
+    "mtime": 1778144943.2814622,
+    "hash": "e131843d2802be1ffd7c549cbc3e90da"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\cxx\\debug\\216x3n3h\\logs\\arm64-v8a\\configure_stderr.txt": {
+    "mtime": 1778144892.164,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\cxx\\debug\\216x3n3h\\logs\\arm64-v8a\\configure_stdout.txt": {
+    "mtime": 1778144899.4880686,
+    "hash": "d4ddfb60baca060f0338212e53e601f3"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\cxx\\debug\\216x3n3h\\logs\\arm64-v8a\\generate_cxx_metadata_63_timing.txt": {
+    "mtime": 1778144901.019427,
+    "hash": "19d838f5f885ed148e18d18ec5486f50"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\cxx\\debug\\216x3n3h\\logs\\armeabi-v7a\\configure_stderr.txt": {
+    "mtime": 1778144901.298,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\cxx\\debug\\216x3n3h\\logs\\armeabi-v7a\\configure_stdout.txt": {
+    "mtime": 1778144905.785856,
+    "hash": "c2b84da31a8addb7af2cb4b36f978127"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\cxx\\debug\\216x3n3h\\logs\\armeabi-v7a\\generate_cxx_metadata_63_timing.txt": {
+    "mtime": 1778144905.8914683,
+    "hash": "9f38023fc11c6923b6ac1af9134789c4"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\cxx\\debug\\216x3n3h\\logs\\x86_64\\configure_stderr.txt": {
+    "mtime": 1778144905.963,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\cxx\\debug\\216x3n3h\\logs\\x86_64\\configure_stdout.txt": {
+    "mtime": 1778144909.1018891,
+    "hash": "b57119ac884b3c8449a37094730c50bb"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\cxx\\debug\\216x3n3h\\logs\\x86_64\\generate_cxx_metadata_63_timing.txt": {
+    "mtime": 1778144909.2153761,
+    "hash": "09971e0dbe0ed80d07af07a93d84225f"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\incremental\\packageDebug\\tmp\\debug\\dex-renamer-state.txt": {
+    "mtime": 1778144940.655223,
+    "hash": "1b859d695580707365878ffed54ee77c"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\local_only_symbol_list\\debug\\parseDebugLocalResources\\R-def.txt": {
+    "mtime": 1778144810.2329895,
+    "hash": "a296a0ec82c013f16ea08e1e34460eed"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\manifest_merge_blame_file\\debug\\processDebugMainManifest\\manifest-merger-blame-debug-report.txt": {
+    "mtime": 1778144811.6867456,
+    "hash": "473cf49bf88546fcbba21bc7804fa2fb"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\nested_resources_validation_report\\debug\\generateDebugResources\\nestedResourcesValidationReport.txt": {
+    "mtime": 1778144797.022742,
+    "hash": "a468092b97b014b85e176f0f89afdb24"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\runtime_symbol_list\\debug\\processDebugResources\\R.txt": {
+    "mtime": 1778144817.8195045,
+    "hash": "59e6ed6e7a4cfbff0633516e3c508d0d"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\source_set_path_map\\debug\\mapDebugSourceSetPaths\\file-map.txt": {
+    "mtime": 1778144796.933709,
+    "hash": "288a39fbe685f3615574734d66bee649"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\stable_resource_ids_file\\debug\\processDebugResources\\stableIds.txt": {
+    "mtime": 1778144817.1613789,
+    "hash": "9d95265b0091533cc1d132981d72bfd2"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\symbol_list_with_package_name\\debug\\processDebugResources\\package-aware-r.txt": {
+    "mtime": 1778144818.2548206,
+    "hash": "3de78fce405751bce5f47a34efe97bab"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\outputs\\logs\\manifest-merger-debug-report.txt": {
+    "mtime": 1778144811.6709752,
+    "hash": "05b9a1b89ba49522bf106d9045d3b9c0"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_auth\\intermediates\\annotations_typedef_file\\debug\\extractDebugAnnotations\\typedefs.txt": {
+    "mtime": 1778144916.913,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_auth\\intermediates\\compile_symbol_list\\debug\\generateDebugRFile\\R.txt": {
+    "mtime": 1778144813.417,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_auth\\intermediates\\local_only_symbol_list\\debug\\parseDebugLocalResources\\R-def.txt": {
+    "mtime": 1778144813.160782,
+    "hash": "0d0b46f22b4eb74c53258e2408087dee"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_auth\\intermediates\\manifest_merge_blame_file\\debug\\processDebugManifest\\manifest-merger-blame-debug-report.txt": {
+    "mtime": 1778144810.0203772,
+    "hash": "cc92de82f37dedd5422bb45f3fbf67bc"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_auth\\intermediates\\nested_resources_validation_report\\debug\\generateDebugResources\\nestedResourcesValidationReport.txt": {
+    "mtime": 1778144795.800493,
+    "hash": "a468092b97b014b85e176f0f89afdb24"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_auth\\intermediates\\symbol_list_with_package_name\\debug\\generateDebugRFile\\package-aware-r.txt": {
+    "mtime": 1778144813.4799385,
+    "hash": "211b71408238d80d6fdc4bd91b7e71fd"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_auth\\outputs\\logs\\manifest-merger-debug-report.txt": {
+    "mtime": 1778144810.0054893,
+    "hash": "e22cc3316ca148f2374c2d48e87eb617"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_core\\intermediates\\annotations_typedef_file\\debug\\extractDebugAnnotations\\typedefs.txt": {
+    "mtime": 1778144917.486,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_core\\intermediates\\compile_symbol_list\\debug\\generateDebugRFile\\R.txt": {
+    "mtime": 1778144813.417,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_core\\intermediates\\local_only_symbol_list\\debug\\parseDebugLocalResources\\R-def.txt": {
+    "mtime": 1778144813.2544312,
+    "hash": "0d0b46f22b4eb74c53258e2408087dee"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_core\\intermediates\\manifest_merge_blame_file\\debug\\processDebugManifest\\manifest-merger-blame-debug-report.txt": {
+    "mtime": 1778144810.0209546,
+    "hash": "1208b7e716e4065ce918159777aa1446"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_core\\intermediates\\nested_resources_validation_report\\debug\\generateDebugResources\\nestedResourcesValidationReport.txt": {
+    "mtime": 1778144796.182684,
+    "hash": "a468092b97b014b85e176f0f89afdb24"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_core\\intermediates\\symbol_list_with_package_name\\debug\\generateDebugRFile\\package-aware-r.txt": {
+    "mtime": 1778144813.4789383,
+    "hash": "ef93923f4e987c34f757f5a99f175be0"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\firebase_core\\outputs\\logs\\manifest-merger-debug-report.txt": {
+    "mtime": 1778144810.004486,
+    "hash": "2ec7af03b765c12e331c83042d272e87"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\flutter_secure_storage\\intermediates\\annotations_typedef_file\\debug\\extractDebugAnnotations\\typedefs.txt": {
+    "mtime": 1778144919.067,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\flutter_secure_storage\\intermediates\\compile_symbol_list\\debug\\generateDebugRFile\\R.txt": {
+    "mtime": 1778144813.437,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\flutter_secure_storage\\intermediates\\local_only_symbol_list\\debug\\parseDebugLocalResources\\R-def.txt": {
+    "mtime": 1778144813.4029026,
+    "hash": "0d0b46f22b4eb74c53258e2408087dee"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\flutter_secure_storage\\intermediates\\manifest_merge_blame_file\\debug\\processDebugManifest\\manifest-merger-blame-debug-report.txt": {
+    "mtime": 1778144810.137331,
+    "hash": "ea7e19dfed926ce16e43f160a88c4aa0"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\flutter_secure_storage\\intermediates\\nested_resources_validation_report\\debug\\generateDebugResources\\nestedResourcesValidationReport.txt": {
+    "mtime": 1778144796.319184,
+    "hash": "a468092b97b014b85e176f0f89afdb24"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\flutter_secure_storage\\intermediates\\symbol_list_with_package_name\\debug\\generateDebugRFile\\package-aware-r.txt": {
+    "mtime": 1778144813.4789383,
+    "hash": "201e0996f3be90f168d9af94de237bd9"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\flutter_secure_storage\\outputs\\logs\\manifest-merger-debug-report.txt": {
+    "mtime": 1778144810.132925,
+    "hash": "9ceb8e17cdb0d9f55e03e1baeefaa713"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\annotations_typedef_file\\debug\\extractDebugAnnotations\\typedefs.txt": {
+    "mtime": 1778144919.753,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\compile_symbol_list\\debug\\generateDebugRFile\\R.txt": {
+    "mtime": 1778144813.477,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\arm64-v8a\\build_stderr_jni.txt": {
+    "mtime": 1778144910.015,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\arm64-v8a\\build_stdout_jni.txt": {
+    "mtime": 1778144910.8008325,
+    "hash": "87dd6791a1a52e5f900d49874e072f2a"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\arm64-v8a\\generate_cxx_metadata_63_timing.txt": {
+    "mtime": 1778144909.9288511,
+    "hash": "64fdb27ea86570c4237aa8454609a832"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\armeabi-v7a\\build_stderr_jni.txt": {
+    "mtime": 1778144911.46,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\armeabi-v7a\\build_stdout_jni.txt": {
+    "mtime": 1778144912.4781735,
+    "hash": "439dba617b839f521cb3d7fd33e5a4e0"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\armeabi-v7a\\generate_cxx_metadata_63_timing.txt": {
+    "mtime": 1778144911.2861724,
+    "hash": "a9c96fc26b468051beeb45455b094b45"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\x86\\build_stderr_jni.txt": {
+    "mtime": 1778144912.701,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\x86\\build_stdout_jni.txt": {
+    "mtime": 1778144913.2215495,
+    "hash": "26bb92781f619af19c9a4601842f8fe0"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\x86\\generate_cxx_metadata_60_timing.txt": {
+    "mtime": 1778144912.6782734,
+    "hash": "a8eeec7cc5f8d50d6dfafc06668d3cbb"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\x86_64\\build_stderr_jni.txt": {
+    "mtime": 1778144913.413,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\x86_64\\build_stdout_jni.txt": {
+    "mtime": 1778144914.2797368,
+    "hash": "74a2f434c5f36a4afc6c52a56963a7fe"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\cxx\\Debug\\4r4z652x\\logs\\x86_64\\generate_cxx_metadata_60_timing.txt": {
+    "mtime": 1778144913.3684635,
+    "hash": "101f81cb7b44486e8f3d043824d562c4"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\local_only_symbol_list\\debug\\parseDebugLocalResources\\R-def.txt": {
+    "mtime": 1778144813.4019053,
+    "hash": "0d0b46f22b4eb74c53258e2408087dee"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\manifest_merge_blame_file\\debug\\processDebugManifest\\manifest-merger-blame-debug-report.txt": {
+    "mtime": 1778144810.1770892,
+    "hash": "fbd9b63d36979c53fbf217a9cd88a5ae"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\merged_consumer_proguard_file\\debug\\mergeDebugConsumerProguardFiles\\proguard.txt": {
+    "mtime": 1778144919.8313918,
+    "hash": "cf6f3575b39c777be8a8a91ae266c6e2"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\nested_resources_validation_report\\debug\\generateDebugResources\\nestedResourcesValidationReport.txt": {
+    "mtime": 1778144796.4339745,
+    "hash": "a468092b97b014b85e176f0f89afdb24"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\intermediates\\symbol_list_with_package_name\\debug\\generateDebugRFile\\package-aware-r.txt": {
+    "mtime": 1778144813.4799385,
+    "hash": "fc71bf3ff0dee76c9e577b73916dd477"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni\\outputs\\logs\\manifest-merger-debug-report.txt": {
+    "mtime": 1778144810.1710134,
+    "hash": "6065957f92d38cfc983c252b480a3904"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni_flutter\\intermediates\\annotations_typedef_file\\debug\\extractDebugAnnotations\\typedefs.txt": {
+    "mtime": 1778144920.517,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni_flutter\\intermediates\\compile_symbol_list\\debug\\generateDebugRFile\\R.txt": {
+    "mtime": 1778144813.609,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni_flutter\\intermediates\\local_only_symbol_list\\debug\\parseDebugLocalResources\\R-def.txt": {
+    "mtime": 1778144813.5164576,
+    "hash": "0d0b46f22b4eb74c53258e2408087dee"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni_flutter\\intermediates\\manifest_merge_blame_file\\debug\\processDebugManifest\\manifest-merger-blame-debug-report.txt": {
+    "mtime": 1778144810.2036889,
+    "hash": "410a96f233330172b68652340d2bdc9d"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni_flutter\\intermediates\\merged_consumer_proguard_file\\debug\\mergeDebugConsumerProguardFiles\\proguard.txt": {
+    "mtime": 1778144920.787417,
+    "hash": "887b533f4ff90b44efc722c8ffb6f9bd"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni_flutter\\intermediates\\nested_resources_validation_report\\debug\\generateDebugResources\\nestedResourcesValidationReport.txt": {
+    "mtime": 1778144796.685827,
+    "hash": "a468092b97b014b85e176f0f89afdb24"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni_flutter\\intermediates\\symbol_list_with_package_name\\debug\\generateDebugRFile\\package-aware-r.txt": {
+    "mtime": 1778144813.6122124,
+    "hash": "44f4bfb25aac879978136f5e0f75243d"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\jni_flutter\\outputs\\logs\\manifest-merger-debug-report.txt": {
+    "mtime": 1778144810.200454,
+    "hash": "79a9bd0c4d49bf5fee2979c5618ba037"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\1.html": {
+    "mtime": 1778130960.168,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\address.html": {
+    "mtime": 1778130960.1777303,
+    "hash": "111c8a894821cf238f512c58332865a1"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\detail.html": {
+    "mtime": 1778130960.1925497,
+    "hash": "a4a6914709c1a9c08b8febb8344056d6"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\home.html": {
+    "mtime": 1778130960.3337822,
+    "hash": "ba2b6f76ac5d378214ac825a12860a6a"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\index.html": {
+    "mtime": 1778130960.3397815,
+    "hash": "39b1aefd097444a5033bcfd2df901180"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\location.html": {
+    "mtime": 1778130960.345782,
+    "hash": "d5981e97a705f7bf257e5db70ce135b6"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\login.html": {
+    "mtime": 1778130960.3524344,
+    "hash": "6023aa841da16caf7602b0a1d2d786bc"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\onboarding.html": {
+    "mtime": 1778130960.4118655,
+    "hash": "7a31654d4f9ff65e0bdc1ab9ebc71d69"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\outlet.html": {
+    "mtime": 1778130960.4178667,
+    "hash": "7a3a66a85aca4219995f11a776b755e7"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\preferences.html": {
+    "mtime": 1778130960.4240363,
+    "hash": "f00ebf103a848b6fcd9055767bc679ba"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\splash.html": {
+    "mtime": 1778130960.5231826,
+    "hash": "bf58bce7c917ed8127b2a20aad7600a6"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\Fonts\\montreux-font\\iFonts-License.txt": {
+    "mtime": 1778130960.2057548,
+    "hash": "5a51a2ac709f35dd7a1ab125d02589c6"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\Notebook\\burger_farm_v2.html": {
+    "mtime": 1778130960.3743632,
+    "hash": "3726af165c739ce389e5e1c6a44df564"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\README.md": {
+    "mtime": 1777533942.3978865,
+    "hash": "f7ee1b402881509d197f34963e569927"
+  },
+  "C:\\Desktop\\burger_farm_app\\linux\\CMakeLists.txt": {
+    "mtime": 1777533942.4043186,
+    "hash": "cf478dd61d12e3aa23cd14724b54b119"
+  },
+  "C:\\Desktop\\burger_farm_app\\linux\\flutter\\CMakeLists.txt": {
+    "mtime": 1777533942.4053226,
+    "hash": "2195470ce31675d31db5a37590d011f6"
+  },
+  "C:\\Desktop\\burger_farm_app\\linux\\runner\\CMakeLists.txt": {
+    "mtime": 1777533942.4068313,
+    "hash": "30cc1614b16214b66c014af09ba699eb"
+  },
+  "C:\\Desktop\\burger_farm_app\\web\\index.html": {
+    "mtime": 1777533942.443356,
+    "hash": "d67e58af7402cd758387561c69d3eb0d"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\CMakeLists.txt": {
+    "mtime": 1777538803.8307357,
+    "hash": "d90a794777b6cb99541c18da15047a72"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\flutter\\CMakeLists.txt": {
+    "mtime": 1777538803.8321211,
+    "hash": "bbf66fed5180bd9ae8198b8d7c4a0001"
+  },
+  "C:\\Desktop\\burger_farm_app\\windows\\runner\\CMakeLists.txt": {
+    "mtime": 1777538803.8364131,
+    "hash": "028602ab9754bffe716659ada7590d29"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm UI.pdf": {
+    "mtime": 1778137115.7388055,
+    "hash": "3676a975e951e6a3c90725e87a60cffa"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\Notebook\\\ud83c\udf54 Burger Farm App \u2014 UI Design Framework & Complete Screen Blueprint.pdf": {
+    "mtime": 1778130960.4048645,
+    "hash": "c975d57310b633fc6705fe5f0a5e81d6"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\app\\src\\main\\res\\mipmap-hdpi\\ic_launcher.png": {
+    "mtime": 1777533942.366913,
+    "hash": "13e9c72ec37fac220397aa819fa1ef2d"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\app\\src\\main\\res\\mipmap-mdpi\\ic_launcher.png": {
+    "mtime": 1777533942.3675146,
+    "hash": "6270344430679711b81476e29878caa7"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\app\\src\\main\\res\\mipmap-xhdpi\\ic_launcher.png": {
+    "mtime": 1777533942.3684766,
+    "hash": "a0a8db5985280b3679d99a820ae2db79"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\app\\src\\main\\res\\mipmap-xxhdpi\\ic_launcher.png": {
+    "mtime": 1777533942.3701897,
+    "hash": "afe1b655b9f32da22f9a4301bb8e6ba8"
+  },
+  "C:\\Desktop\\burger_farm_app\\android\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher.png": {
+    "mtime": 1777533942.3709364,
+    "hash": "57838d52c318faff743130c3fcfae0c6"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\packaged_res\\debug\\packageDebugResources\\mipmap-hdpi-v4\\ic_launcher.png": {
+    "mtime": 1777533942.366913,
+    "hash": "13e9c72ec37fac220397aa819fa1ef2d"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\packaged_res\\debug\\packageDebugResources\\mipmap-mdpi-v4\\ic_launcher.png": {
+    "mtime": 1777533942.3675146,
+    "hash": "6270344430679711b81476e29878caa7"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\packaged_res\\debug\\packageDebugResources\\mipmap-xhdpi-v4\\ic_launcher.png": {
+    "mtime": 1777533942.3684766,
+    "hash": "a0a8db5985280b3679d99a820ae2db79"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\packaged_res\\debug\\packageDebugResources\\mipmap-xxhdpi-v4\\ic_launcher.png": {
+    "mtime": 1777533942.3701897,
+    "hash": "afe1b655b9f32da22f9a4301bb8e6ba8"
+  },
+  "C:\\Desktop\\burger_farm_app\\build_old_6ccc0437\\app\\intermediates\\packaged_res\\debug\\packageDebugResources\\mipmap-xxxhdpi-v4\\ic_launcher.png": {
+    "mtime": 1777533942.3709364,
+    "hash": "57838d52c318faff743130c3fcfae0c6"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\nonveg_burger.png": {
+    "mtime": 1778130960.3648179,
+    "hash": "a9df23ac42879d43877127487767e889"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\veg_burger.png": {
+    "mtime": 1778130960.5526497,
+    "hash": "1a84380803b6811017eda2b6e3c1c64a"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\Notebook\\swappy-20260505-185546.png": {
+    "mtime": 1778130960.3924222,
+    "hash": "6d0ee52d419f99455f37d12bce1b6fe3"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshots\\address.png": {
+    "mtime": 1778130960.447049,
+    "hash": "c99ad417769e49adc74c8910a0380cbb"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshots\\detail.png": {
+    "mtime": 1778130960.4548032,
+    "hash": "08f3799f1c9c11841106a07cb8b6f129"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshots\\home.png": {
+    "mtime": 1778130960.463575,
+    "hash": "d3608d2e6b9b1fa0b83b96fb726ad7fa"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshots\\location.png": {
+    "mtime": 1778130960.4728093,
+    "hash": "26fe6ce540f4f195a30457171dfaebe5"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshots\\login.png": {
+    "mtime": 1778130960.4815774,
+    "hash": "1e0921262d786cecddf3795c96a21bdb"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshots\\onboarding.png": {
+    "mtime": 1778130960.4901829,
+    "hash": "0dc36b8a88d1d8e4b8c37d7f1ca03a17"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshots\\outlet.png": {
+    "mtime": 1778130960.4981823,
+    "hash": "f3e7af767867ab47c4a3d777f57a4427"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshots\\preferences.png": {
+    "mtime": 1778130960.5081828,
+    "hash": "d5b41a02dadad8ebefabb43f3b4fb3d8"
+  },
+  "C:\\Desktop\\burger_farm_app\\BurgerFarmUI\\Burger Farm\\screenshots\\splash.png": {
+    "mtime": 1778130960.5161836,
+    "hash": "b79bada671d4f5b9df99fc5d8fdf1abc"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-1024x1024@1x.png": {
+    "mtime": 1777533942.3834765,
+    "hash": "c785f8932297af4acd5f5ccb7630f01c"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-20x20@1x.png": {
+    "mtime": 1777533942.3844767,
+    "hash": "a2f8558fb1d42514111fbbb19fb67314"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-20x20@2x.png": {
+    "mtime": 1777533942.3854759,
+    "hash": "2247a840b6ee72b8a069208af170e5b1"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-20x20@3x.png": {
+    "mtime": 1777533942.3875105,
+    "hash": "1b3b1538136316263c7092951e923e9d"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-29x29@1x.png": {
+    "mtime": 1777533942.3875105,
+    "hash": "be8887071dd7ec39cb754d236aa9584f"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-29x29@2x.png": {
+    "mtime": 1777533942.3885195,
+    "hash": "043119ef4faa026ff82bd03f241e5338"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-29x29@3x.png": {
+    "mtime": 1777533942.3899057,
+    "hash": "2b1452c4c1bda6177b4fbbb832df217f"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-40x40@1x.png": {
+    "mtime": 1777533942.3899057,
+    "hash": "2247a840b6ee72b8a069208af170e5b1"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-40x40@2x.png": {
+    "mtime": 1777533942.3899057,
+    "hash": "8245359312aea1b0d2412f79a07b0ca5"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-40x40@3x.png": {
+    "mtime": 1777533942.3911996,
+    "hash": "5b3c0902200ce596e9848f22e1f0fe0e"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-60x60@2x.png": {
+    "mtime": 1777533942.3911996,
+    "hash": "5b3c0902200ce596e9848f22e1f0fe0e"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-60x60@3x.png": {
+    "mtime": 1777533942.3925292,
+    "hash": "e419d22a37bc40ba185aca1acb6d4ac6"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-76x76@1x.png": {
+    "mtime": 1777533942.393528,
+    "hash": "36c0d7a7132bdde18898ffdfcfcdc4d2"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-76x76@2x.png": {
+    "mtime": 1777533942.393528,
+    "hash": "643842917530acf4c5159ae851b0baf2"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-83.5x83.5@2x.png": {
+    "mtime": 1777533942.3945851,
+    "hash": "665cb5e3c5729da6d639d26eff47a503"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\LaunchImage.png": {
+    "mtime": 1777533942.3958602,
+    "hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\LaunchImage@2x.png": {
+    "mtime": 1777533942.39686,
+    "hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "C:\\Desktop\\burger_farm_app\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\LaunchImage@3x.png": {
+    "mtime": 1777533942.3973699,
+    "hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_1024.png": {
+    "mtime": 1777538803.808133,
+    "hash": "c9becc9105f8cabce934d20c7bfb6aac"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_128.png": {
+    "mtime": 1777538803.8096466,
+    "hash": "3ded30823804caaa5ccc944067c54a36"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_16.png": {
+    "mtime": 1777538803.8101602,
+    "hash": "8bf511604bc6ed0a6aeb380c5113fdcf"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_256.png": {
+    "mtime": 1777538803.811679,
+    "hash": "dfe2c93d1536ae02f085cc63faa3430e"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_32.png": {
+    "mtime": 1777538803.8126864,
+    "hash": "8e0ae58e362a6636bdfccbc04da2c58c"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_512.png": {
+    "mtime": 1777538803.8139462,
+    "hash": "0ad44039155424738917502c69667699"
+  },
+  "C:\\Desktop\\burger_farm_app\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_64.png": {
+    "mtime": 1777538803.8154523,
+    "hash": "04e7b6ef05346c70b663ca1d97de3ad5"
+  },
+  "C:\\Desktop\\burger_farm_app\\web\\favicon.png": {
+    "mtime": 1777533942.4360192,
+    "hash": "5dcef449791fa27946b3d35ad8803796"
+  },
+  "C:\\Desktop\\burger_farm_app\\web\\icons\\Icon-192.png": {
+    "mtime": 1777533942.4370306,
+    "hash": "ac9a721a12bbc803b44f645561ecb1e1"
+  },
+  "C:\\Desktop\\burger_farm_app\\web\\icons\\Icon-512.png": {
+    "mtime": 1777533942.439759,
+    "hash": "96e752610906ba2a93c65f8abe1645f1"
+  },
+  "C:\\Desktop\\burger_farm_app\\web\\icons\\Icon-maskable-192.png": {
+    "mtime": 1777533942.4404945,
+    "hash": "c457ef57daa1d16f64b27b786ec2ea3c"
+  },
+  "C:\\Desktop\\burger_farm_app\\web\\icons\\Icon-maskable-512.png": {
+    "mtime": 1777533942.4418368,
+    "hash": "301a7604d45b3e739efc881eb04896ea"
+  }
+}

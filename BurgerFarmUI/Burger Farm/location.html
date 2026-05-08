@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Burger Farm - Location</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#E8560A', hover: '#C94208', light: '#FFF0E5' },
+            brown: { DEFAULT: '#271200', muted: 'rgba(39, 18, 0, 0.42)', light: 'rgba(39, 18, 0, 0.06)' },
+            cream: '#FBF7F2',
+            line: '#EBE1D6',
+            success: '#1A7A38',
+            danger: '#C0001A',
+          },
+          fontFamily: {
+            display: ['"Montreux Classic"', 'sans-serif'],
+            sans: ['"Recoleta"', 'serif'],
+          },
+          boxShadow: {
+            soft: '0 4px 24px rgba(39, 18, 0, 0.04), 0 1px 2px rgba(39, 18, 0, 0.02)',
+            premium: '0 20px 40px -10px rgba(39,18,0,0.08), 0 1px 3px rgba(39,18,0,0.05)',
+            glow: '0 8px 24px rgba(232, 86, 10, 0.25)',
+            'brand-glow': '0 10px 30px -10px rgba(232,86,10,0.4), 0 4px 10px rgba(232,86,10,0.2)',
+            float: '0 -12px 32px rgba(39, 18, 0, 0.04)',
+            inset_soft: 'inset 0 2px 8px rgba(39, 18, 0, 0.04)',
+          },
+          transitionTimingFunction: {
+            'spring': 'cubic-bezier(0.16, 1, 0.3, 1)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-semibold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    
+    body { background-color: #F5EFE6; }
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Map Pattern Background over Orange */
+    .bg-map-pattern {
+      background-image: 
+        radial-gradient(rgba(255,255,255,0.1) 2px, transparent 2px);
+      background-size: 32px 32px;
+    }
+  </style>
+</head>
+
+<body class="antialiased font-sans flex justify-center min-h-screen sm:p-8">
+
+  <main class="w-full max-w-[400px] bg-brand sm:rounded-[40px] sm:shadow-2xl overflow-hidden relative flex flex-col h-[100dvh] sm:h-[850px] bg-map-pattern">
+    
+    <!-- Top Glowing Gradient -->
+    <div class="absolute inset-x-0 top-0 h-[50%] bg-gradient-to-b from-brand-light/10 to-transparent pointer-events-none z-0"></div>
+    <div class="absolute -top-[20%] -left-[20%] w-[140%] h-[140%] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_0%,transparent_50%)] pointer-events-none z-0 mix-blend-overlay animate-[spin_40s_linear_infinite]"></div>
+
+    <!-- Center Content -->
+    <div class="flex-1 flex flex-col items-center justify-center p-6 z-10 overflow-y-auto pb-48 hide-scrollbar">
+      
+      <!-- Animated Location Pin -->
+      <div class="relative mb-12 animate-fade-down">
+        <!-- Ripple Effect -->
+        <div class="absolute inset-0 rounded-full border border-white/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+        <div class="absolute -inset-4 rounded-full border border-white/20 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" style="animation-delay: 0.5s;"></div>
+        
+        <!-- Pin Container -->
+        <div class="w-24 h-24 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-glow">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Typography -->
+      <h2 class="font-display text-[36px] font-black text-white leading-tight tracking-tight text-center mb-4 drop-shadow-md">
+        Find your nearest<br>Burger Farm
+      </h2>
+      <p class="font-sans text-[15px] font-medium text-white/80 text-center leading-relaxed max-w-[280px]">
+        We'll show you the closest outlet and your estimated delivery time.
+      </p>
+
+    </div>
+
+    <!-- Bottom Actions Floating Sheet -->
+    <div class="absolute bottom-0 inset-x-0 p-6 pb-10 flex flex-col gap-4 z-20 bg-gradient-to-t from-brand via-brand to-transparent">
+      
+      <!-- Primary Button (Premium glowing) -->
+      <button class="w-full relative overflow-hidden bg-white text-brand font-bold text-[17px] py-4.5 rounded-[20px] shadow-[0_12px_32px_rgba(255,255,255,0.25)] active:scale-[0.97] transition-all duration-300 ease-spring flex items-center justify-center gap-2 group h-14" onclick="window.location.href='outlet.html'">
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-brand/10 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700"></div>
+        <span class="relative z-10 flex items-center gap-2 text-[16px]">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" class="group-hover:scale-110 transition-transform">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+          </svg>
+          Allow Location
+        </span>
+      </button>
+      
+      <!-- Ghost Button -->
+      <button class="w-full bg-white/5 backdrop-blur-md border border-white/20 text-white font-semibold py-3.5 rounded-[20px] hover:bg-white/10 active:scale-[0.98] transition-all duration-300 ease-spring shadow-sm" onclick="window.location.href='address.html'">
+        Enter manually
+      </button>
+
+    </div>
+
+    <!-- Bottom Home Indicator Line -->
+    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/40 rounded-full pointer-events-none z-20"></div>
+    
+  </main>
+
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @keyframes fade-down { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
+    .animate-fade-down { animation: fade-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  </style>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof gsap !== 'undefined') {
+        gsap.from("h2", { y: 20, opacity: 0, duration: 0.8, delay: 0.2, ease: "expo.out", clearProps: "all" });
+        gsap.from("p", { y: 20, opacity: 0, duration: 0.8, delay: 0.35, ease: "expo.out", clearProps: "all" });
+        gsap.from(".absolute.bottom-0 button", { y: 30, opacity: 0, duration: 0.8, stagger: 0.15, delay: 0.5, ease: "back.out(1.4)", clearProps: "all" });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Burger Farm - Navigation</title>
+
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #130A02;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #E8560A;
+      font-family: 'Fraunces', serif;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+    }
+    a {
+      color: #E8560A;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Burger Farm UI Prototype</h1>
+  <p>This is the main navigation page where the interactive flow is accessible. Click on the links below to navigate to each screen.</p>
+  <ul>
+    <li><a href="splash.html">Splash Screen</a></li>
+    <li><a href="onboarding.html">Onboarding Screen</a></li>
+    <li><a href="login.html">Login Screen</a></li>
+    <li><a href="preferences.html">Preferences Screen</a></li>
+    <li><a href="location.html">Location Permission Screen</a></li>
+    <li><a href="outlet.html">Outlet Selector Screen</a></li>
+    <li><a href="address.html">Delivery Address Screen</a></li>
+    <li><a href="detail.html">Address Detail Screen</a></li>
+    <li><a href="home.html">Home Screen</a></li>
+  </ul>
+</body>
+
+</html>

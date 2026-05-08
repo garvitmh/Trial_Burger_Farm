@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Burger Farm - Login</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#E8560A', hover: '#C94208', light: '#FFF0E5' },
+            brown: { DEFAULT: '#271200', muted: 'rgba(39, 18, 0, 0.42)', light: 'rgba(39, 18, 0, 0.06)' },
+            cream: '#FBF7F2',
+            line: '#EBE1D6',
+            success: '#1A7A38',
+            danger: '#C0001A',
+          },
+          fontFamily: {
+            display: ['"Montreux Classic"', 'sans-serif'],
+            sans: ['"Recoleta"', 'serif'],
+          },
+          boxShadow: {
+            soft: '0 4px 24px rgba(39, 18, 0, 0.04), 0 1px 2px rgba(39, 18, 0, 0.02)',
+            premium: '0 20px 40px -10px rgba(39,18,0,0.08), 0 1px 3px rgba(39,18,0,0.05)',
+            glow: '0 8px 24px rgba(232, 86, 10, 0.25)',
+            'brand-glow': '0 10px 30px -10px rgba(232,86,10,0.4), 0 4px 10px rgba(232,86,10,0.2)',
+            float: '0 -12px 32px rgba(39, 18, 0, 0.04)',
+            inset_soft: 'inset 0 2px 8px rgba(39, 18, 0, 0.04)',
+          },
+          transitionTimingFunction: {
+            'spring': 'cubic-bezier(0.16, 1, 0.3, 1)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-semibold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    
+    body { background-color: #F5EFE6; }
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Pattern */
+    .bg-pattern { background-image: radial-gradient(var(--tw-colors-brand-light) 2px, transparent 2px); background-size: 24px 24px; }
+    
+    /* Blinking Cursor for fake input effect */
+    .cursor-blink { animation: blink 1s step-end infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  </style>
+</head>
+
+<body class="antialiased text-brown font-sans flex justify-center min-h-screen sm:p-8">
+
+  <main class="w-full max-w-[400px] bg-[#FAFAFA] sm:rounded-[40px] sm:shadow-2xl overflow-hidden relative flex flex-col h-[100dvh] sm:h-[850px]">
+    
+    <!-- Top Area with Gradient and Pattern -->
+    <div class="relative h-[30%] bg-white flex flex-col items-center justify-center pt-8 z-0 bg-pattern">
+      <div class="absolute inset-0 bg-gradient-to-t from-[#FAFAFA] via-white/80 to-transparent z-0"></div>
+      
+      <div class="relative z-10 flex flex-col items-center animate-fade-down" style="animation-duration: 0.8s;">
+        <!-- Glassmorphism Logo -->
+        <div class="w-20 h-20 rounded-[24px] bg-brand/10 backdrop-blur-md border border-brand/20 flex items-center justify-center mb-5 shadow-[0_8px_32px_rgba(232,86,10,0.15)] relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-tr from-brand/20 to-transparent"></div>
+          <svg width="32" height="32" viewBox="0 0 48 48" fill="none" class="relative z-10">
+            <rect x="12" y="26" width="24" height="8" rx="4" fill="var(--tw-colors-brand-DEFAULT)" />
+            <rect x="10" y="22" width="28" height="5" rx="2.5" fill="var(--tw-colors-brand-hover)" opacity="0.6" />
+            <rect x="13" y="19" width="22" height="4" rx="2" fill="var(--tw-colors-brand-DEFAULT)" opacity="0.85" />
+            <rect x="11" y="16" width="26" height="4" rx="2" fill="var(--tw-colors-brand-hover)" opacity="0.45" />
+          </svg>
+        </div>
+        <h1 class="font-display text-2xl font-black text-brown tracking-widest uppercase mb-1 drop-shadow-sm">Burger Farm</h1>
+        <p class="font-sans text-sm font-medium text-brown-muted italic">Welcome to the Farm</p>
+      </div>
+    </div>
+
+    <!-- Login Sheet -->
+    <div class="flex-1 bg-white shadow-float rounded-t-[40px] px-8 pt-10 pb-8 flex flex-col z-10 border-t border-line/50 relative overflow-y-auto form-sheet">
+      
+      <div class="form-content">
+        <h2 class="font-display text-[36px] font-black text-brown leading-tight mb-2 tracking-tight drop-shadow-sm">
+          Let's get you in.
+        </h2>
+        <p class="font-sans text-[15px] text-brown-muted font-medium mb-10">
+          Enter your number — we'll send an OTP.
+        </p>
+
+        <!-- Premium Input Field -->
+        <div class="relative mb-6">
+          <div class="flex items-center gap-4 bg-[#FAFAFA] border-[1.5px] border-line rounded-2xl p-2.5 shadow-inset_soft focus-within:border-brand focus-within:bg-white focus-within:shadow-[0_8px_24px_rgba(232,86,10,0.15)] transition-all duration-300 ease-spring">
+            <!-- Flag -->
+            <div class="flex items-center gap-2 pl-3 py-2 pr-4 border-r-2 border-line/60">
+              <svg width="24" height="16" viewBox="0 0 20 14" class="rounded-[2px] shadow-sm">
+                <rect width="20" height="14" rx="2" fill="#fff" />
+                <rect width="20" height="4.67" fill="#FF9933" />
+                <rect y="4.67" width="20" height="4.66" fill="#fff" />
+                <rect y="9.33" width="20" height="4.67" fill="#138808" />
+                <!-- Ashoka Chakra placeholder -->
+                <circle cx="10" cy="7" r="1.5" fill="#000080" />
+              </svg>
+              <span class="text-[16px] font-bold text-brown">+91</span>
+            </div>
+            
+            <div class="flex-1 flex items-center pt-1">
+              <input type="tel" value="" placeholder="00000 00000" class="flex-1 bg-transparent border-none outline-none text-[20px] font-bold text-brown font-display tracking-wider w-full placeholder:text-brown-muted/50" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust Badge -->
+        <div class="flex items-center gap-2 mb-10 text-success font-medium text-[13px] bg-success/5 w-fit px-3 py-1.5 rounded-full border border-success/10">
+          <svg width="14" height="16" viewBox="0 0 11 13" fill="currentColor">
+            <path d="M5.5 0 1 2v4c0 3.31 1.92 6.12 4.5 7C8.08 12.12 10 9.31 10 6V2L5.5 0zm-.5 8.5L3 6.5l.7-.7L5 7.09l2.8-2.79.7.71L5 8.5z" />
+          </svg>
+          Secure login. No spam, ever.
+        </div>
+
+        <!-- Send OTP Button -->
+        <button class="w-full relative group overflow-hidden bg-brand text-white font-bold text-[17px] py-4.5 rounded-[20px] shadow-brand-glow active:scale-[0.97] transition-all duration-300 ease-spring flex items-center justify-center gap-2 mb-10 h-14" onclick="window.location.href='preferences.html'">
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700"></div>
+          <span class="relative z-10 text-[16px]">Send OTP</span>
+        </button>
+
+        <!-- OR Divider -->
+        <div class="flex items-center gap-4 mb-8">
+          <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent to-line"></div>
+          <span class="text-[11px] font-bold text-brown-muted/60 uppercase tracking-widest">or</span>
+          <div class="h-[1px] flex-1 bg-gradient-to-l from-transparent to-line"></div>
+        </div>
+
+        <!-- Social Logins -->
+        <div class="flex flex-col gap-3.5 mb-8">
+          <button class="w-full bg-white border-[1.5px] border-line text-brown font-bold py-3.5 rounded-[20px] hover:bg-[#FAFAFA] hover:border-line/80 hover:shadow-soft active:scale-[0.98] transition-all duration-300 ease-spring flex items-center justify-center gap-3 shadow-[0_2px_8px_rgba(39,18,0,0.04)]">
+            <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
+              <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853" />
+              <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
+              <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335" />
+            </svg>
+            Continue with Google
+          </button>
+          
+          <button class="w-full bg-brown text-white font-bold py-3.5 rounded-[20px] hover:bg-brown/90 hover:shadow-premium active:scale-[0.98] transition-all duration-300 ease-spring flex items-center justify-center gap-3 shadow-[0_4px_16px_rgba(39,18,0,0.15)]">
+            <svg width="17" height="20" viewBox="0 0 14 17" fill="currentColor">
+              <path d="M11.07 8.76c0-2.28 1.87-3.38 1.96-3.44-1.07-1.55-2.72-1.77-3.31-1.79-1.41-.14-2.75.82-3.46.82-.71 0-1.81-.8-2.98-.78C1.85 3.59.39 4.31-.3 5.79c-1.44 2.49-.37 6.18 1.03 8.2.69.99 1.5 2.1 2.57 2.06 1.03-.04 1.42-.66 2.67-.66 1.24 0 1.6.66 2.69.64 1.11-.02 1.82-1.01 2.5-2 .79-1.14 1.11-2.25 1.13-2.31-.03-.01-2.17-.86-2.22-3.24zM8.95 1.86C9.53 1.16 9.92.19 9.8 0c-.85.04-1.88.57-2.48 1.26-.55.63-1.02 1.63-.89 2.6.95.07 1.91-.48 2.52-2z" />
+            </svg>
+            Continue with Apple
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer Area -->
+      <div class="mt-auto flex flex-col items-center justify-center gap-5 z-20 pb-2">
+        <button class="text-[15px] font-bold text-brand hover:text-brand-hover transition-colors flex items-center gap-1.5 group" onclick="window.location.href='preferences.html'">
+          Continue as Guest
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+        
+        <p class="text-[11px] font-medium text-brown-muted/70 text-center max-w-[280px]">
+          By continuing you agree to our 
+          <a href="#" class="text-brown hover:text-brand transition-colors font-bold">Terms</a> &amp; 
+          <a href="#" class="text-brown hover:text-brand transition-colors font-bold">Privacy</a>
+        </p>
+      </div>
+      
+    </div>
+    
+  </main>
+
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @keyframes fade-down { 0% { opacity: 0; transform: translateY(-15px); } 100% { opacity: 1; transform: translateY(0); } }
+    .animate-fade-down { animation: fade-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+  </style>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof gsap !== 'undefined') {
+        // Fix for playwright: Use simpler animations that don't trap opacity to 0
+        gsap.from(".form-sheet", { y: 60, opacity: 0, duration: 0.8, ease: "power3.out" });
+        gsap.from(".form-content > *", { 
+          y: 20, opacity: 0, duration: 0.6, stagger: 0.1, delay: 0.2, ease: "power2.out", clearProps: "all" 
+        });
+        gsap.from(".mt-auto", { opacity: 0, duration: 0.8, delay: 0.8, clearProps: "all" });
+      }
+    });
+  </script>
+</body>
+</html>

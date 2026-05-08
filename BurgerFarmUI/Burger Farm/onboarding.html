@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Burger Farm - Onboarding</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#E8560A', hover: '#C94208', light: '#FFF0E5' },
+            brown: { DEFAULT: '#271200', muted: 'rgba(39, 18, 0, 0.42)', light: 'rgba(39, 18, 0, 0.06)' },
+            cream: '#FBF7F2',
+            line: '#EBE1D6',
+            success: '#1A7A38',
+            danger: '#C0001A',
+          },
+          fontFamily: {
+            display: ['"Montreux Classic"', 'sans-serif'],
+            sans: ['"Recoleta"', 'serif'],
+          },
+          boxShadow: {
+            soft: '0 4px 24px rgba(39, 18, 0, 0.04), 0 1px 2px rgba(39, 18, 0, 0.02)',
+            premium: '0 20px 40px -10px rgba(39,18,0,0.08), 0 1px 3px rgba(39,18,0,0.05)',
+            glow: '0 8px 24px rgba(232, 86, 10, 0.25)',
+            'brand-glow': '0 10px 30px -10px rgba(232,86,10,0.4), 0 4px 10px rgba(232,86,10,0.2)',
+            float: '0 -12px 32px rgba(39, 18, 0, 0.04)',
+            inset_soft: 'inset 0 2px 8px rgba(39, 18, 0, 0.04)',
+          },
+          transitionTimingFunction: {
+            'spring': 'cubic-bezier(0.16, 1, 0.3, 1)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-semibold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    
+    body { background-color: #F5EFE6; }
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .bg-gradient-radial { background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); }
+  </style>
+</head>
+
+<body class="antialiased text-brown font-sans flex justify-center min-h-screen sm:p-8">
+
+  <main class="w-full max-w-[400px] bg-brand sm:rounded-[40px] sm:shadow-2xl overflow-hidden relative flex flex-col h-[100dvh] sm:h-[850px]">
+    
+    <!-- Top Area (Brand Orange) -->
+    <div class="relative h-[45%] flex flex-col items-center justify-center overflow-hidden z-0">
+      <div class="absolute inset-0 bg-brand z-0"></div>
+      <div class="absolute -bottom-10 -left-10 w-64 h-64 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.2)_0%,transparent_70%)] blur-2xl pointer-events-none"></div>
+      <div class="absolute -top-12 -right-8 w-56 h-56 rounded-full bg-[radial-gradient(circle,rgba(39,18,0,0.15)_0%,transparent_70%)] blur-2xl pointer-events-none"></div>
+      
+      <!-- Floating Orbs -->
+      <div class="absolute top-[30%] left-[20%] w-40 h-40 bg-[#FFB085] rounded-full mix-blend-overlay filter blur-[40px] opacity-20 animate-pulse" style="animation-duration: 4s;"></div>
+      <div class="absolute bottom-[20%] right-[10%] w-48 h-48 bg-[#C94208] rounded-full mix-blend-overlay filter blur-[50px] opacity-30 animate-pulse" style="animation-duration: 5s;"></div>
+      
+      <!-- Abstract Food Shapes for Premium feel -->
+      <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-[0.05] mix-blend-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="M10 20 Q20 10 30 20 T50 20" stroke="#fff" stroke-width="2" fill="none"/>
+        <circle cx="80" cy="30" r="5" fill="#fff" />
+        <rect x="20" y="70" width="10" height="10" rx="3" fill="#fff" />
+        <path d="M70 80 Q80 70 90 80 T110 80" stroke="#fff" stroke-width="2" fill="none"/>
+      </svg>
+      
+      <button class="absolute top-12 right-6 z-20 font-sans text-[11px] font-bold tracking-widest text-white/90 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full hover:bg-white/20 transition-all border border-white/10 uppercase shadow-sm" onclick="window.location.href='login.html'">Skip</button>
+      
+      <!-- Brand Logo Floating -->
+      <div class="flex flex-col items-center animate-fade-down z-10 mt-8">
+        <div class="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl overflow-hidden mb-4 animate-[pulse_4s_infinite]">
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+            <rect x="12" y="26" width="24" height="8" rx="4" fill="#fff" opacity=".9" />
+            <rect x="10" y="22" width="28" height="5" rx="2.5" fill="rgba(255,255,255,0.6)" />
+            <rect x="13" y="19" width="22" height="4" rx="2" fill="#fff" opacity=".85" />
+            <rect x="11" y="16" width="26" height="4" rx="2" fill="rgba(255,255,255,0.45)" />
+          </svg>
+        </div>
+        <h1 class="font-display text-white text-[22px] font-black tracking-[0.2em] mb-1 drop-shadow-md">BURGER FARM</h1>
+      </div>
+
+      <!-- Floating Burger Illustration (Premium transparent look) -->
+      <div class="absolute bottom-[-15%] w-72 h-72 opacity-90 pointer-events-none bg-[url('data:image/svg+xml;utf8,<svg viewBox=%220 0 100 100%22 xmlns=%22http://www.w3.org/2000/svg%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23ffffff1a%22/></svg>')] bg-center bg-no-repeat bg-contain" style="filter: drop-shadow(0 -10px 20px rgba(0,0,0,0.1));"></div>
+    </div>
+
+    <!-- Bottom Sheet -->
+    <div class="flex-1 bg-white rounded-t-[40px] shadow-float p-8 pb-12 flex flex-col z-10">
+      
+      <!-- Dots -->
+      <div class="flex gap-1.5 mb-8">
+        <div class="w-6 h-1.5 rounded-full bg-brand"></div>
+        <div class="w-1.5 h-1.5 rounded-full bg-line"></div>
+        <div class="w-1.5 h-1.5 rounded-full bg-line"></div>
+      </div>
+
+      <!-- Headline -->
+      <h2 class="font-display text-[40px] font-black text-brown leading-[1.05] tracking-tight mb-4 drop-shadow-sm">
+        Real Burgers.<br>
+        <span class="relative inline-block text-brand">
+          Real Fast.
+          <div class="absolute -bottom-1 left-0 w-full h-2 bg-brand/10 rounded-full -z-10"></div>
+        </span>
+      </h2>
+      
+      <p class="font-sans text-[15px] font-medium text-brown-muted leading-relaxed mb-8">
+        Farm-fresh ingredients. Made to order.<br>Delivered while it's still sizzling.
+      </p>
+
+      <!-- Features Row -->
+      <div class="flex items-center gap-4 mb-auto pt-5 border-t border-line/40">
+        <div class="flex-1 flex flex-col items-center bg-cream/40 p-3.5 rounded-[20px] border border-line/50 shadow-sm">
+          <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-brand mb-2.5 shadow-[0_2px_8px_rgba(39,18,0,0.06)] border border-line/30">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 8C8 10 5.9 16.17 3.82 19.34A1 1 0 0 0 5 21c1-1 3-2 5-1 3 1 4 3 8 3 3 0 5-2 5-5 0-6-4-10-6-10z"/></svg>
+          </div>
+          <span class="text-[10px] font-black text-brown uppercase tracking-widest mb-0.5">Farm Fresh</span>
+        </div>
+        
+        <div class="flex-1 flex flex-col items-center bg-cream/40 p-3.5 rounded-[20px] border border-line/50 shadow-sm">
+          <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-brand mb-2.5 shadow-[0_2px_8px_rgba(39,18,0,0.06)] border border-line/30">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z"/></svg>
+          </div>
+          <span class="text-[10px] font-black text-brown uppercase tracking-widest mb-0.5">18 Min Avg</span>
+        </div>
+        
+        <div class="flex-1 flex flex-col items-center bg-cream/40 p-3.5 rounded-[20px] border border-line/50 shadow-sm">
+          <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-brand mb-2.5 shadow-[0_2px_8px_rgba(39,18,0,0.06)] border border-line/30">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.35A4.6 4.6 0 0 0 13.35 0c-1.61 0-3.11.84-3.97 2.12A4.73 4.73 0 0 0 5.47 0 4.6 4.6 0 0 0 1 4.65c0 .47.06.91.18 1.35H1a1 1 0 0 0-1 1V9a1 1 0 0 0 1 1h1v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+          </div>
+          <span class="text-[10px] font-black text-brown uppercase tracking-widest mb-0.5">Free ₹199+</span>
+        </div>
+      </div>
+
+      <!-- Call to Action -->
+      <button class="w-full bg-brand text-white font-bold text-[17px] py-4 rounded-[20px] shadow-brand-glow hover:bg-brand-hover active:scale-[0.98] transition-all duration-300 ease-spring flex justify-center items-center gap-2 group relative overflow-hidden" onclick="window.location.href='login.html'">
+        <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+        <span class="relative z-10 drop-shadow-sm">Grab Your Meal</span>
+        <svg class="relative z-10 group-hover:translate-x-1 transition-transform" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+
+    </div>
+    
+    <!-- Bottom Indicator -->
+    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-brown/10 rounded-full z-20 pointer-events-none"></div>
+  </main>
+
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @keyframes fade-down { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
+    .animate-fade-down { animation: fade-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+  </style>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof gsap !== 'undefined') {
+        gsap.from(".rounded-t-\\[40px\\]", { y: 50, opacity: 0, duration: 0.8, ease: "power4.out" });
+        gsap.from("h2, p, .flex-1.bg-cream\\/50", { y: 20, opacity: 0, duration: 0.6, stagger: 0.1, delay: 0.3, ease: "power2.out", clearProps: "all" });
+        gsap.from("button.w-full", { y: 20, opacity: 0, duration: 0.5, delay: 0.8, ease: "back.out(1.5)", clearProps: "all" });
+      }
+    });
+  </script>
+</body>
+</html>

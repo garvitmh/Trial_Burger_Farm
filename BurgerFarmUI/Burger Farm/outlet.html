@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Burger Farm - Select Outlet</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#E8560A', hover: '#C94208', light: '#FFF0E5' },
+            brown: { DEFAULT: '#271200', muted: 'rgba(39, 18, 0, 0.42)', light: 'rgba(39, 18, 0, 0.06)' },
+            cream: '#FBF7F2',
+            line: '#EBE1D6',
+            success: '#1A7A38',
+            danger: '#C0001A',
+          },
+          fontFamily: {
+            display: ['"Montreux Classic"', 'sans-serif'],
+            sans: ['"Recoleta"', 'serif'],
+          },
+          boxShadow: {
+            soft: '0 4px 24px rgba(39, 18, 0, 0.04), 0 1px 2px rgba(39, 18, 0, 0.02)',
+            premium: '0 20px 40px -10px rgba(39,18,0,0.08), 0 1px 3px rgba(39,18,0,0.05)',
+            glow: '0 8px 24px rgba(232, 86, 10, 0.25)',
+            'brand-glow': '0 10px 30px -10px rgba(232,86,10,0.4), 0 4px 10px rgba(232,86,10,0.2)',
+            float: '0 -12px 32px rgba(39, 18, 0, 0.04)',
+            inset_soft: 'inset 0 2px 8px rgba(39, 18, 0, 0.04)',
+          },
+          transitionTimingFunction: {
+            'spring': 'cubic-bezier(0.16, 1, 0.3, 1)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-semibold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Recoleta'; src: url('fonts/recoleta-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Montreux Classic'; src: url('fonts/montreux-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    
+    body { background-color: #F5EFE6; }
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Map Background */
+    .bg-map {
+      background-color: #F0F0F0;
+      background-image: url('data:image/svg+xml;utf8,<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"><path d="M0 100 Q 100 50, 200 150 T 400 100 M 0 200 Q 100 150, 200 250 T 400 200 M 0 300 Q 100 250, 200 350 T 400 300" stroke="%23E2E8F0" fill="none" stroke-width="6"/><path d="M100 0 V 400 M 200 0 V 400 M 300 0 V 400" stroke="%23E2E8F0" fill="none" stroke-width="6"/></svg>');
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+</head>
+
+<body class="antialiased text-brown font-sans flex justify-center min-h-screen sm:p-8">
+
+  <main class="w-full max-w-[400px] bg-[#FAFAFA] sm:rounded-[40px] sm:shadow-2xl overflow-hidden relative flex flex-col h-[100dvh] sm:h-[850px]">
+    
+    <!-- Top Map Area -->
+    <div class="relative h-[40%] bg-map flex flex-col z-0">
+      
+      <!-- Gradient overlay for top nav -->
+      <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/90 to-transparent z-10 pointer-events-none"></div>
+
+      <!-- Header -->
+      <header class="px-6 pt-12 pb-4 flex flex-col gap-4 z-20">
+        <div class="flex items-center gap-3">
+          <button class="w-10 h-10 rounded-full bg-white border border-line flex items-center justify-center shadow-sm hover:bg-cream transition-colors" onclick="window.history.back()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+          </button>
+          <h1 class="font-display text-xl font-black text-brown">Select Outlet</h1>
+        </div>
+
+        <!-- Segmented Control -->
+        <div class="bg-[#FAFAFA] p-1.5 rounded-full border border-line shadow-inset_soft flex items-center w-full relative">
+          <!-- Active Indicator (animated via JS typically, static here for CSS) -->
+          <div class="absolute left-1.5 top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-brand rounded-full shadow-brand-glow z-0 transition-transform duration-500 ease-spring"></div>
+          
+          <button class="flex-1 relative z-10 text-[13px] font-bold py-2.5 text-white transition-colors flex items-center justify-center gap-1.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-5l-3-4zm-.5 1.5 1.96 2.5H17V9.5h2.5zM6 18.5A1.5 1.5 0 0 1 4.5 17 1.5 1.5 0 0 1 6 15.5 1.5 1.5 0 0 1 7.5 17 1.5 1.5 0 0 1 6 18.5zm12 0a1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5z"/></svg>
+            Delivery
+          </button>
+          <button class="flex-1 relative z-10 text-[13px] font-bold py-2.5 text-brown-muted transition-colors flex items-center justify-center gap-1.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.35A4.6 4.6 0 0 0 13.35 0c-1.61 0-3.11.84-3.97 2.12A4.73 4.73 0 0 0 5.47 0 4.6 4.6 0 0 0 1 4.65c0 .47.06.91.18 1.35H1a1 1 0 0 0-1 1V9a1 1 0 0 0 1 1h1v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+            Pickup
+          </button>
+        </div>
+      </header>
+
+      <!-- Map Pins (Mock) -->
+      <div class="absolute inset-0 z-10 pointer-events-none flex items-center justify-center pt-20">
+        <!-- Main Pin -->
+        <div class="relative animate-[bounce_2s_infinite]">
+          <div class="absolute inset-0 rounded-full bg-brand/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+          <div class="w-12 h-12 rounded-full bg-brand text-white flex items-center justify-center shadow-[0_8px_24px_rgba(232,86,10,0.4)] border-[2.5px] border-white relative z-10">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+          </div>
+          <!-- Info bubble -->
+          <div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white px-3 py-1.5 rounded-xl shadow-md border border-line flex items-center gap-1.5 whitespace-nowrap">
+            <div class="w-2 h-2 bg-success rounded-full"></div>
+            <span class="text-[10px] font-bold text-brown uppercase">18 Min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outlet List Sheet -->
+    <div class="flex-1 bg-white shadow-float rounded-t-[32px] flex flex-col z-20 relative -mt-6">
+      
+      <div class="px-6 pt-6 pb-2">
+        <h2 class="font-display text-[18px] font-black text-brown">Nearest Outlets</h2>
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-6 pb-8 flex flex-col gap-3 hide-scrollbar pt-2">
+        
+        <!-- Outlet 1 (Selected/Active) -->
+        <div class="border-[1.5px] border-brand rounded-[24px] p-4 bg-[#FAFAFA] shadow-[0_8px_24px_rgba(232,86,10,0.15)] cursor-pointer relative overflow-hidden group active:scale-[0.97] transition-all duration-300 ease-spring" onclick="window.location.href='home.html'">
+          <div class="absolute inset-0 bg-gradient-to-br from-brand/10 to-transparent z-0 pointer-events-none"></div>
+          
+          <div class="flex justify-between items-start mb-3 relative z-10">
+            <div>
+              <h3 class="font-bold text-[16px] text-brown mb-0.5 group-hover:text-brand transition-colors">Burger Farm — CP</h3>
+              <p class="text-[12px] text-brown-muted font-medium pr-4 leading-tight">Shop 12, Block B, Connaught Place, New Delhi</p>
+            </div>
+            <div class="bg-success/10 text-success px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0 border border-success/20">Open</div>
+          </div>
+          
+          <div class="flex items-center gap-4 border-t border-brand/20 pt-3 relative z-10">
+            <div class="flex items-center gap-1.5 text-brown font-semibold text-[13px]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--tw-colors-brand-DEFAULT)"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              1.2 km
+            </div>
+            <div class="flex items-center gap-1.5 text-brown font-semibold text-[13px]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--tw-colors-brand-DEFAULT)"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z"/></svg>
+              18–22 min
+            </div>
+            <div class="ml-auto flex items-center gap-1 text-brand font-bold text-[13px]">
+              Select
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Outlet 2 -->
+        <div class="border-[1.5px] border-line rounded-[24px] p-4 bg-white shadow-soft cursor-pointer hover:border-brand/40 hover:shadow-premium transition-all duration-300 ease-spring group active:scale-[0.97]">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="font-bold text-[16px] text-brown mb-0.5">Burger Farm — Rajouri</h3>
+              <p class="text-[12px] text-brown-muted font-medium pr-4 leading-tight">J-14, Main Market Road, New Delhi</p>
+            </div>
+            <div class="bg-warning/10 text-warning px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0">Closing Soon</div>
+          </div>
+          
+          <div class="flex items-center gap-4 border-t border-line pt-3">
+            <div class="flex items-center gap-1.5 text-brown-muted font-medium text-[13px]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              2.8 km
+            </div>
+            <div class="flex items-center gap-1.5 text-brown-muted font-medium text-[13px]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z"/></svg>
+              28–32 min
+            </div>
+          </div>
+        </div>
+
+        <!-- Outlet 3 (Closed) -->
+        <div class="border border-line rounded-3xl p-4 bg-cream/50 shadow-sm opacity-60">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="font-bold text-[16px] text-brown mb-0.5">Burger Farm — Saket</h3>
+              <p class="text-[12px] text-brown-muted font-medium pr-4 leading-tight">Select Citywalk, Ground Floor, New Delhi</p>
+            </div>
+            <div class="bg-danger/10 text-danger px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0">Closed</div>
+          </div>
+          
+          <div class="flex items-center gap-4 border-t border-line/50 pt-3">
+            <div class="flex items-center gap-1.5 text-brown-muted font-medium text-[13px]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              4.5 km
+            </div>
+            <div class="flex items-center gap-1.5 text-brown-muted font-medium text-[13px]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L11 14.5V7h1.5v6.86l4.73 2.79-1 1.35z"/></svg>
+              Opens 11 AM
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+  </main>
+
+  <style>
+    /* Premium Noise Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof gsap !== 'undefined') {
+        gsap.from(".rounded-t-\\[32px\\]", { y: 40, opacity: 0, duration: 0.8, ease: "expo.out", clearProps: "all" });
+        gsap.from(".hide-scrollbar > div", { y: 20, opacity: 0, duration: 0.6, stagger: 0.1, delay: 0.2, ease: "expo.out", clearProps: "all" });
+      }
+    });
+  </script>
+</body>
+</html>

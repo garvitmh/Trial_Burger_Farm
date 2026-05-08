@@ -86,6 +86,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> signInWithGoogle() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final user = await _repository.signInWithGoogle();
+      if (user != null) {
+        state = state.copyWith(isLoading: false, user: user);
+      } else {
+        // User canceled sign-in
+        state = state.copyWith(isLoading: false);
+      }
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
   /// Go back to the phone entry screen
   void resetVerificationId() {
     state = state.copyWith(clearVerificationId: true, clearError: true);
