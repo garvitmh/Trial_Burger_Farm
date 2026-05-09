@@ -2,9 +2,9 @@
 // OUTLET CARD - Restaurant location card
 // ============================================================================
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_dimensions.dart';
-import '../constants/app_typography.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
 
 enum OutletStatus { open, closingSoon, closed }
 
@@ -78,7 +78,7 @@ class OutletCard extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.brand.withOpacity(0.15),
+                    color: AppColors.brand.withValues(alpha: 0.15),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
@@ -111,7 +111,7 @@ class OutletCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: _statusBgColor,
                     borderRadius: BorderRadius.circular(7),
-                    border: Border.all(color: _statusColor.withOpacity(0.2)),
+                    border: Border.all(color: _statusColor.withValues(alpha: 0.2)),
                   ),
                   child: Text(
                     _statusLabel,

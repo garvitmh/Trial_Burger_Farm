@@ -5,14 +5,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/router/app_router.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
-import '../../../../core/constants/app_typography.dart';
-import '../../../../core/widgets/app_logo.dart';
-import '../../../../core/widgets/brand_button.dart';
-import '../../../../core/widgets/preference_toggle.dart';
-import '../../../../core/widgets/craving_chip.dart';
+import 'package:burger_farm_app/app/router/app_router.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
+import 'package:burger_farm_app/core/widgets/app_logo.dart';
+import 'package:burger_farm_app/core/widgets/brand_button.dart';
+import 'package:burger_farm_app/core/widgets/preference_toggle.dart';
+import 'package:burger_farm_app/core/widgets/craving_chip.dart';
 
 class PreferencesScreen extends ConsumerStatefulWidget {
   const PreferencesScreen({super.key});
@@ -83,7 +83,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                       decoration: BoxDecoration(
                         gradient: RadialGradient(
                           colors: [
-                            AppColors.white.withOpacity(0.15),
+                            AppColors.white.withValues(alpha: 0.15),
                             AppColors.transparent,
                           ],
                         ),
@@ -99,7 +99,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                       decoration: BoxDecoration(
                         gradient: RadialGradient(
                           colors: [
-                            AppColors.brown.withOpacity(0.15),
+                            AppColors.brown.withValues(alpha: 0.15),
                             AppColors.transparent,
                           ],
                         ),
@@ -115,10 +115,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: AppColors.white.withOpacity(0.2),
+                            color: AppColors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: AppColors.white.withOpacity(0.3),
+                              color: AppColors.white.withValues(alpha: 0.3),
                             ),
                             boxShadow: AppShadows.glow,
                           ),
@@ -136,7 +136,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                         Text(
                           'Tell us how you like it',
                           style: AppTypography.body13.copyWith(
-                            color: AppColors.white.withOpacity(0.8),
+                            color: AppColors.white.withValues(alpha: 0.8),
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -176,7 +176,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                             child: Container(
                               height: 8,
                               decoration: BoxDecoration(
-                                color: AppColors.brand.withOpacity(0.2),
+                                color: AppColors.brand.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: FractionallySizedBox(
@@ -196,7 +196,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                             child: Container(
                               height: 8,
                               decoration: BoxDecoration(
-                                color: AppColors.brand.withOpacity(0.2),
+                                color: AppColors.brand.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: FractionallySizedBox(
@@ -220,7 +220,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                                 borderRadius: BorderRadius.circular(4),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.brand.withOpacity(0.4),
+                                    color: AppColors.brand.withValues(alpha: 0.4),
                                     blurRadius: 8,
                                   ),
                                 ],

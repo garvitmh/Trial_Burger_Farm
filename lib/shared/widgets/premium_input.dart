@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_animations.dart';
-import '../../core/theme/app_shadows.dart';
-import '../../core/theme/app_typography.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
 
 /// Styled input field with animated focus state and brand border glow.
 class PremiumInput extends StatefulWidget {
@@ -74,14 +73,14 @@ class _PremiumInputState extends State<PremiumInput> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: _focused
-                    ? AppColors.brand.withOpacity(0.4)
+                    ? AppColors.brand.withValues(alpha: 0.4)
                     : AppColors.line,
                 width: 1.5,
               ),
               boxShadow: _focused
                   ? [
                       BoxShadow(
-                        color: AppColors.brand.withOpacity(0.15),
+                        color: AppColors.brand.withValues(alpha: 0.15),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
@@ -111,7 +110,7 @@ class _PremiumInputState extends State<PremiumInput> {
                       hintText: widget.placeholder,
                       hintStyle: AppTypography.body(
                         size: 16,
-                        color: AppColors.brownMuted.withOpacity(0.4),
+                        color: AppColors.brownMuted.withValues(alpha: 0.4),
                       ),
                       border: InputBorder.none,
                       counterText: '',

@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/router/app_router.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
-import '../../../../core/constants/app_typography.dart';
-import '../../../../core/widgets/app_logo.dart';
-import '../../../../core/widgets/brand_button.dart';
+import 'package:burger_farm_app/app/router/app_router.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
+import 'package:burger_farm_app/core/widgets/app_logo.dart';
+import 'package:burger_farm_app/core/widgets/brand_button.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
@@ -57,7 +57,7 @@ class OnboardingScreen extends ConsumerWidget {
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            AppColors.white.withOpacity(0.1),
+                            AppColors.white.withValues(alpha: 0.1),
                             AppColors.transparent,
                           ],
                         ),
@@ -75,7 +75,7 @@ class OnboardingScreen extends ConsumerWidget {
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            AppColors.white.withOpacity(0.08),
+                            AppColors.white.withValues(alpha: 0.08),
                             AppColors.transparent,
                           ],
                         ),
@@ -115,16 +115,16 @@ class OnboardingScreen extends ConsumerWidget {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.white.withOpacity(0.1),
+                          color: AppColors.white.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(100),
                           border: Border.all(
-                            color: AppColors.white.withOpacity(0.1),
+                            color: AppColors.white.withValues(alpha: 0.1),
                           ),
                         ),
                         child: Text(
                           'Skip',
                           style: AppTypography.body11.copyWith(
-                            color: AppColors.white.withOpacity(0.9),
+                            color: AppColors.white.withValues(alpha: 0.9),
                             letterSpacing: 2,
                           ),
                         ),
@@ -140,14 +140,14 @@ class OnboardingScreen extends ConsumerWidget {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: AppColors.white.withOpacity(0.1),
+                            color: AppColors.white.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: AppColors.white.withOpacity(0.2),
+                              color: AppColors.white.withValues(alpha: 0.2),
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.black.withOpacity(0.2),
+                                color: AppColors.black.withValues(alpha: 0.2),
                                 blurRadius: 40,
                               ),
                             ],
@@ -242,7 +242,7 @@ class OnboardingScreen extends ConsumerWidget {
                                 margin: const EdgeInsets.only(top: 2),
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: AppColors.brand.withOpacity(0.1),
+                                  color: AppColors.brand.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
@@ -340,7 +340,7 @@ class _FloatingOrbState extends State<_FloatingOrb>
         width: widget.size,
         height: widget.size,
         decoration: BoxDecoration(
-          color: widget.color.withOpacity(
+          color: widget.color.withValues(alpha: 
             widget.opacity * (0.6 + 0.4 * _controller.value),
           ),
           shape: BoxShape.circle,
@@ -349,7 +349,7 @@ class _FloatingOrbState extends State<_FloatingOrb>
           filter: ImageFilter.blur(sigmaX: widget.size * 0.2, sigmaY: widget.size * 0.2),
           child: Container(
             decoration: BoxDecoration(
-              color: widget.color.withOpacity(0.05),
+              color: widget.color.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
           ),
@@ -372,12 +372,12 @@ class _FeatureCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         decoration: BoxDecoration(
-          color: AppColors.cream.withOpacity(0.4),
+          color: AppColors.cream.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.line.withOpacity(0.5)),
+          border: Border.all(color: AppColors.line.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
-              color: AppColors.brown.withOpacity(0.02),
+              color: AppColors.brown.withValues(alpha: 0.02),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -393,12 +393,12 @@ class _FeatureCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.brown.withOpacity(0.04),
+                    color: AppColors.brown.withValues(alpha: 0.04),
                     blurRadius: 8,
                   ),
                 ],
                 border: Border.all(
-                  color: AppColors.line.withOpacity(0.3),
+                  color: AppColors.line.withValues(alpha: 0.3),
                 ),
               ),
               child: Icon(icon, size: 18, color: AppColors.brand),

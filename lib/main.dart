@@ -3,15 +3,45 @@ import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'app/router/app_router.dart';
-import 'core/theme/app_colors.dart';
-import 'core/theme/app_typography.dart';
+import 'package:burger_farm_app/app/router/app_router.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp();
+  // Initialize Firebase with error handling
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    // Firebase failed — show error UI
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                const SizedBox(height: 16),
+                const Text(
+                  'Failed to initialize Firebase',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Error: $e',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    return;
+  }
 
   // Lock to portrait
   await SystemChrome.setPreferredOrientations([
@@ -60,7 +90,6 @@ class BurgerFarmApp extends ConsumerWidget {
           backgroundColor: Colors.white,
           foregroundColor: AppColors.brown,
         ),
-        textTheme: AppTypography.textTheme,
         fontFamily: AppTypography.bodyFont,
         scaffoldBackgroundColor: AppColors.warmBg,
       ),

@@ -5,13 +5,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/router/app_router.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
-import '../../../../core/constants/app_typography.dart';
-import '../../../../core/widgets/brand_button.dart';
-import '../../../../core/widgets/brand_text_field.dart';
-import '../../../../core/widgets/address_tag.dart';
+import 'package:burger_farm_app/app/router/app_router.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
+import 'package:burger_farm_app/core/widgets/brand_button.dart';
+import 'package:burger_farm_app/core/widgets/brand_text_field.dart';
+import 'package:burger_farm_app/core/widgets/address_tag.dart';
 
 class AddressDetailScreen extends ConsumerStatefulWidget {
   const AddressDetailScreen({super.key});
@@ -77,7 +77,7 @@ class _AddressDetailScreenState extends ConsumerState<AddressDetailScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          AppColors.white.withOpacity(0.95),
+                          AppColors.white.withValues(alpha: 0.95),
                           AppColors.transparent,
                         ],
                       ),
@@ -103,7 +103,7 @@ class _AddressDetailScreenState extends ConsumerState<AddressDetailScreen> {
                               border: Border.all(color: AppColors.line),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.brown.withOpacity(0.05),
+                                  color: AppColors.brown.withValues(alpha: 0.05),
                                   blurRadius: 8,
                                 ),
                               ],

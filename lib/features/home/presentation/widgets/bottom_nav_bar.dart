@@ -1,12 +1,12 @@
 // ============================================================================
 // BOTTOM NAV BAR - Floating glassmorphic navigation
 // 4 tabs: Home, Offers, Orders, Profile
-// Matches: home.html bottom navigation pixel-perfect
 // ============================================================================
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
-import '../../../../core/constants/app_typography.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
 
 class BottomNavBar extends StatelessWidget {
   const BottomNavBar({super.key});
@@ -16,19 +16,19 @@ class BottomNavBar extends StatelessWidget {
     return Container(
       height: AppDimensions.bottomNavHeight,
       decoration: BoxDecoration(
-        color: AppColors.white.withOpacity(0.95),
+        color: AppColors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(32),
         border: Border.all(
-          color: AppColors.line.withOpacity(0.4),
+          color: AppColors.line.withValues(alpha: 0.4),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.brown.withOpacity(0.08),
+            color: AppColors.brown.withValues(alpha: 0.08),
             blurRadius: 32,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: AppColors.brown.withOpacity(0.04),
+            color: AppColors.brown.withValues(alpha: 0.04),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
@@ -37,7 +37,7 @@ class BottomNavBar extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
         child: BackdropFilter(
-          filter: const ColorFilter.mode(Colors.transparent, BlendMode.srcOver),
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -95,7 +95,7 @@ class _NavItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: isActive
             ? BoxDecoration(
-                color: AppColors.brand.withOpacity(0.08),
+                color: AppColors.brand.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(20),
               )
             : null,

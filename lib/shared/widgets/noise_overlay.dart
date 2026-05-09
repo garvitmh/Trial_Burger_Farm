@@ -26,7 +26,7 @@ class NoiseOverlay extends StatelessWidget {
 class _NoisePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withOpacity(0.02);
+    final paint = Paint()..color = Colors.black.withValues(alpha: 0.02);
     final rng = Random(42); // fixed seed → deterministic texture
     final count = (size.width * size.height * 0.08).toInt();
     for (var i = 0; i < count; i++) {

@@ -2,8 +2,8 @@
 // CATEGORY CHIP - Scrollable category item
 // ============================================================================
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
 
 class CategoryChip extends StatelessWidget {
   final String label;
@@ -35,7 +35,7 @@ class CategoryChip extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
               border: isActive
                   ? null
-                  : Border.all(color: AppColors.line.withOpacity(0.6)),
+                  : Border.all(color: AppColors.line.withValues(alpha: 0.6)),
               boxShadow: isActive ? AppShadows.brandGlow : AppShadows.premium,
             ),
             child: Icon(

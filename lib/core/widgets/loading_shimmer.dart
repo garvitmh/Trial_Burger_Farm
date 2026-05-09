@@ -3,7 +3,7 @@
 // ============================================================================
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import '../constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
 
 class LoadingShimmer extends StatelessWidget {
   final double? width;
@@ -30,7 +30,7 @@ class LoadingShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AppColors.line.withOpacity(0.5),
+      baseColor: AppColors.line.withValues(alpha: 0.5),
       highlightColor: AppColors.white,
       child: Container(
         width: width,

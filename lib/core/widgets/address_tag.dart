@@ -2,8 +2,8 @@
 // ADDRESS TAG - Home / Work / Other selection
 // ============================================================================
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
 
 class AddressTag extends StatelessWidget {
   final String label;
@@ -28,7 +28,7 @@ class AddressTag extends StatelessWidget {
         curve: AppAnimations.spring,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.brand.withOpacity(0.05) : AppColors.white,
+          color: isSelected ? AppColors.brand.withValues(alpha: 0.05) : AppColors.white,
           borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
           border: Border.all(
             color: isSelected ? AppColors.brand : AppColors.line,

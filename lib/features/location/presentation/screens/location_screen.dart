@@ -5,11 +5,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/router/app_router.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
-import '../../../../core/constants/app_typography.dart';
-import '../../../../core/widgets/brand_button.dart';
+import 'package:burger_farm_app/app/router/app_router.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
+import 'package:burger_farm_app/core/widgets/brand_button.dart';
 
 class LocationScreen extends ConsumerWidget {
   const LocationScreen({super.key});
@@ -46,7 +46,7 @@ class LocationScreen extends ConsumerWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.brandLight.withOpacity(0.1),
+                    AppColors.brandLight.withValues(alpha: 0.1),
                     AppColors.transparent,
                   ],
                 ),
@@ -91,7 +91,7 @@ class LocationScreen extends ConsumerWidget {
                   Text(
                     "We'll show you the closest outlet and your estimated delivery time.",
                     style: AppTypography.body15.copyWith(
-                      color: AppColors.white.withOpacity(0.8),
+                      color: AppColors.white.withValues(alpha: 0.8),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -101,7 +101,7 @@ class LocationScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.white.withOpacity(0.25),
+                          color: AppColors.white.withValues(alpha: 0.25),
                           blurRadius: 32,
                           offset: const Offset(0, 12),
                         ),
@@ -117,14 +117,14 @@ class LocationScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Container(
                     decoration: BoxDecoration(
-                      color: AppColors.white.withOpacity(0.05),
+                      color: AppColors.white.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppColors.white.withOpacity(0.2),
+                        color: AppColors.white.withValues(alpha: 0.2),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.black.withOpacity(0.05),
+                          color: AppColors.black.withValues(alpha: 0.05),
                           blurRadius: 8,
                         ),
                       ],
@@ -162,7 +162,7 @@ class LocationScreen extends ConsumerWidget {
             child: Container(
               height: 5,
               decoration: BoxDecoration(
-                color: AppColors.white.withOpacity(0.4),
+                color: AppColors.white.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -178,7 +178,7 @@ class _MapPatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.white.withOpacity(0.05)
+      ..color = AppColors.white.withValues(alpha: 0.05)
       ..strokeWidth = 1;
 
     const spacing = 32.0;
@@ -228,7 +228,7 @@ class _SpinningGradientState extends State<_SpinningGradient>
         decoration: BoxDecoration(
           gradient: RadialGradient(
             colors: [
-              AppColors.white.withOpacity(0.12),
+              AppColors.white.withValues(alpha: 0.12),
               AppColors.transparent,
             ],
           ),
@@ -288,10 +288,10 @@ class _AnimatedLocationPinState extends State<_AnimatedLocationPin>
             width: 96,
             height: 96,
             decoration: BoxDecoration(
-              color: AppColors.white.withOpacity(0.1),
+              color: AppColors.white.withValues(alpha: 0.1),
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.white.withOpacity(0.2),
+                color: AppColors.white.withValues(alpha: 0.2),
               ),
               boxShadow: AppShadows.glow,
             ),
@@ -315,7 +315,7 @@ class _AnimatedLocationPinState extends State<_AnimatedLocationPin>
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: AppColors.white.withOpacity(opacity),
+            color: AppColors.white.withValues(alpha: opacity),
             width: 1,
           ),
         ),

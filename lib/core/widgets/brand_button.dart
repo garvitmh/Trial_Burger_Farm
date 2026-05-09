@@ -2,9 +2,9 @@
 // BRAND BUTTON - Primary CTA button with shimmer effect
 // ============================================================================
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_dimensions.dart';
-import '../constants/app_typography.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
 
 class BrandButton extends StatelessWidget {
   final String text;
@@ -50,8 +50,8 @@ class BrandButton extends StatelessWidget {
         child: InkWell(
           onTap: isLoading ? null : onPressed,
           splashColor: isSecondary
-              ? AppColors.brand.withOpacity(0.1)
-              : AppColors.white.withOpacity(0.2),
+              ? AppColors.brand.withValues(alpha: 0.1)
+              : AppColors.white.withValues(alpha: 0.2),
           child: Container(
             height: height ?? AppDimensions.buttonHeight,
             alignment: Alignment.center,

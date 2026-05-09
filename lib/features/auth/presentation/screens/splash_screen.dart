@@ -8,10 +8,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/router/app_router.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_typography.dart';
-import '../../../../core/widgets/app_logo.dart';
+import 'package:burger_farm_app/app/router/app_router.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
+import 'package:burger_farm_app/core/widgets/app_logo.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -118,20 +118,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.white.withOpacity(0.1),
+                        color: AppColors.white.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: AppColors.white.withOpacity(0.2),
+                          color: AppColors.white.withValues(alpha: 0.2),
                           width: 1,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.black.withOpacity(0.25),
+                            color: AppColors.black.withValues(alpha: 0.25),
                             blurRadius: 40,
                             offset: const Offset(0, 12),
                           ),
                           BoxShadow(
-                            color: AppColors.white.withOpacity(0.2),
+                            color: AppColors.white.withValues(alpha: 0.2),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -178,7 +178,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         fontSize: 20,
                         fontWeight: FontWeight.w400,
                         fontStyle: FontStyle.italic,
-                        color: AppColors.white.withOpacity(0.95),
+                        color: AppColors.white.withValues(alpha: 0.95),
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -202,7 +202,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             child: Container(
               height: 5,
               decoration: BoxDecoration(
-                color: AppColors.white.withOpacity(0.3),
+                color: AppColors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -258,7 +258,7 @@ class _AmbientOrbState extends State<_AmbientOrb>
         width: widget.size,
         height: widget.size,
         decoration: BoxDecoration(
-          color: widget.color.withOpacity(
+          color: widget.color.withValues(alpha: 
             widget.opacity * (0.7 + 0.3 * _controller.value),
           ),
           shape: BoxShape.circle,
@@ -267,7 +267,7 @@ class _AmbientOrbState extends State<_AmbientOrb>
           filter: ImageFilter.blur(sigmaX: widget.size * 0.2, sigmaY: widget.size * 0.2),
           child: Container(
             decoration: BoxDecoration(
-              color: widget.color.withOpacity(0.1),
+              color: widget.color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
           ),
@@ -282,7 +282,7 @@ class _WavePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.8)
+      ..color = Colors.white.withValues(alpha: 0.8)
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -371,7 +371,7 @@ class _SplashOrbitLoaderState extends State<_SplashOrbitLoader>
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.26),
+                          color: Colors.white.withValues(alpha: 0.26),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -393,7 +393,7 @@ class _SplashOrbitLoaderState extends State<_SplashOrbitLoader>
         Text(
           'Tap to continue',
           style: AppTypography.body10.copyWith(
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
             letterSpacing: 2.5,
           ),
         ),
@@ -414,7 +414,7 @@ class _SplashOrbitLoaderState extends State<_SplashOrbitLoader>
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.18),
+          color: Colors.white.withValues(alpha: 0.18),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: Colors.white, size: 20),
@@ -438,7 +438,7 @@ class _SemiArcPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.3)
+      ..color = Colors.white.withValues(alpha: 0.3)
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -488,7 +488,7 @@ class _AnimatedLoadingBarState extends State<_AnimatedLoadingBar>
     return Container(
       height: 4,
       decoration: BoxDecoration(
-        color: AppColors.white.withOpacity(0.1),
+        color: AppColors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(2),
       ),
       child: AnimatedBuilder(
@@ -504,7 +504,7 @@ class _AnimatedLoadingBarState extends State<_AnimatedLoadingBar>
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.white.withOpacity(0.9),
+                  color: AppColors.white.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

@@ -1,15 +1,17 @@
-import '../../domain/entities/user_entity.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../datasources/firebase_auth_data_source.dart';
-import '../datasources/node_auth_remote_data_source.dart';
+import 'package:burger_farm_app/core/config/app_config.dart';
+import 'package:burger_farm_app/features/auth/domain/entities/user_entity.dart';
+import 'package:burger_farm_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:burger_farm_app/features/auth/data/datasources/firebase_auth_data_source.dart';
+import 'package:burger_farm_app/features/auth/data/datasources/node_auth_remote_data_source.dart';
+import 'package:burger_farm_app/core/services/secure_storage_service.dart';
 
+/// Implementation of [AuthRepository] that coordinates Firebase and backend auth.
+///
+/// Phase 0 (Firebase-only): Set [AppConfig.useFirebaseOnlyMode] = true to
+/// skip backend JWT exchange during initial testing.
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuthDataSource firebaseDataSource;
   final NodeAuthRemoteDataSource nodeDataSource;
-
-  /// Set this to true to skip the Node.js backend call during Phase 0 testing.
-  /// When false (production), the Firebase ID token is exchanged for a backend JWT.
-  static const bool _phase0FirebaseOnlyMode = true;
 
   AuthRepositoryImpl({
     required this.firebaseDataSource,
@@ -18,7 +20,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<String> sendOtp(String phoneNumber) async {
-    return await firebaseDataSource.sendOtp(phoneNumber);
+    return firebaseDataSource.sendOtp(phoneNumber);
   }
 
   @override
@@ -35,12 +37,11 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     // Phase 0: Return Firebase user directly without calling Node.js backend.
-    // This lets you test the full OTP flow without the backend server running.
-    if (_phase0FirebaseOnlyMode) {
+    if (AppConfig.useFirebaseOnlyMode) {
       return UserEntity(
         id: firebaseUser.uid,
         phone: firebaseUser.phoneNumber ?? 'Unknown',
-        token: null, // No backend JWT in Phase 0 mode
+        token: null,
       );
     }
 
@@ -53,18 +54,24 @@ class AuthRepositoryImpl implements AuthRepository {
 
     // Production: Step 3 — Exchange Firebase ID token for backend JWT
     final backendData = await nodeDataSource.verifyIdToken(idToken);
+    final token = backendData['token'] as String?;
+
+    // Persist the backend JWT
+    if (token != null) {
+      await SecureStorageService.setAccessToken(token);
+    }
 
     return UserEntity(
-      id: backendData['user']['_id'],
-      phone: backendData['user']['phone'],
-      token: backendData['token'],
+      id: backendData['user']['_id'] as String,
+      phone: backendData['user']['phone'] as String,
+      token: token,
     );
   }
 
   @override
   Future<UserEntity?> signInWithGoogle() async {
     final userCredential = await firebaseDataSource.signInWithGoogle();
-    
+
     if (userCredential == null) {
       return null; // User canceled
     }
@@ -74,7 +81,7 @@ class AuthRepositoryImpl implements AuthRepository {
       throw Exception('Firebase Google Auth failed');
     }
 
-    if (_phase0FirebaseOnlyMode) {
+    if (AppConfig.useFirebaseOnlyMode) {
       return UserEntity(
         id: firebaseUser.uid,
         phone: firebaseUser.phoneNumber ?? firebaseUser.email ?? 'Unknown',
@@ -88,10 +95,24 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     final backendData = await nodeDataSource.verifyIdToken(idToken);
+    final token = backendData['token'] as String?;
+
+    if (token != null) {
+      await SecureStorageService.setAccessToken(token);
+    }
+
     return UserEntity(
-      id: backendData['user']['_id'],
-      phone: backendData['user']['phone'] ?? backendData['user']['email'],
-      token: backendData['token'],
+      id: backendData['user']['_id'] as String,
+      phone: backendData['user']['phone'] as String? ??
+          backendData['user']['email'] as String? ??
+          'Unknown',
+      token: token,
     );
+  }
+
+  @override
+  Future<void> signOut() async {
+    await SecureStorageService.clearAll();
+    await firebaseDataSource.signOut();
   }
 }

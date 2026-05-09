@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/premium_button.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
+import 'package:burger_farm_app/shared/widgets/premium_button.dart';
 
 
 /// Menu item detail screen — stub for Phase 2.
@@ -30,11 +30,11 @@ class DetailScreen extends ConsumerWidget {
             child: const Icon(Icons.arrow_back, size: 20, color: AppColors.brand),
           ),
         ),
-        title: Text('Item Detail', style: AppTypography.display(size: 18)),
+        title: Text('Item Detail', style: AppTypography.display18),
       ),
       body: Center(
         child: Text('🚧 Phase 2 — Coming soon',
-            style: AppTypography.body(size: 14, color: AppColors.brownMuted)),
+            style: AppTypography.body14.copyWith(color: AppColors.brownMuted)),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(24),

@@ -2,9 +2,9 @@
 // ADDRESS ITEM - Saved address list item
 // ============================================================================
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_dimensions.dart';
-import '../constants/app_typography.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
 
 class AddressItem extends StatelessWidget {
   final String label;
@@ -51,7 +51,7 @@ class AddressItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(AppDimensions.radius2xl - 4),
-          border: Border.all(color: AppColors.line.withOpacity(0.4)),
+          border: Border.all(color: AppColors.line.withValues(alpha: 0.4)),
           boxShadow: AppShadows.card,
         ),
         child: Row(
@@ -60,9 +60,9 @@ class AddressItem extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: iconBgColor.withOpacity(0.1),
+                color: iconBgColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.line.withOpacity(0.5)),
+                border: Border.all(color: AppColors.line.withValues(alpha: 0.5)),
               ),
               child: Icon(icon, size: 20, color: AppColors.brown),
             ),
@@ -90,7 +90,7 @@ class AddressItem extends StatelessWidget {
                   Text(
                     subtitle,
                     style: AppTypography.body11.copyWith(
-                      color: AppColors.brownMuted.withOpacity(0.5),
+                      color: AppColors.brownMuted.withValues(alpha: 0.5),
                       letterSpacing: 0.5,
                     ),
                   ),

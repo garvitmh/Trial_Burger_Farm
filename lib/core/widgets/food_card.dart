@@ -2,9 +2,9 @@
 // FOOD CARD - Popular item card matching HTML design
 // ============================================================================
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_dimensions.dart';
-import '../constants/app_typography.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
 
 class FoodCard extends StatelessWidget {
   final String name;
@@ -35,7 +35,7 @@ class FoodCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.white.withOpacity(0.8),
+          color: AppColors.white.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
           border: Border.all(color: AppColors.line, width: 1.5),
           boxShadow: AppShadows.premium,

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_animations.dart';
-import '../../core/theme/app_shadows.dart';
-import '../../core/theme/app_typography.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
 
 /// The primary CTA button used across all screens.
 /// Features: press-scale animation, shimmer overlay, brand glow shadow.
@@ -86,7 +85,7 @@ class _PremiumButtonState extends State<PremiumButton>
                       gradient: LinearGradient(
                         colors: [
                           Colors.transparent,
-                          Colors.white.withOpacity(0.15),
+                          Colors.white.withValues(alpha: 0.15),
                           Colors.transparent,
                         ],
                         stops: const [0.0, 0.5, 1.0],
@@ -110,9 +109,8 @@ class _PremiumButtonState extends State<PremiumButton>
                           children: [
                             Text(
                               widget.text,
-                              style: AppTypography.display(
-                                size: 16,
-                                weight: FontWeight.w700,
+                              style: AppTypography.display16.copyWith(
+                                fontWeight: FontWeight.w700,
                                 color: widget.textColor ?? Colors.white,
                               ),
                             ),

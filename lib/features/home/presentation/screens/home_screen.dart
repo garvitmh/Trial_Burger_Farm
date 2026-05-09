@@ -1,61 +1,27 @@
 // ============================================================================
 // HOME SCREEN - Main app screen with bottom navigation
-// Header, hero banner, categories, popular items, bottom nav
-// Matches: home.html pixel-perfect
+// TODO: Replace HomeMockData with real API calls via HomeRepository
 // ============================================================================
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_typography.dart';
-import '../../../../core/widgets/food_card.dart';
-import '../../../../core/widgets/category_chip.dart';
-import '../widgets/bottom_nav_bar.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
+import 'package:burger_farm_app/core/widgets/food_card.dart';
+import 'package:burger_farm_app/core/widgets/category_chip.dart';
+import 'package:burger_farm_app/features/home/presentation/widgets/bottom_nav_bar.dart';
+import 'package:burger_farm_app/features/home/data/home_mock_data.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  final List<Map<String, dynamic>> _categories = const [
-    {'label': 'Burgers', 'icon': Icons.fastfood},
-    {'label': 'Sides', 'icon': Icons.local_pizza},
-    {'label': 'Drinks', 'icon': Icons.local_drink},
-    {'label': 'Desserts', 'icon': Icons.cake},
-  ];
-
-  final List<Map<String, dynamic>> _foodItems = const [
-    {
-      'name': 'Fresh Farmhouse',
-      'description': 'Veg Patty, Lettuce, Tomato, Cheese',
-      'price': '₹249',
-      'image': 'assets/images/veg_burger.png',
-      'isVeg': true,
-    },
-    {
-      'name': 'Spicy Royal Crunch',
-      'description': 'Crispy Chicken, Spicy Sauce, Coleslaw',
-      'price': '₹289',
-      'image': 'assets/images/nonveg_burger.png',
-      'isVeg': false,
-    },
-    {
-      'name': 'BBQ Smokehouse',
-      'description': 'Grilled Chicken, BBQ Sauce, Onion Rings',
-      'price': '₹329',
-      'image': 'assets/images/nonveg_burger.png',
-      'isVeg': false,
-    },
-    {
-      'name': 'Veggie Delight',
-      'description': 'Veg Patty, Lettuce, Tomato, Pickles',
-      'price': '₹199',
-      'image': 'assets/images/veg_burger.png',
-      'isVeg': true,
-    },
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    // TODO: Replace with: final homeData = ref.watch(homeDataProvider);
+    final categories = HomeMockData.categories;
+    final foodItems = HomeMockData.foodItems;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -68,24 +34,27 @@ class HomeScreen extends ConsumerWidget {
               CustomScrollView(
                 slivers: [
                   // ─── Header Section ───
-                  SliverToBoxAdapter(
+                  const SliverToBoxAdapter(
                     child: _HomeHeader(),
                   ),
                   // ─── Search Bar ───
-                  SliverToBoxAdapter(
+                  const SliverToBoxAdapter(
                     child: _SearchBar(),
                   ),
                   // ─── Hero Banner ───
-                  SliverToBoxAdapter(
+                  const SliverToBoxAdapter(
                     child: _HeroBanner(),
                   ),
                   // ─── Categories ───
                   SliverToBoxAdapter(
-                    child: _CategoriesSection(categories: _categories),
+                    child: _CategoriesSection(categories: categories),
                   ),
                   // ─── Popular Section Title ───
                   SliverToBoxAdapter(
-                    child: _SectionTitle(title: 'Popular Near You', subtitle: '4 Items'),
+                    child: _SectionTitle(
+                      title: 'Popular Near You',
+                      subtitle: '${foodItems.length} Items',
+                    ),
                   ),
                   // ─── Food List ───
                   SliverPadding(
@@ -93,19 +62,21 @@ class HomeScreen extends ConsumerWidget {
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          final item = _foodItems[index];
+                          final item = foodItems[index];
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: FoodCard(
                               name: item['name'] as String,
                               description: item['description'] as String,
-                              price: item['price'] as String,
+                              price: '₹${item['price']}',
                               imagePath: item['image'] as String,
                               isVeg: item['isVeg'] as bool,
                               onAddToCart: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('${item['name']} added to cart!'),
+                                    content: Text(
+                                      '${item['name']} added to cart!',
+                                    ),
                                     duration: const Duration(seconds: 1),
                                   ),
                                 );
@@ -113,7 +84,7 @@ class HomeScreen extends ConsumerWidget {
                             ),
                           );
                         },
-                        childCount: _foodItems.length,
+                        childCount: foodItems.length,
                       ),
                     ),
                   ),
@@ -140,6 +111,8 @@ class HomeScreen extends ConsumerWidget {
 
 // ─── Home Header ───
 class _HomeHeader extends StatelessWidget {
+  const _HomeHeader();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -155,12 +128,14 @@ class _HomeHeader extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.brand.withOpacity(0.1),
+                  color: AppColors.brand.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(13),
-                  border: Border.all(color: AppColors.brand.withOpacity(0.15)),
+                  border: Border.all(
+                    color: AppColors.brand.withValues(alpha: 0.15),
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.brand.withOpacity(0.1),
+                      color: AppColors.brand.withValues(alpha: 0.1),
                       blurRadius: 8,
                     ),
                   ],
@@ -236,7 +211,7 @@ class _HomeHeader extends StatelessWidget {
                   border: Border.all(color: AppColors.line),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.brown.withOpacity(0.04),
+                      color: AppColors.brown.withValues(alpha: 0.04),
                       blurRadius: 8,
                     ),
                   ],
@@ -253,7 +228,7 @@ class _HomeHeader extends StatelessWidget {
           // Divider
           Container(
             height: 1,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
                   AppColors.transparent,
@@ -272,6 +247,8 @@ class _HomeHeader extends StatelessWidget {
 
 // ─── Search Bar ───
 class _SearchBar extends StatelessWidget {
+  const _SearchBar();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -284,7 +261,7 @@ class _SearchBar extends StatelessWidget {
           border: Border.all(color: AppColors.line),
           boxShadow: [
             BoxShadow(
-              color: AppColors.brown.withOpacity(0.03),
+              color: AppColors.brown.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -319,6 +296,8 @@ class _SearchBar extends StatelessWidget {
 
 // ─── Hero Banner ───
 class _HeroBanner extends StatelessWidget {
+  const _HeroBanner();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -328,15 +307,15 @@ class _HeroBanner extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.warmBg,
           borderRadius: BorderRadius.circular(32),
-          border: Border.all(color: AppColors.line.withOpacity(0.3)),
+          border: Border.all(color: AppColors.line.withValues(alpha: 0.3)),
           boxShadow: [
             BoxShadow(
-              color: AppColors.brown.withOpacity(0.04),
+              color: AppColors.brown.withValues(alpha: 0.04),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
             BoxShadow(
-              color: AppColors.brand.withOpacity(0.04),
+              color: AppColors.brand.withValues(alpha: 0.04),
               blurRadius: 32,
               offset: const Offset(0, 8),
             ),
@@ -355,7 +334,7 @@ class _HeroBanner extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.brand.withOpacity(0.08),
+                      AppColors.brand.withValues(alpha: 0.08),
                       AppColors.transparent,
                     ],
                   ),
@@ -372,7 +351,7 @@ class _HeroBanner extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.brown.withOpacity(0.05),
+                      AppColors.brown.withValues(alpha: 0.05),
                       AppColors.transparent,
                     ],
                   ),
@@ -410,10 +389,10 @@ class _HeroBanner extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.brand.withOpacity(0.08),
+                            color: AppColors.brand.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: AppColors.brand.withOpacity(0.2),
+                              color: AppColors.brand.withValues(alpha: 0.2),
                             ),
                           ),
                           child: Text(
@@ -443,7 +422,7 @@ class _HeroBanner extends StatelessWidget {
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                AppColors.brand.withOpacity(0.15),
+                                AppColors.brand.withValues(alpha: 0.15),
                                 AppColors.transparent,
                               ],
                             ),
@@ -454,12 +433,11 @@ class _HeroBanner extends StatelessWidget {
                           'assets/images/nonveg_burger.png',
                           height: 130,
                           fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Icon(
-                                Icons.fastfood,
-                                size: 80,
-                                color: AppColors.brand.withOpacity(0.5),
-                              ),
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            Icons.fastfood,
+                            size: 80,
+                            color: AppColors.brand.withValues(alpha: 0.5),
+                          ),
                         ),
                       ],
                     ),
@@ -514,7 +492,7 @@ class _CategoriesSection extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: categories.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              separatorBuilder: (context, index) => const SizedBox(width: 14),
               itemBuilder: (context, index) {
                 final cat = categories[index];
                 return CategoryChip(
@@ -529,7 +507,7 @@ class _CategoriesSection extends StatelessWidget {
           // Divider
           Container(
             height: 1,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
                   AppColors.transparent,

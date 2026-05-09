@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
+import 'package:burger_farm_app/features/auth/presentation/providers/auth_provider.dart';
 
 class TestAuthScreen extends ConsumerStatefulWidget {
   const TestAuthScreen({super.key});

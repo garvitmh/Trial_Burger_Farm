@@ -1,19 +1,17 @@
 // ============================================================================
 // LOGIN SCREEN - Phone input, OTP, Social login, Guest
-// Matches: login.html pixel-perfect
-// Auth-agnostic: uses AuthActions provider (swappable implementation)
 // ============================================================================
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/router/app_router.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
-import '../../../../core/constants/app_typography.dart';
-import '../../../../core/widgets/app_logo.dart';
-import '../../../../core/widgets/brand_button.dart';
-import '../providers/auth_provider.dart';
+import 'package:burger_farm_app/app/router/app_router.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
+import 'package:burger_farm_app/core/widgets/app_logo.dart';
+import 'package:burger_farm_app/core/widgets/brand_button.dart';
+import 'package:burger_farm_app/features/auth/presentation/providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -31,7 +29,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _sendOtp() async {
+  void _sendOtp() {
     final phone = _phoneController.text.trim();
     if (phone.length != 10) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -42,7 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.read(authProvider.notifier).sendOtp('+91$phone');
   }
 
-  Future<void> _continueAsGuest() async {
+  void _continueAsGuest() {
     context.go(AppRoute.preferences);
   }
 
@@ -50,7 +48,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     await ref.read(authProvider.notifier).signInWithGoogle();
   }
 
-  Future<void> _appleSignIn() async {
+  void _appleSignIn() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Apple Sign-In is not enabled for this phase.')),
     );
@@ -59,6 +57,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+
+    // Handle auth state changes (navigation + error display)
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.verificationId != null && previous?.verificationId == null) {
         context.go(AppRoute.otp);
@@ -67,7 +67,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go(AppRoute.home);
       }
       if (next.error != null && next.error != previous?.error) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.error!)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.error!)),
+        );
       }
     });
 
@@ -84,13 +86,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             right: 0,
             height: screenHeight * 0.30,
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.white,
-                image: DecorationImage(
-                  image: const AssetImage(''),
-                  onError: (_, __) {},
-                  repeat: ImageRepeat.repeat,
-                ),
               ),
               child: Stack(
                 children: [
@@ -107,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           end: Alignment.bottomCenter,
                           colors: [
                             AppColors.transparent,
-                            AppColors.background.withOpacity(0.8),
+                            AppColors.background.withValues(alpha: 0.8),
                             AppColors.background,
                           ],
                         ),
@@ -123,14 +120,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: AppColors.brand.withOpacity(0.1),
+                            color: AppColors.brand.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: AppColors.brand.withOpacity(0.2),
+                              color: AppColors.brand.withValues(alpha: 0.2),
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.brand.withOpacity(0.15),
+                                color: AppColors.brand.withValues(alpha: 0.15),
                                 blurRadius: 32,
                                 offset: const Offset(0, 8),
                               ),
@@ -184,7 +181,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // ─── Headline ───
-                        Text(
+                        const Text(
                           "Let's get you in.",
                           style: AppTypography.display36,
                         ),
@@ -217,7 +214,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         borderRadius: BorderRadius.circular(2),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: AppColors.black.withOpacity(0.1),
+                                            color: AppColors.black.withValues(alpha: 0.1),
                                             blurRadius: 2,
                                           ),
                                         ],
@@ -225,15 +222,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       child: Column(
                                         children: [
                                           Expanded(
-                                            flex: 1,
                                             child: Container(color: const Color(0xFFFF9933)),
                                           ),
                                           Expanded(
-                                            flex: 1,
                                             child: Container(color: AppColors.white),
                                           ),
                                           Expanded(
-                                            flex: 1,
                                             child: Container(color: const Color(0xFF138808)),
                                           ),
                                         ],
@@ -270,7 +264,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     hintStyle: AppTypography.inputPlaceholder,
                                     border: InputBorder.none,
                                     counterText: '',
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(vertical: 18),
                                   ),
                                   style: AppTypography.body20.copyWith(
                                     letterSpacing: 2,
@@ -288,13 +283,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.success.withOpacity(0.05),
+                            color: AppColors.success.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(100),
                             border: Border.all(
-                              color: AppColors.success.withOpacity(0.1),
+                              color: AppColors.success.withValues(alpha: 0.1),
                             ),
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
@@ -302,7 +297,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 size: 14,
                                 color: AppColors.success,
                               ),
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6),
                               Text(
                                 'Secure login. No spam, ever.',
                                 style: TextStyle(
@@ -323,12 +318,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
                         // ─── OR Divider ───
-                        _OrDivider(),
+                        const _OrDivider(),
                         const SizedBox(height: 24),
                         // ─── Social Logins ───
                         _SocialButton(
                           label: 'Continue with Google',
-                          iconPath: '', // Use Icon instead
                           icon: Icons.g_mobiledata,
                           iconColor: const Color(0xFF4285F4),
                           onPressed: _googleSignIn,
@@ -368,7 +362,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.brownMuted.withOpacity(0.5),
+                                color: AppColors.brownMuted.withValues(alpha: 0.5),
                               ),
                               children: [
                                 const TextSpan(text: 'By continuing you agree to our '),
@@ -407,6 +401,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
 // ─── OR Divider ───
 class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -431,7 +427,7 @@ class _OrDivider extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: AppColors.brownMuted.withOpacity(0.4),
+              color: AppColors.brownMuted.withValues(alpha: 0.4),
               letterSpacing: 2,
             ),
           ),
@@ -477,12 +473,10 @@ class _SocialButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        border: isDark
-            ? null
-            : Border.all(color: AppColors.line, width: 1.5),
+        border: isDark ? null : Border.all(color: AppColors.line, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.brown.withOpacity(0.02),
+            color: AppColors.brown.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

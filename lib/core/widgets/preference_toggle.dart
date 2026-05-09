@@ -2,8 +2,8 @@
 // PREFERENCE TOGGLE - Veg / Non-Veg selection toggle
 // ============================================================================
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
 
 class PreferenceToggle extends StatelessWidget {
   final String label;
@@ -30,7 +30,7 @@ class PreferenceToggle extends StatelessWidget {
         curve: AppAnimations.spring,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor.withOpacity(0.05) : AppColors.white,
+          color: isSelected ? activeColor.withValues(alpha: 0.05) : AppColors.white,
           borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
           border: Border.all(
             color: isSelected ? activeColor : AppColors.line,

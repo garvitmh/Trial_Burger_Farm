@@ -34,7 +34,7 @@ class _BurgerIconPainter extends CustomPainter {
             size.width * 0.60, size.height * 0.19),
         Radius.circular(size.width * 0.09),
       ),
-      Paint()..color = color.withOpacity(0.95),
+      Paint()..color = color.withValues(alpha: 0.95),
     );
     // Patty
     canvas.drawRRect(
@@ -43,7 +43,7 @@ class _BurgerIconPainter extends CustomPainter {
             size.width * 0.66, size.height * 0.12),
         Radius.circular(size.width * 0.06),
       ),
-      Paint()..color = color.withOpacity(0.70),
+      Paint()..color = color.withValues(alpha: 0.70),
     );
     // Cheese/toppings
     canvas.drawRRect(
@@ -52,7 +52,7 @@ class _BurgerIconPainter extends CustomPainter {
             size.width * 0.54, size.height * 0.10),
         Radius.circular(size.width * 0.05),
       ),
-      Paint()..color = color.withOpacity(0.90),
+      Paint()..color = color.withValues(alpha: 0.90),
     );
     // Top bun
     canvas.drawRRect(
@@ -61,7 +61,7 @@ class _BurgerIconPainter extends CustomPainter {
             size.width * 0.62, size.height * 0.10),
         Radius.circular(size.width * 0.05),
       ),
-      Paint()..color = color.withOpacity(0.50),
+      Paint()..color = color.withValues(alpha: 0.50),
     );
   }
 

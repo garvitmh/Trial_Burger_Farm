@@ -5,11 +5,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/router/app_router.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
-import '../../../../core/constants/app_typography.dart';
-import '../../../../core/widgets/outlet_card.dart';
+import 'package:burger_farm_app/app/router/app_router.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_typography.dart';
+import 'package:burger_farm_app/core/widgets/outlet_card.dart';
 
 class OutletScreen extends ConsumerStatefulWidget {
   const OutletScreen({super.key});
@@ -89,7 +89,7 @@ class _OutletScreenState extends ConsumerState<OutletScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          AppColors.white.withOpacity(0.9),
+                          AppColors.white.withValues(alpha: 0.9),
                           AppColors.transparent,
                         ],
                       ),
@@ -117,7 +117,7 @@ class _OutletScreenState extends ConsumerState<OutletScreen> {
                               border: Border.all(color: AppColors.line),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.brown.withOpacity(0.05),
+                                  color: AppColors.brown.withValues(alpha: 0.05),
                                   blurRadius: 8,
                                 ),
                               ],
@@ -367,7 +367,7 @@ class _BouncingMapPinState extends State<_BouncingMapPin>
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.brand.withOpacity(0.3),
+              color: AppColors.brand.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
           ),
@@ -381,7 +381,7 @@ class _BouncingMapPinState extends State<_BouncingMapPin>
               border: Border.all(color: AppColors.white, width: 2.5),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.brand.withOpacity(0.4),
+                  color: AppColors.brand.withValues(alpha: 0.4),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -403,7 +403,7 @@ class _BouncingMapPinState extends State<_BouncingMapPin>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.brown.withOpacity(0.1),
+                    color: AppColors.brown.withValues(alpha: 0.1),
                     blurRadius: 8,
                   ),
                 ],

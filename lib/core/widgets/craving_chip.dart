@@ -2,8 +2,8 @@
 // CRAVING CHIP - Toggleable preference chip
 // ============================================================================
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_dimensions.dart';
+import 'package:burger_farm_app/core/constants/app_colors.dart';
+import 'package:burger_farm_app/core/constants/app_dimensions.dart';
 
 class CravingChip extends StatelessWidget {
   final String label;
@@ -28,7 +28,7 @@ class CravingChip extends StatelessWidget {
         curve: AppAnimations.spring,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.brandLight.withOpacity(0.8) : AppColors.white,
+          color: isSelected ? AppColors.brandLight.withValues(alpha: 0.8) : AppColors.white,
           borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
           border: Border.all(
             color: isSelected ? AppColors.brand : AppColors.line,

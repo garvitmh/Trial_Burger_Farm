@@ -1,72 +1,94 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/entities/user_entity.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../../data/repositories/auth_repository_impl.dart';
-import '../../data/datasources/firebase_auth_data_source.dart';
-import '../../data/datasources/node_auth_remote_data_source.dart';
+import 'package:burger_farm_app/features/auth/domain/entities/user_entity.dart';
+import 'package:burger_farm_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:burger_farm_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:burger_farm_app/features/auth/data/datasources/firebase_auth_data_source.dart';
+import 'package:burger_farm_app/features/auth/data/datasources/node_auth_remote_data_source.dart';
+import 'package:burger_farm_app/features/auth/data/datasources/auth_error_mapper.dart';
+import 'package:burger_farm_app/core/services/secure_storage_service.dart';
 
-// Simple State class
+/// Immutable state object for authentication.
+@immutable
 class AuthState {
   final bool isLoading;
   final String? verificationId;
   final UserEntity? user;
   final String? error;
 
-  AuthState({
+  const AuthState({
     this.isLoading = false,
     this.verificationId,
     this.user,
     this.error,
   });
 
+  /// Creates a copy with optional field updates.
+  /// Fields set to explicit null will clear the value.
   AuthState copyWith({
     bool? isLoading,
-    String? verificationId,
-    bool clearVerificationId = false,
-    UserEntity? user,
-    bool clearUser = false,
-    String? error,
-    bool clearError = false,
+    Object? verificationId = const _Optional.nullable(),
+    Object? user = const _Optional.nullable(),
+    Object? error = const _Optional.nullable(),
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
-      verificationId:
-          clearVerificationId ? null : verificationId ?? this.verificationId,
-      user: clearUser ? null : user ?? this.user,
-      error: clearError ? null : error ?? this.error,
+      verificationId: verificationId is _Optional ? this.verificationId : verificationId as String?,
+      user: user is _Optional ? this.user : user as UserEntity?,
+      error: error is _Optional ? this.error : error as String?,
     );
   }
+
+  /// Returns a cleared state (e.g., after sign-out).
+  AuthState clear() => const AuthState();
 }
 
-// The Repository Provider
+/// Sentinel value for distinguishing "not passed" from "explicitly null".
+class _Optional {
+  final String? _value;
+  const _Optional(this._value);
+  const _Optional.nullable() : _value = null;
+}
+
+/// Provider for the [AuthRepository] instance.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(
-    firebaseDataSource: FirebaseAuthDataSource(),
+    firebaseDataSource: FirebaseAuthDataSource(
+      firebaseAuth: FirebaseAuth.instance,
+      googleSignIn: null, // Uses default
+    ),
     nodeDataSource: NodeAuthRemoteDataSource(),
   );
 });
 
-// The State Notifier
+/// State notifier for authentication operations.
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repository;
 
-  AuthNotifier(this._repository) : super(AuthState());
+  AuthNotifier(this._repository) : super(const AuthState());
 
+  /// Sends OTP to the given phone number.
   Future<void> sendOtp(String phoneNumber) async {
     if (phoneNumber.isEmpty) {
       state = state.copyWith(error: 'Please enter a phone number');
       return;
     }
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(isLoading: true, error: null);
     try {
       final verId = await _repository.sendOtp(phoneNumber);
       state = state.copyWith(isLoading: false, verificationId: verId);
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: mapFirebaseAuthError(e),
+      );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: 'Something went wrong. Please try again.');
     }
   }
 
+  /// Verifies OTP using the current verificationId.
   Future<void> verifyOtp(String smsCode) async {
     if (state.verificationId == null) return;
     if (smsCode.length != 6) {
@@ -74,46 +96,63 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return;
     }
 
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(isLoading: true, error: null);
     try {
       final user = await _repository.verifyOtp(
         verificationId: state.verificationId!,
         smsCode: smsCode,
       );
+      // Persist tokens
+      await SecureStorageService.setUserId(user.id);
+      await SecureStorageService.setUserPhone(user.phone);
       state = state.copyWith(isLoading: false, user: user);
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: mapFirebaseAuthError(e),
+      );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: 'Something went wrong. Please try again.');
     }
   }
 
+  /// Signs in with Google.
   Future<void> signInWithGoogle() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(isLoading: true, error: null);
     try {
       final user = await _repository.signInWithGoogle();
       if (user != null) {
+        await SecureStorageService.setUserId(user.id);
+        await SecureStorageService.setUserPhone(user.phone);
         state = state.copyWith(isLoading: false, user: user);
       } else {
         // User canceled sign-in
         state = state.copyWith(isLoading: false);
       }
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: mapFirebaseAuthError(e),
+      );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: 'Something went wrong. Please try again.');
     }
   }
 
-  /// Go back to the phone entry screen
+  /// Clears the verification ID (navigate back to phone entry).
   void resetVerificationId() {
-    state = state.copyWith(clearVerificationId: true, clearError: true);
+    state = state.copyWith(verificationId: null, error: null);
   }
 
-  /// Sign out the current user
+  /// Signs out the current user and clears stored data.
   Future<void> signOut() async {
-    await FirebaseAuth.instance.signOut();
-    state = AuthState(); // Reset to initial state
+    await _repository.signOut();
+    await SecureStorageService.clearAll();
+    state = state.clear();
   }
 }
 
-// The State Provider
+/// Provider for the [AuthNotifier] instance.
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(ref.watch(authRepositoryProvider));
 });
