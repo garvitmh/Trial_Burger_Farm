@@ -599,26 +599,51 @@ class _CtaButtonState extends State<_CtaButton>
         child: Container(
           width: double.infinity,
           height: AppSpacing.buttonHeight,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(AppRadius.button),
             boxShadow: AppShadows.brandGlow,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              Text(
-                widget.label,
-                style: AppTypography.buttonLabel.copyWith(
-                  color: Colors.white,
-                  fontSize: 17,
+              // Shimmer highlight — static top edge reflection
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 28,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white.withValues(alpha: 0.14),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              const Icon(
-                Icons.arrow_forward_rounded,
-                color: Colors.white,
-                size: 20,
+              // Label + icon centred
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.label,
+                    style: AppTypography.buttonLabel.copyWith(
+                      color: Colors.white,
+                      fontSize: 17,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ],
               ),
             ],
           ),
