@@ -2,25 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 
-/// LocationSetupPage — Location permission rationale and preparation screen.
+/// LocationPermissionStatus — sealed set of all possible location outcomes.
+enum _LocationStatus {
+  idle,
+  requesting,
+  granted,
+  denied,
+  deniedForever,
+  serviceDisabled,
+  unavailable,
+}
+
+/// LocationSetupPage — Enterprise location permission rationale screen.
 ///
-/// Layout: Full brand-orange background with dot matrix grid pattern.
-/// Features:
-///   - Animated pulsing location pin with ripple rings
-///   - Clear permission rationale copy
-///   - Primary "Allow Location" CTA
-///   - Ghost "Enter manually" fallback
+/// Handles ALL permission states:
+///   - idle         → show rationale + CTA
+///   - requesting   → show loading indicator
+///   - granted      → proceed to next flow
+///   - denied       → show retry path with clear messaging
+///   - deniedForever→ show open-settings CTA
+///   - serviceDisabled → explain GPS is off, guide to settings
+///   - unavailable  → show graceful fallback (enter manually)
 ///
-/// Architecture is prepared for future nearest-store calculation once
-/// store coordinate datasets are available.
+/// Architecture boundary:
+///   - No store data is loaded here.
+///   - No map pins or nearby stores are shown (dataset not yet available).
+///   - Location visualization and nearest-store logic is deferred.
 class LocationSetupPage extends ConsumerStatefulWidget {
   const LocationSetupPage({super.key});
 
@@ -32,7 +48,8 @@ class _LocationSetupPageState extends ConsumerState<LocationSetupPage>
     with TickerProviderStateMixin {
   late AnimationController _ripple1Ctrl;
   late AnimationController _ripple2Ctrl;
-  bool _isRequesting = false;
+  _LocationStatus _status = _LocationStatus.idle;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -41,17 +58,14 @@ class _LocationSetupPageState extends ConsumerState<LocationSetupPage>
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
-
     _ripple1Ctrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     )..repeat();
-
     _ripple2Ctrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
-    // Start ring 2 with a 600ms delay
     Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) _ripple2Ctrl.repeat();
     });
@@ -65,18 +79,81 @@ class _LocationSetupPageState extends ConsumerState<LocationSetupPage>
   }
 
   Future<void> _requestLocation() async {
-    if (_isRequesting) return;
-    setState(() => _isRequesting = true);
+    if (_status == _LocationStatus.requesting) return;
     HapticFeedback.mediumImpact();
+    setState(() {
+      _status = _LocationStatus.requesting;
+      _errorMessage = null;
+    });
 
-    // Architecture boundary: geolocator permission request goes here.
-    // For now, simulate a brief permission UI delay then proceed.
-    await Future.delayed(const Duration(milliseconds: 600));
+    try {
+      // Check if location service is enabled on device
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _status = _LocationStatus.serviceDisabled;
+          _errorMessage =
+              'Location services are turned off.\nPlease enable GPS in your device settings.';
+        });
+        return;
+      }
 
+      // Check current permission
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        // First-time request
+        permission = await Geolocator.requestPermission();
+      }
+
+      switch (permission) {
+        case LocationPermission.always:
+        case LocationPermission.whileInUse:
+          // Granted — proceed
+          HapticFeedback.lightImpact();
+          setState(() => _status = _LocationStatus.granted);
+          await Future.delayed(const Duration(milliseconds: 400));
+          if (mounted) context.go('${RoutePaths.shell}/${RoutePaths.home}');
+
+        case LocationPermission.denied:
+          setState(() {
+            _status = _LocationStatus.denied;
+            _errorMessage =
+                'Location access was denied.\nYou can try again or enter your area manually.';
+          });
+
+        case LocationPermission.deniedForever:
+          setState(() {
+            _status = _LocationStatus.deniedForever;
+            _errorMessage =
+                'Location access was permanently denied.\nPlease enable it in your device Settings.';
+          });
+
+        case LocationPermission.unableToDetermine:
+          setState(() {
+            _status = _LocationStatus.unavailable;
+            _errorMessage =
+                'Unable to determine location access.\nYou can still enter your area manually.';
+          });
+      }
+    } catch (e) {
+      setState(() {
+        _status = _LocationStatus.unavailable;
+        _errorMessage =
+            'Something went wrong while accessing location.\nPlease try again or enter manually.';
+      });
+    }
+  }
+
+  Future<void> _openAppSettings() async {
+    HapticFeedback.lightImpact();
+    await Geolocator.openAppSettings();
+    // After returning from settings, reset to idle for retry
     if (mounted) {
-      setState(() => _isRequesting = false);
-      // Proceed to home — routing guard will handle post-location state
-      context.go('${RoutePaths.shell}/${RoutePaths.home}');
+      setState(() {
+        _status = _LocationStatus.idle;
+        _errorMessage = null;
+      });
     }
   }
 
@@ -91,12 +168,14 @@ class _LocationSetupPageState extends ConsumerState<LocationSetupPage>
       backgroundColor: AppColors.primary,
       body: Stack(
         children: [
-          // ─── Dot-matrix pattern overlay ───────────────────────────────────
+          // Dot-matrix pattern overlay
           Positioned.fill(
-            child: CustomPaint(painter: _DotMatrixPainter()),
+            child: RepaintBoundary(
+              child: CustomPaint(painter: _DotMatrixPainter()),
+            ),
           ),
 
-          // ─── Top gradient ──────────────────────────────────────────────────
+          // Top gradient
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -113,14 +192,12 @@ class _LocationSetupPageState extends ConsumerState<LocationSetupPage>
             ),
           ),
 
-          // ─── Rotating ambient glow ─────────────────────────────────────────
+          // Rotating ambient glow
           IgnorePointer(
-            child: Center(
-              child: const _RotatingGlow(),
-            ),
+            child: Center(child: const _RotatingGlow()),
           ),
 
-          // ─── Main content ──────────────────────────────────────────────────
+          // Main content
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageH),
@@ -129,45 +206,38 @@ class _LocationSetupPageState extends ConsumerState<LocationSetupPage>
                 children: [
                   const Spacer(flex: 2),
 
-                  // Pulsing location pin
-                  _AnimatedLocationPin(
-                    ripple1: _ripple1Ctrl,
-                    ripple2: _ripple2Ctrl,
-                  ).animate().scale(
+                  // Animated pin
+                  RepaintBoundary(
+                    child: _AnimatedLocationPin(
+                      ripple1: _ripple1Ctrl,
+                      ripple2: _ripple2Ctrl,
+                      status: _status,
+                    ),
+                  )
+                      .animate()
+                      .scale(
                         begin: const Offset(0.7, 0.7),
                         duration: 700.ms,
                         curve: const Cubic(0.16, 1, 0.3, 1),
-                      ).fadeIn(duration: 500.ms),
+                      )
+                      .fadeIn(duration: 500.ms),
 
                   const SizedBox(height: AppSpacing.xxl),
 
-                  // Headline
-                  Text(
-                    'Find your nearest\nBurger Farm',
-                    textAlign: TextAlign.center,
-                    style: AppTypography.headlineXL.copyWith(
-                      color: Colors.white,
-                      height: 1.1,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ).animate(delay: 200.ms).slideY(begin: 0.2, end: 0, duration: 600.ms).fadeIn(duration: 500.ms),
+                  // Dynamic headline based on status
+                  _StatusHeadline(status: _status)
+                      .animate(delay: 200.ms)
+                      .slideY(begin: 0.2, end: 0, duration: 600.ms)
+                      .fadeIn(duration: 500.ms),
 
                   const SizedBox(height: AppSpacing.md),
 
-                  Text(
-                    "We'll show you the closest outlet\nand your estimated delivery time.",
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodyMd.copyWith(
-                      color: Colors.white.withValues(alpha: 0.80),
-                      height: 1.6,
-                    ),
-                  ).animate(delay: 300.ms).fadeIn(duration: 500.ms),
+                  // Error/info message
+                  if (_errorMessage != null)
+                    _ErrorBanner(message: _errorMessage!)
+                        .animate()
+                        .fadeIn(duration: 300.ms)
+                        .slideY(begin: -0.1, end: 0),
 
                   const Spacer(flex: 3),
                 ],
@@ -175,17 +245,24 @@ class _LocationSetupPageState extends ConsumerState<LocationSetupPage>
             ),
           ),
 
-          // ─── Bottom CTA sheet ──────────────────────────────────────────────
+          // Bottom CTA sheet
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: _BottomActions(
-              isRequesting: _isRequesting,
+              status: _status,
               onAllowLocation: _requestLocation,
               onEnterManually: _enterManually,
-            ).animate(delay: 450.ms)
-                .slideY(begin: 0.25, end: 0, duration: 600.ms, curve: const Cubic(0.16, 1, 0.3, 1))
+              onOpenSettings: _openAppSettings,
+            )
+                .animate(delay: 450.ms)
+                .slideY(
+                  begin: 0.25,
+                  end: 0,
+                  duration: 600.ms,
+                  curve: const Cubic(0.16, 1, 0.3, 1),
+                )
                 .fadeIn(duration: 500.ms),
           ),
 
@@ -203,16 +280,232 @@ class _LocationSetupPageState extends ConsumerState<LocationSetupPage>
   }
 }
 
+// ─── Status-aware headline ─────────────────────────────────────────────────
+
+class _StatusHeadline extends StatelessWidget {
+  const _StatusHeadline({required this.status});
+  final _LocationStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final (headline, body) = switch (status) {
+      _LocationStatus.denied => (
+          'Permission Denied',
+          'Try allowing access or enter\nyour area manually below.',
+        ),
+      _LocationStatus.deniedForever => (
+          'Access Blocked',
+          'Open your device Settings\nand enable location for Burger Farm.',
+        ),
+      _LocationStatus.serviceDisabled => (
+          'GPS is Off',
+          'Turn on Location Services in\nyour device settings to continue.',
+        ),
+      _LocationStatus.unavailable => (
+          'Location Unavailable',
+          'We couldn\'t access your location.\nYou can enter your area manually.',
+        ),
+      _LocationStatus.granted => (
+          'Location Found!',
+          'Great — we\'ll find the closest\nBurger Farm outlet near you.',
+        ),
+      _ => (
+          'Find your nearest\nBurger Farm',
+          "We'll show you the closest outlet\nand your estimated delivery time.",
+        ),
+    };
+
+    return Column(
+      children: [
+        Text(
+          headline,
+          textAlign: TextAlign.center,
+          style: AppTypography.headlineXL.copyWith(
+            color: Colors.white,
+            height: 1.15,
+            shadows: [
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          body,
+          textAlign: TextAlign.center,
+          style: AppTypography.bodyMd.copyWith(
+            color: Colors.white.withValues(alpha: 0.80),
+            height: 1.6,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ErrorBanner extends StatelessWidget {
+  const _ErrorBanner({required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+      ),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: AppTypography.captionMd.copyWith(
+          color: Colors.white.withValues(alpha: 0.90),
+          height: 1.5,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Bottom actions — adapt to permission status ───────────────────────────
+
+class _BottomActions extends StatelessWidget {
+  const _BottomActions({
+    required this.status,
+    required this.onAllowLocation,
+    required this.onEnterManually,
+    required this.onOpenSettings,
+  });
+  final _LocationStatus status;
+  final Future<void> Function() onAllowLocation;
+  final VoidCallback onEnterManually;
+  final VoidCallback onOpenSettings;
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPad = MediaQuery.paddingOf(context).bottom;
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.pageH,
+        AppSpacing.lg,
+        AppSpacing.pageH,
+        bottomPad + AppSpacing.lg,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.primary.withValues(alpha: 0.0),
+            AppColors.primary,
+            AppColors.primary,
+          ],
+          stops: const [0, 0.3, 1],
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Primary CTA — changes based on status
+          if (status == _LocationStatus.deniedForever ||
+              status == _LocationStatus.serviceDisabled)
+            _AllowButton(
+              label: 'Open Settings',
+              icon: Icons.settings_rounded,
+              isLoading: false,
+              onTap: () async => onOpenSettings(),
+            )
+          else
+            _AllowButton(
+              label: status == _LocationStatus.denied
+                  ? 'Try Again'
+                  : 'Allow Location',
+              icon: status == _LocationStatus.denied
+                  ? Icons.refresh_rounded
+                  : Icons.location_on_rounded,
+              isLoading: status == _LocationStatus.requesting,
+              onTap: onAllowLocation,
+            ),
+
+          const SizedBox(height: AppSpacing.sm),
+
+          // Ghost: Enter manually (always visible)
+          Semantics(
+            button: true,
+            label: 'Enter location manually',
+            child: GestureDetector(
+              onTap: onEnterManually,
+              child: Container(
+                width: double.infinity,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.20),
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'Enter manually',
+                  style: AppTypography.buttonLabel.copyWith(
+                    color: Colors.white.withValues(alpha: 0.90),
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Animated location pin ─────────────────────────────────────────────────
+
 class _AnimatedLocationPin extends StatelessWidget {
   const _AnimatedLocationPin({
     required this.ripple1,
     required this.ripple2,
+    required this.status,
   });
   final AnimationController ripple1;
   final AnimationController ripple2;
+  final _LocationStatus status;
 
   @override
   Widget build(BuildContext context) {
+    final pinColor = switch (status) {
+      _LocationStatus.granted => AppColors.success,
+      _LocationStatus.denied ||
+      _LocationStatus.deniedForever ||
+      _LocationStatus.serviceDisabled ||
+      _LocationStatus.unavailable =>
+        AppColors.error,
+      _ => Colors.white,
+    };
+
+    final icon = switch (status) {
+      _LocationStatus.granted => Icons.check_circle_rounded,
+      _LocationStatus.denied ||
+      _LocationStatus.deniedForever =>
+        Icons.location_off_rounded,
+      _LocationStatus.serviceDisabled => Icons.gps_off_rounded,
+      _LocationStatus.unavailable => Icons.location_searching_rounded,
+      _LocationStatus.requesting => Icons.location_searching_rounded,
+      _ => Icons.location_on_rounded,
+    };
+
     return SizedBox(
       width: 120,
       height: 120,
@@ -270,7 +563,9 @@ class _AnimatedLocationPin extends StatelessWidget {
             },
           ),
           // Pin container
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 350),
+            curve: const Cubic(0.16, 1, 0.3, 1),
             width: 88,
             height: 88,
             decoration: BoxDecoration(
@@ -282,11 +577,18 @@ class _AnimatedLocationPin extends StatelessWidget {
               ),
               boxShadow: AppShadows.glowBrand,
             ),
-            child: const Icon(
-              Icons.location_on_rounded,
-              color: Colors.white,
-              size: 40,
-            ),
+            child: status == _LocationStatus.requesting
+                ? const Center(
+                    child: SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    ),
+                  )
+                : Icon(icon, color: pinColor, size: 38),
           ),
         ],
       ),
@@ -294,79 +596,17 @@ class _AnimatedLocationPin extends StatelessWidget {
   }
 }
 
-class _BottomActions extends StatelessWidget {
-  const _BottomActions({
-    required this.isRequesting,
-    required this.onAllowLocation,
-    required this.onEnterManually,
-  });
-  final bool isRequesting;
-  final Future<void> Function() onAllowLocation;
-  final VoidCallback onEnterManually;
-
-  @override
-  Widget build(BuildContext context) {
-    final bottomPad = MediaQuery.paddingOf(context).bottom;
-
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.pageH,
-        AppSpacing.lg,
-        AppSpacing.pageH,
-        bottomPad + AppSpacing.lg,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.primary.withValues(alpha: 0.0),
-            AppColors.primary,
-            AppColors.primary,
-          ],
-          stops: const [0, 0.3, 1],
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Primary: Allow Location (white button)
-          _AllowButton(
-            isLoading: isRequesting,
-            onTap: onAllowLocation,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          // Ghost: Enter manually
-          GestureDetector(
-            onTap: onEnterManually,
-            child: Container(
-              width: double.infinity,
-              height: 52,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(AppRadius.button),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.20),
-                ),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                'Enter manually',
-                style: AppTypography.buttonLabel.copyWith(
-                  color: Colors.white.withValues(alpha: 0.90),
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// ─── CTA button ────────────────────────────────────────────────────────────
 
 class _AllowButton extends StatefulWidget {
-  const _AllowButton({required this.isLoading, required this.onTap});
+  const _AllowButton({
+    required this.label,
+    required this.icon,
+    required this.isLoading,
+    required this.onTap,
+  });
+  final String label;
+  final IconData icon;
   final bool isLoading;
   final Future<void> Function() onTap;
 
@@ -382,7 +622,7 @@ class _AllowButtonState extends State<_AllowButton>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: 120.ms);
+    _ctrl = AnimationController(vsync: this, duration: 100.ms);
     _scale = Tween<double>(begin: 1.0, end: 0.97)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
   }
@@ -395,64 +635,67 @@ class _AllowButtonState extends State<_AllowButton>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _ctrl.forward(),
-      onTapUp: (_) {
-        _ctrl.reverse();
-        widget.onTap();
-      },
-      onTapCancel: () => _ctrl.reverse(),
-      child: AnimatedBuilder(
-        animation: _scale,
-        builder: (context, child) => Transform.scale(
-          scale: _scale.value,
-          child: child,
-        ),
-        child: Container(
-          width: double.infinity,
-          height: 56,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppRadius.button),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.white.withValues(alpha: 0.25),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: widget.isLoading
-              ? Center(
-                  child: SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      color: AppColors.primary,
-                      strokeWidth: 2.5,
-                    ),
-                  ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.location_on_rounded,
-                        size: 22, color: AppColors.primary),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Allow Location',
-                      style: AppTypography.buttonLabel.copyWith(
+    return Semantics(
+      button: true,
+      label: widget.label,
+      child: GestureDetector(
+        onTapDown: (_) => _ctrl.forward(),
+        onTapUp: (_) {
+          _ctrl.reverse();
+          widget.onTap();
+        },
+        onTapCancel: () => _ctrl.reverse(),
+        child: AnimatedBuilder(
+          animation: _scale,
+          builder: (context, child) =>
+              Transform.scale(scale: _scale.value, child: child),
+          child: Container(
+            width: double.infinity,
+            height: 56,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadius.button),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: widget.isLoading
+                ? Center(
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
                         color: AppColors.primary,
-                        fontSize: 17,
+                        strokeWidth: 2.5,
                       ),
                     ),
-                  ],
-                ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(widget.icon, size: 20, color: AppColors.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.label,
+                        style: AppTypography.buttonLabel.copyWith(
+                          color: AppColors.primary,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
   }
 }
+
+// ─── Support painters/widgets ──────────────────────────────────────────────
 
 class _DotMatrixPainter extends CustomPainter {
   @override
@@ -503,10 +746,8 @@ class _RotatingGlowState extends State<_RotatingGlow>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _ctrl,
-      builder: (context, child) => Transform.rotate(
-        angle: _ctrl.value * 6.28318,
-        child: child,
-      ),
+      builder: (context, child) =>
+          Transform.rotate(angle: _ctrl.value * 6.28318, child: child),
       child: Container(
         width: MediaQuery.sizeOf(context).width * 1.4,
         height: MediaQuery.sizeOf(context).width * 1.4,
