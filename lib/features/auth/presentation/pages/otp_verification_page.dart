@@ -33,12 +33,23 @@ class OtpVerificationPage extends ConsumerStatefulWidget {
 class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
   final _pinController = TextEditingController();
   final _pinFocus = FocusNode();
-  // Phone number passed from login — read from GoRouter extra or fallback
-  final String _phone = '+91 XXXXX XXXXX';
+  // Phone number: passed from login via GoRouter extra, fallback for dev
+  late final String _phone;
 
   @override
   void initState() {
     super.initState();
+    // Extract phone from GoRouter extra if available
+    _phone = (() {
+      try {
+        final extra = GoRouterState.of(context).extra;
+        if (extra is Map && extra['phone'] is String) {
+          return extra['phone'] as String;
+        }
+      } catch (_) {}
+      return '+91 XXXXX XXXXX'; // fallback in dev
+    })();
+
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
@@ -248,7 +259,7 @@ class _OtpPinField extends StatelessWidget {
     final focusedTheme = defaultTheme.copyWith(
       decoration: defaultTheme.decoration?.copyWith(
         color: AppColors.surfaceWhite,
-        border: Border.all(color: AppColors.primary, width: 1.5),
+        border: Border.all(color: AppColors.primary, width: 2.0),
         boxShadow: AppShadows.inputFocus,
       ),
     );
@@ -265,28 +276,33 @@ class _OtpPinField extends StatelessWidget {
       ),
     );
 
-    return Pinput(
-      length: 6,
-      controller: controller,
-      focusNode: focusNode,
-      defaultPinTheme: defaultTheme,
-      focusedPinTheme: focusedTheme,
-      errorPinTheme: errorTheme,
-      forceErrorState: hasError,
-      showCursor: true,
-      cursor: Container(
-        width: 2,
-        height: 26,
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(1),
+    return Semantics(
+      label: 'OTP input field, 6 digits',
+      child: Pinput(
+        length: 6,
+        controller: controller,
+        focusNode: focusNode,
+        defaultPinTheme: defaultTheme,
+        focusedPinTheme: focusedTheme,
+        errorPinTheme: errorTheme,
+        forceErrorState: hasError,
+        showCursor: true,
+        // SMS autofill prep: declares this field as a one-time code
+        autofillHints: const [AutofillHints.oneTimeCode],
+        keyboardType: TextInputType.number,
+        cursor: Container(
+          width: 2,
+          height: 24,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(1),
+          ),
         ),
+        onCompleted: onCompleted,
+        pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+        animationCurve: const Cubic(0.16, 1, 0.3, 1),
+        animationDuration: const Duration(milliseconds: 180),
       ),
-      onCompleted: onCompleted,
-      keyboardType: TextInputType.number,
-      pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-      animationCurve: const Cubic(0.16, 1, 0.3, 1),
-      animationDuration: const Duration(milliseconds: 200),
     );
   }
 }

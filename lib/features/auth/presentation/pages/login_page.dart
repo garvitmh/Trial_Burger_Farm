@@ -481,27 +481,33 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              child: TextField(
-                controller: widget.controller,
-                focusNode: widget.focusNode,
-                keyboardType: TextInputType.phone,
-                textInputAction: TextInputAction.done,
-                maxLength: 10,
-                style: AppTypography.headlineLg.copyWith(
-                  color: AppColors.textPrimary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 2.0,
-                ),
-                decoration: InputDecoration(
-                  hintText: '00000 00000',
-                  hintStyle: AppTypography.headlineLg.copyWith(
-                    color: AppColors.textMuted.withValues(alpha: 0.4),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+              child: AutofillGroup(
+                child: Semantics(
+                  label: 'Phone number input',
+                  child: TextField(
+                    controller: widget.controller,
+                    focusNode: widget.focusNode,
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.done,
+                    maxLength: 10,
+                    autofillHints: const [AutofillHints.telephoneNumberNational],
+                    style: AppTypography.headlineLg.copyWith(
+                      color: AppColors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 2.0,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: '00000 00000',
+                      hintStyle: AppTypography.headlineLg.copyWith(
+                        color: AppColors.textMuted.withValues(alpha: 0.4),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      border: InputBorder.none,
+                      counterText: '',
+                    ),
                   ),
-                  border: InputBorder.none,
-                  counterText: '',
                 ),
               ),
             ),
