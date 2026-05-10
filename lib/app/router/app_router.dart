@@ -29,6 +29,7 @@ import '../../features/location/presentation/pages/location_setup_page.dart';
 ///  ShellRoute so the nav bar persists across tab navigation without rebuild.
 
 import '../../features/auth/presentation/controllers/auth_session_manager.dart';
+import '../../features/onboarding/data/onboarding_prefs_service.dart';
 import '../../shared/providers/app_providers.dart';
 import 'route_guards.dart';
 
@@ -269,6 +270,10 @@ class _RouterNotifier extends ChangeNotifier {
     );
     _ref.listen(
       bootstrapCompleteProvider,
+      (previous, next) => notifyListeners(),
+    );
+    _ref.listen(
+      onboardingCompleteProvider,
       (previous, next) => notifyListeners(),
     );
   }

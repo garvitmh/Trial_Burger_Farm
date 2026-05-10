@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -9,6 +10,7 @@ import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/brand_painters.dart';
+import '../../data/onboarding_prefs_service.dart';
 import '../../domain/onboarding_slide.dart';
 
 /// OnboardingPage — True multi-screen progressive onboarding with PageView.
@@ -19,16 +21,17 @@ import '../../domain/onboarding_slide.dart';
 ///   - Top brand panel (45%) is always stable; only the bottom sheet content
 ///     transitions, giving a split-screen feel without full rebuilds.
 ///   - Spring easing (0.16, 1, 0.3, 1) on all transitions.
+///   - Completion is persisted via OnboardingPrefsService when user exits.
 ///
 /// Accessibility: Semantics wrapping per slide, announce page change.
-class OnboardingPage extends StatefulWidget {
+class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
 
   @override
-  State<OnboardingPage> createState() => _OnboardingPageState();
+  ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage>
+class _OnboardingPageState extends ConsumerState<OnboardingPage>
     with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
   late final AnimationController _panelPulseCtrl;
@@ -66,6 +69,8 @@ class _OnboardingPageState extends State<OnboardingPage>
     HapticFeedback.lightImpact();
     final isLast = _currentPage == kOnboardingSlides.length - 1;
     if (isLast) {
+      // Persist completion, then route to login
+      ref.read(onboardingCompleteProvider.notifier).markComplete();
       context.go(RoutePaths.login);
       return;
     }
@@ -77,6 +82,8 @@ class _OnboardingPageState extends State<OnboardingPage>
 
   void _skip() {
     HapticFeedback.lightImpact();
+    // Skipping also marks onboarding complete
+    ref.read(onboardingCompleteProvider.notifier).markComplete();
     context.go(RoutePaths.login);
   }
 

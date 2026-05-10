@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/onboarding/data/onboarding_prefs_service.dart';
 import 'startup_tasks.dart';
 
 /// AppInitializer — Burger Farm Async Initialization Orchestrator
@@ -60,6 +61,11 @@ class AppInitializer {
 
     _initialized = true;
     debugPrint('[AppInitializer] Essential initialization complete.');
+
+    // Warm the onboarding completion state so the router guard can read it
+    // synchronously without waiting for its own AsyncNotifier build.
+    await ref.read(onboardingCompleteProvider.future).catchError((_) => false);
+    debugPrint('[AppInitializer] Onboarding state warmed.');
   }
 
   /// Schedules deferred (Tier 3) tasks post-first-frame.
