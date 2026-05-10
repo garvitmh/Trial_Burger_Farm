@@ -122,26 +122,30 @@ class _SplashPageState extends ConsumerState<SplashPage>
             ),
           ),
 
-          // ─── Floating Ambient Orb 1 ──────────────────────────────────────
+          // ─── Floating Ambient Orb 1 (RepaintBoundary isolated) ───────────
           Positioned(
             top: MediaQuery.sizeOf(context).height * 0.2,
             left: MediaQuery.sizeOf(context).width * 0.1,
-            child: _AmbientOrb(
-              size: 220,
-              color: const Color(0xFFFFB085),
-              duration: const Duration(seconds: 4),
+            child: RepaintBoundary(
+              child: _AmbientOrb(
+                size: 220,
+                color: const Color(0xFFFFB085),
+                duration: const Duration(seconds: 4),
+              ),
             ),
           ),
 
-          // ─── Floating Ambient Orb 2 ──────────────────────────────────────
+          // ─── Floating Ambient Orb 2 (RepaintBoundary isolated) ───────────
           Positioned(
             bottom: MediaQuery.sizeOf(context).height * 0.2,
             right: MediaQuery.sizeOf(context).width * 0.1,
-            child: _AmbientOrb(
-              size: 260,
-              color: AppColors.primaryDark,
-              opacity: 0.30,
-              duration: const Duration(seconds: 6),
+            child: RepaintBoundary(
+              child: _AmbientOrb(
+                size: 260,
+                color: AppColors.primaryDark,
+                opacity: 0.30,
+                duration: const Duration(seconds: 6),
+              ),
             ),
           ),
 
@@ -150,17 +154,19 @@ class _SplashPageState extends ConsumerState<SplashPage>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Glassmorphism logo mark + pulse rings
-                _LogoMark()
-                    .animate()
-                    .scale(
-                      begin: const Offset(0.7, 0.7),
-                      end: const Offset(1.0, 1.0),
-                      duration: 900.ms,
-                      curve: const Cubic(0.16, 1, 0.3, 1),
-                      delay: 100.ms,
-                    )
-                    .fadeIn(duration: 600.ms, delay: 100.ms),
+                // Glassmorphism logo mark + pulse rings (isolated repaint)
+                RepaintBoundary(
+                  child: _LogoMark()
+                      .animate()
+                      .scale(
+                        begin: const Offset(0.7, 0.7),
+                        end: const Offset(1.0, 1.0),
+                        duration: 900.ms,
+                        curve: const Cubic(0.16, 1, 0.3, 1),
+                        delay: 100.ms,
+                      )
+                      .fadeIn(duration: 600.ms, delay: 100.ms),
+                ),
 
                 const SizedBox(height: 32),
 
