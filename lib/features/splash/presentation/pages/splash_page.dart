@@ -55,6 +55,11 @@ class _SplashPageState extends ConsumerState<SplashPage>
     ));
 
     _runBootstrap();
+
+    // Non-blocking: precache after first frame so it doesn't delay render
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) AppInitializer.precacheAssets(context);
+    });
   }
 
   Future<void> _runBootstrap() async {
