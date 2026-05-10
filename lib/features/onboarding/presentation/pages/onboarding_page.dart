@@ -4,17 +4,23 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/brand_painters.dart';
+import '../../domain/onboarding_slide.dart';
 
-/// OnboardingPage — Premium split-layout onboarding experience.
+/// OnboardingPage — True multi-screen progressive onboarding with PageView.
 ///
-/// Layout: Brand-orange top panel (45%) + white bottom sheet (55%).
-/// The bottom sheet slides up with spring easing on mount.
-/// Features: brand logo, headline, feature pills, CTA, Skip button.
+/// Architecture:
+///   - PageController drives both the PageView (swipe) and the indicator.
+///   - Each page renders from [kOnboardingSlides] data model.
+///   - Top brand panel (45%) is always stable; only the bottom sheet content
+///     transitions, giving a split-screen feel without full rebuilds.
+///   - Spring easing (0.16, 1, 0.3, 1) on all transitions.
+///
+/// Accessibility: Semantics wrapping per slide, announce page change.
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
@@ -22,7 +28,15 @@ class OnboardingPage extends StatefulWidget {
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage> {
+class _OnboardingPageState extends State<OnboardingPage>
+    with SingleTickerProviderStateMixin {
+  final PageController _pageController = PageController();
+  late final AnimationController _panelPulseCtrl;
+  int _currentPage = 0;
+
+  static const _spring = Cubic(0.16, 1, 0.3, 1);
+  static const _pageDuration = Duration(milliseconds: 420);
+
   @override
   void initState() {
     super.initState();
@@ -30,9 +44,41 @@ class _OnboardingPageState extends State<OnboardingPage> {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
+    _panelPulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..repeat(reverse: true);
   }
 
-  void _navigateToLogin() => context.go(RoutePaths.login);
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _panelPulseCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onPageChanged(int page) {
+    setState(() => _currentPage = page);
+    HapticFeedback.lightImpact();
+  }
+
+  void _advance() {
+    HapticFeedback.lightImpact();
+    final isLast = _currentPage == kOnboardingSlides.length - 1;
+    if (isLast) {
+      context.go(RoutePaths.login);
+      return;
+    }
+    _pageController.nextPage(
+      duration: _pageDuration,
+      curve: _spring,
+    );
+  }
+
+  void _skip() {
+    HapticFeedback.lightImpact();
+    context.go(RoutePaths.login);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,38 +89,53 @@ class _OnboardingPageState extends State<OnboardingPage> {
       backgroundColor: AppColors.primary,
       body: Stack(
         children: [
-          // ─── Top Brand Panel ─────────────────────────────────────────────
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: topHeight + 48, // extend slightly under the sheet
-            child: _TopBrandPanel(onSkip: _navigateToLogin),
+          // ─── Stable brand-orange top panel ─────────────────────────────────
+          RepaintBoundary(
+            child: Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: topHeight + 48,
+              child: _BrandTopPanel(
+                pulseCtrl: _panelPulseCtrl,
+                currentPage: _currentPage,
+                onSkip: _skip,
+              ),
+            ),
           ),
 
-          // ─── Bottom Sheet (slides up) ─────────────────────────────────────
+          // ─── Swipeable bottom content PageView ──────────────────────────────
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             height: size.height - topHeight + 40,
-            child: _BottomSheet(onGetStarted: _navigateToLogin)
-                .animate()
-                .slideY(
-                  begin: 0.15,
-                  end: 0,
-                  duration: 700.ms,
-                  curve: const Cubic(0.16, 1, 0.3, 1),
-                )
-                .fadeIn(duration: 500.ms),
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: _onPageChanged,
+              physics: const BouncingScrollPhysics(),
+              itemCount: kOnboardingSlides.length,
+              itemBuilder: (context, index) {
+                final slide = kOnboardingSlides[index];
+                final isActive = index == _currentPage;
+                return _SlideBottomSheet(
+                  slide: slide,
+                  isActive: isActive,
+                  currentPage: _currentPage,
+                  totalPages: kOnboardingSlides.length,
+                  onAdvance: _advance,
+                  onSkip: _skip,
+                );
+              },
+            ),
           ),
 
-          // Home indicator
+          // ─── Home indicator (outside PageView to prevent rebuild) ───────────
           const Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: EdgeInsets.only(bottom: 8),
-              child: _HomeIndicator(dark: false),
+              child: _HomeBar(),
             ),
           ),
         ],
@@ -83,90 +144,84 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 }
 
-class _TopBrandPanel extends StatefulWidget {
-  const _TopBrandPanel({required this.onSkip});
+// ─── Brand Top Panel (stable across swipes) ──────────────────────────────────
+
+class _BrandTopPanel extends StatelessWidget {
+  const _BrandTopPanel({
+    required this.pulseCtrl,
+    required this.currentPage,
+    required this.onSkip,
+  });
+
+  final AnimationController pulseCtrl;
+  final int currentPage;
   final VoidCallback onSkip;
-
-  @override
-  State<_TopBrandPanel> createState() => _TopBrandPanelState();
-}
-
-class _TopBrandPanelState extends State<_TopBrandPanel>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _pulseCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _pulseCtrl.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Solid orange fill
-        Container(color: AppColors.primary),
+        // Base orange fill
+        Positioned.fill(child: ColoredBox(color: AppColors.primary)),
 
-        // Radial glow top-right
+        // Top-right ambient glow
         Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: const Alignment(0.8, -0.7),
-                radius: 1.0,
-                colors: [
-                  Colors.white.withValues(alpha: 0.20),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        // Ambient orb bottom-left
-        Positioned(
-          bottom: -20,
-          left: -20,
-          child: AnimatedBuilder(
-            animation: _pulseCtrl,
-            builder: (context, child) => Opacity(
-              opacity: 0.20 + (_pulseCtrl.value * 0.08),
-              child: Container(
-                width: 220,
-                height: 220,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFFFB085),
+          child: RepaintBoundary(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(0.8, -0.7),
+                  radius: 1.0,
+                  colors: [
+                    Colors.white.withValues(alpha: 0.18),
+                    Colors.transparent,
+                  ],
                 ),
               ),
             ),
           ),
         ),
 
-        // Ambient orb top-right
+        // Ambient breathing orb
         Positioned(
-          top: -20,
-          right: -20,
-          child: AnimatedBuilder(
-            animation: _pulseCtrl,
-            builder: (context, child) => Opacity(
-              opacity: 0.25 + (_pulseCtrl.value * 0.10),
+          top: -30,
+          right: -30,
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: pulseCtrl,
+              builder: (context, child) => Opacity(
+                opacity: 0.18 + (pulseCtrl.value * 0.10),
+                child: child,
+              ),
               child: Container(
-                width: 200,
-                height: 200,
+                width: 220,
+                height: 220,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.primaryDark,
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // Bottom-left orb
+        Positioned(
+          bottom: -20,
+          left: -20,
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: pulseCtrl,
+              builder: (context, child) => Opacity(
+                opacity: 0.15 + (pulseCtrl.value * 0.08),
+                child: child,
+              ),
+              child: Container(
+                width: 180,
+                height: 180,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFFFB085),
                 ),
               ),
             ),
@@ -179,40 +234,45 @@ class _TopBrandPanelState extends State<_TopBrandPanel>
             alignment: Alignment.topRight,
             child: Padding(
               padding: const EdgeInsets.only(top: 12, right: 20),
-              child: TextButton(
-                onPressed: widget.onSkip,
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.12),
-                  foregroundColor: Colors.white.withValues(alpha: 0.90),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.xs,
-                  ),
-                  shape: const StadiumBorder(),
-                  side: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.12),
+              child: AnimatedOpacity(
+                opacity: currentPage < kOnboardingSlides.length - 1 ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 250),
+                child: GestureDetector(
+                  onTap: onSkip,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Text(
+                      'SKIP',
+                      style: AppTypography.labelMicro.copyWith(
+                        color: Colors.white.withValues(alpha: 0.90),
+                        letterSpacing: 2.5,
+                      ),
+                    ),
                   ),
                 ),
-                child: Text(
-                  'SKIP',
-                  style: AppTypography.labelMicro.copyWith(
-                    color: Colors.white.withValues(alpha: 0.90),
-                    letterSpacing: 2.5,
-                  ),
-                ),
-              ).animate(delay: 600.ms).fadeIn(duration: 400.ms),
+              ),
             ),
           ),
         ),
 
-        // Logo + brand name
+        // Logo + brand name (stable center)
         Center(
           child: Padding(
-            padding: const EdgeInsets.only(top: 32),
+            padding: const EdgeInsets.only(top: 28),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Glassmorphism logo container
+                // Logo mark
                 Container(
                   width: 64,
                   height: 64,
@@ -225,15 +285,14 @@ class _TopBrandPanelState extends State<_TopBrandPanel>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
+                        color: Colors.black.withValues(alpha: 0.10),
                         blurRadius: 20,
-                        offset: const Offset(0, 8),
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
                   child: const CustomPaint(
                     painter: BurgerIconPainter(),
-                    size: Size(32, 32),
                     child: SizedBox(width: 32, height: 32),
                   ),
                 )
@@ -245,7 +304,7 @@ class _TopBrandPanelState extends State<_TopBrandPanel>
                     )
                     .fadeIn(duration: 500.ms),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 Text(
                   'BURGER FARM',
@@ -253,7 +312,7 @@ class _TopBrandPanelState extends State<_TopBrandPanel>
                     color: Colors.white,
                     shadows: [
                       Shadow(
-                        color: Colors.black.withValues(alpha: 0.15),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -262,9 +321,9 @@ class _TopBrandPanelState extends State<_TopBrandPanel>
                 )
                     .animate(delay: 150.ms)
                     .slideY(
-                      begin: -0.3,
+                      begin: -0.2,
                       end: 0,
-                      duration: 700.ms,
+                      duration: 600.ms,
                       curve: const Cubic(0.16, 1, 0.3, 1),
                     )
                     .fadeIn(duration: 500.ms),
@@ -277,9 +336,24 @@ class _TopBrandPanelState extends State<_TopBrandPanel>
   }
 }
 
-class _BottomSheet extends StatelessWidget {
-  const _BottomSheet({required this.onGetStarted});
-  final VoidCallback onGetStarted;
+// ─── Individual Slide Bottom Sheet ────────────────────────────────────────────
+
+class _SlideBottomSheet extends StatelessWidget {
+  const _SlideBottomSheet({
+    required this.slide,
+    required this.isActive,
+    required this.currentPage,
+    required this.totalPages,
+    required this.onAdvance,
+    required this.onSkip,
+  });
+
+  final OnboardingSlide slide;
+  final bool isActive;
+  final int currentPage;
+  final int totalPages;
+  final VoidCallback onAdvance;
+  final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -300,96 +374,95 @@ class _BottomSheet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Pill indicator dots
-          _PaginationDots(total: 3, current: 0)
-              .animate()
-              .fadeIn(duration: 400.ms, delay: 200.ms),
+          // Pagination dots
+          _PaginationDots(total: totalPages, current: currentPage),
 
           const SizedBox(height: AppSpacing.lg),
 
-          // Headline
-          RichText(
-            text: TextSpan(
-              style: AppTypography.headlineXL.copyWith(
-                color: AppColors.textPrimary,
+          // Slide tagline (if any)
+          if (slide.tagline != null) ...[
+            Text(
+              slide.tagline!.toUpperCase(),
+              style: AppTypography.labelMicro.copyWith(
+                color: AppColors.primary,
+                letterSpacing: 2.5,
               ),
-              children: [
-                const TextSpan(text: 'Real Burgers.\n'),
-                TextSpan(
-                  text: 'Real Fast.',
-                  style: AppTypography.headlineXL.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
             ),
-          )
-              .animate(delay: 300.ms)
-              .slideY(
-                begin: 0.2,
-                end: 0,
-                duration: 600.ms,
-                curve: const Cubic(0.16, 1, 0.3, 1),
-              )
-              .fadeIn(duration: 500.ms),
+            const SizedBox(height: AppSpacing.xs),
+          ],
+
+          // Headline
+          Semantics(
+            header: true,
+            child: RichText(
+              text: TextSpan(
+                style: AppTypography.headlineXL.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+                children: [
+                  TextSpan(text: '${slide.headline}\n'),
+                  TextSpan(
+                    text: slide.headlineAccent,
+                    style: AppTypography.headlineXL.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
 
           const SizedBox(height: AppSpacing.sm),
 
           Text(
-            'Farm-fresh ingredients. Made to order.\nDelivered while it\'s still sizzling.',
+            slide.body,
             style: AppTypography.bodyMd.copyWith(
               color: AppColors.textMuted,
-              height: 1.6,
+              height: 1.65,
             ),
-          )
-              .animate(delay: 380.ms)
-              .slideY(begin: 0.2, end: 0, duration: 500.ms)
-              .fadeIn(duration: 400.ms),
+          ),
 
           const SizedBox(height: AppSpacing.lg),
 
-          // Divider
-          Divider(color: AppColors.border.withValues(alpha: 0.5), height: 1),
+          Divider(
+            color: AppColors.border.withValues(alpha: 0.5),
+            height: 1,
+          ),
+
           const SizedBox(height: AppSpacing.lg),
 
-          // Feature pills row
+          // Feature pills
           Row(
-            children: [
-              _FeaturePill(
-                icon: Icons.eco_rounded,
-                label: 'Farm Fresh',
-                delay: 450.ms,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              _FeaturePill(
-                icon: Icons.timer_rounded,
-                label: '18 Min Avg',
-                delay: 530.ms,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              _FeaturePill(
-                icon: Icons.local_shipping_rounded,
-                label: 'Free ₹199+',
-                delay: 610.ms,
-              ),
-            ],
+            children: slide.features
+                .map((f) => Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          right: slide.features.last == f ? 0 : AppSpacing.sm,
+                        ),
+                        child: _FeaturePill(feature: f),
+                      ),
+                    ))
+                .toList(),
           ),
 
           const Spacer(),
 
-          // CTA Button
-          _GetStartedButton(onTap: onGetStarted)
-              .animate(delay: 700.ms)
-              .slideY(begin: 0.3, end: 0, duration: 500.ms)
-              .fadeIn(duration: 400.ms),
+          // CTA button
+          _CtaButton(
+            label: slide.ctaLabel,
+            onTap: onAdvance,
+          ),
         ],
       ),
     );
   }
 }
 
+// ─── Sub-widgets ──────────────────────────────────────────────────────────────
+
 class _PaginationDots extends StatelessWidget {
   const _PaginationDots({required this.total, required this.current});
+
   final int total;
   final int current;
 
@@ -400,10 +473,10 @@ class _PaginationDots extends StatelessWidget {
       children: List.generate(total, (i) {
         final isActive = i == current;
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 320),
+          curve: const Cubic(0.16, 1, 0.3, 1),
           margin: const EdgeInsets.only(right: 6),
-          width: isActive ? 24 : 6,
+          width: isActive ? 24.0 : 6.0,
           height: 6,
           decoration: BoxDecoration(
             color: isActive ? AppColors.primary : AppColors.border,
@@ -416,122 +489,109 @@ class _PaginationDots extends StatelessWidget {
 }
 
 class _FeaturePill extends StatelessWidget {
-  const _FeaturePill({
-    required this.icon,
-    required this.label,
-    required this.delay,
-  });
-  final IconData icon;
-  final String label;
-  final Duration delay;
+  const _FeaturePill({required this.feature});
+  final OnboardingFeature feature;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: AppColors.surface.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(AppRadius.card),
-          border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.textPrimary.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceWhite,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.textPrimary.withValues(alpha: 0.06),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(icon, size: 16, color: AppColors.primary),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label.toUpperCase(),
-              style: AppTypography.labelMicro.copyWith(
-                color: AppColors.textPrimary,
-                letterSpacing: 1.2,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ).animate(delay: delay).fadeIn(duration: 400.ms).slideY(
-            begin: 0.15,
-            end: 0,
-            duration: 400.ms,
-            curve: const Cubic(0.16, 1, 0.3, 1),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.textPrimary.withValues(alpha: 0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceWhite,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.border.withValues(alpha: 0.4),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.textPrimary.withValues(alpha: 0.05),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(feature.icon, size: 15, color: AppColors.primary),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            feature.label.toUpperCase(),
+            style: AppTypography.labelMicro.copyWith(
+              color: AppColors.textPrimary,
+              letterSpacing: 1.0,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _GetStartedButton extends StatefulWidget {
-  const _GetStartedButton({required this.onTap});
+class _CtaButton extends StatefulWidget {
+  const _CtaButton({required this.label, required this.onTap});
+  final String label;
   final VoidCallback onTap;
 
   @override
-  State<_GetStartedButton> createState() => _GetStartedButtonState();
+  State<_CtaButton> createState() => _CtaButtonState();
 }
 
-class _GetStartedButtonState extends State<_GetStartedButton>
+class _CtaButtonState extends State<_CtaButton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _pressCtrl;
-  late Animation<double> _scaleAnim;
+  late AnimationController _press;
+  late Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
-    _pressCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 120),
-    );
-    _scaleAnim = Tween<double>(begin: 1.0, end: 0.97).animate(
-      CurvedAnimation(parent: _pressCtrl, curve: Curves.easeOut),
+    _press = AnimationController(vsync: this, duration: 100.ms);
+    _scale = Tween<double>(begin: 1.0, end: 0.97).animate(
+      CurvedAnimation(parent: _press, curve: Curves.easeOut),
     );
   }
 
   @override
   void dispose() {
-    _pressCtrl.dispose();
+    _press.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => _pressCtrl.forward(),
+      onTapDown: (_) => _press.forward(),
       onTapUp: (_) {
-        _pressCtrl.reverse();
+        _press.reverse();
         widget.onTap();
       },
-      onTapCancel: () => _pressCtrl.reverse(),
+      onTapCancel: () => _press.reverse(),
       child: AnimatedBuilder(
-        animation: _scaleAnim,
-        builder: (context, child) => Transform.scale(
-          scale: _scaleAnim.value,
-          child: child,
-        ),
+        animation: _scale,
+        builder: (context, child) =>
+            Transform.scale(scale: _scale.value, child: child),
         child: Container(
           width: double.infinity,
-          height: 56,
+          height: AppSpacing.buttonHeight,
           decoration: BoxDecoration(
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(AppRadius.button),
@@ -541,7 +601,7 @@ class _GetStartedButtonState extends State<_GetStartedButton>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Grab Your Meal',
+                widget.label,
                 style: AppTypography.buttonLabel.copyWith(
                   color: Colors.white,
                   fontSize: 17,
@@ -561,9 +621,8 @@ class _GetStartedButtonState extends State<_GetStartedButton>
   }
 }
 
-class _HomeIndicator extends StatelessWidget {
-  const _HomeIndicator({required this.dark});
-  final bool dark;
+class _HomeBar extends StatelessWidget {
+  const _HomeBar();
 
   @override
   Widget build(BuildContext context) {
@@ -571,9 +630,7 @@ class _HomeIndicator extends StatelessWidget {
       width: 134,
       height: 5,
       decoration: BoxDecoration(
-        color: dark
-            ? AppColors.textPrimary.withValues(alpha: 0.12)
-            : Colors.white.withValues(alpha: 0.30),
+        color: AppColors.textPrimary.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(3),
       ),
     );
