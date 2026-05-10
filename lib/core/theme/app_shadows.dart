@@ -71,4 +71,37 @@ abstract final class AppShadows {
       spreadRadius: 3,
     ),
   ];
+
+  /// Brand CTA glow (used on primary buttons)
+  static const List<BoxShadow> brandGlow = [
+    BoxShadow(
+      color: Color(0x66E8560A), // rgba(232,86,10, 0.40)
+      blurRadius: 24,
+      offset: Offset(0, 8),
+    ),
+    BoxShadow(
+      color: Color(0x33E8560A), // rgba(232,86,10, 0.20)
+      blurRadius: 8,
+      offset: Offset(0, 4),
+    ),
+  ];
+
+  /// Location pin glow (white on orange bg)
+  static const List<BoxShadow> glowBrand = [
+    BoxShadow(
+      color: Color(0x40E8560A),
+      blurRadius: 24,
+      spreadRadius: 2,
+      offset: Offset(0, 0),
+    ),
+  ];
+
+  /// Float shadow (bottom sheet elevation from orange bg)
+  static const List<BoxShadow> float = [
+    BoxShadow(
+      color: Color(0x1A271200),
+      blurRadius: 32,
+      offset: Offset(0, -12),
+    ),
+  ];
 }

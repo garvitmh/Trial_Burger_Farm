@@ -3,6 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'route_names.dart';
 import 'route_paths.dart';
+import '../../features/splash/presentation/pages/splash_page.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/otp_verification_page.dart';
+import '../../features/preferences/presentation/pages/preferences_page.dart';
+import '../../features/location/presentation/pages/location_setup_page.dart';
 
 /// AppRouter — Burger Farm GoRouter Configuration
 ///
@@ -48,8 +54,7 @@ final appRouterProvider = Provider<GoRouter>(
           name: RouteNames.splash,
           pageBuilder: (context, state) => _fadeTransition(
             state: state,
-            // TODO(phase-3): Replace with actual SplashPage widget
-            child: const _PlaceholderPage(label: 'Splash'),
+            child: const SplashPage(),
           ),
         ),
 
@@ -59,7 +64,7 @@ final appRouterProvider = Provider<GoRouter>(
           name: RouteNames.onboarding,
           pageBuilder: (context, state) => _slideUpTransition(
             state: state,
-            child: const _PlaceholderPage(label: 'Onboarding'),
+            child: const OnboardingPage(),
           ),
         ),
 
@@ -69,7 +74,7 @@ final appRouterProvider = Provider<GoRouter>(
           name: RouteNames.login,
           pageBuilder: (context, state) => _slideUpTransition(
             state: state,
-            child: const _PlaceholderPage(label: 'Login'),
+            child: const LoginPage(),
           ),
           routes: [
             GoRoute(
@@ -77,7 +82,7 @@ final appRouterProvider = Provider<GoRouter>(
               name: RouteNames.otpVerification,
               pageBuilder: (context, state) => _fadeTransition(
                 state: state,
-                child: const _PlaceholderPage(label: 'OTP Verification'),
+                child: const OtpVerificationPage(),
               ),
             ),
           ],
@@ -89,7 +94,7 @@ final appRouterProvider = Provider<GoRouter>(
           name: RouteNames.locationSetup,
           pageBuilder: (context, state) => _slideUpTransition(
             state: state,
-            child: const _PlaceholderPage(label: 'Location Setup'),
+            child: const LocationSetupPage(),
           ),
           routes: [
             GoRoute(
@@ -109,7 +114,7 @@ final appRouterProvider = Provider<GoRouter>(
           name: RouteNames.preferences,
           pageBuilder: (context, state) => _slideUpTransition(
             state: state,
-            child: const _PlaceholderPage(label: 'Preferences'),
+            child: const PreferencesPage(),
           ),
         ),
 

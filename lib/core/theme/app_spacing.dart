@@ -34,6 +34,10 @@ abstract final class AppSpacing {
   static const double itemGap = xl2;            // 24px — between list items
   static const double inlineGap = sm;           // 8px  — inline element gap
 
+  // Shorthand aliases used in UI pages
+  static const double pageH = pageHorizontal;   // 24px — horizontal screen padding
+  static const double xxl = xl5;                // 40px — extra-extra large gap
+
   // ─── Component Heights ──────────────────────────────────────────────────
   static const double buttonHeight = 52.0;      // .btn height from CSS
   static const double buttonHeightSm = 50.0;    // .btn-ghost / .btn-outline

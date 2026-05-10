@@ -26,11 +26,10 @@ class BootstrapManager {
     // ── Tier 1: Configure system UI overlays ────────────────────────────────
     await _configureSystemUI();
 
-    // ── Tier 2: Run essential async initialization ───────────────────────────
-    await AppInitializer.initialize();
-
-    // ── Tier 3: Schedule deferred post-frame tasks ───────────────────────────
-    // These are registered here but only execute after the first frame renders.
+    // ── Tier 2 & 3: Deferred to SplashPage lifecycle ───────────────────────
+    // AppInitializer.initialize(ref) is now called inside SplashPage with a
+    // WidgetRef, allowing Riverpod-aware initialization. Deferred tasks are
+    // also scheduled from there post-bootstrap.
     AppInitializer.scheduleDeferredTasks();
   }
 

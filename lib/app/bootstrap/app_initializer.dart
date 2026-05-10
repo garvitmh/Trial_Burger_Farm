@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'startup_tasks.dart';
 
 /// AppInitializer — Burger Farm Async Initialization Orchestrator
@@ -18,8 +19,8 @@ class AppInitializer {
   static bool _initialized = false;
 
   /// Runs all essential (Tier 2) startup tasks concurrently where safe.
-  /// Called by BootstrapManager before routing begins.
-  static Future<void> initialize() async {
+  /// Called by SplashPage during the bootstrap lifecycle.
+  static Future<void> initialize(WidgetRef ref) async {
     if (_initialized) return;
 
     debugPrint('[AppInitializer] Starting essential initialization...');
