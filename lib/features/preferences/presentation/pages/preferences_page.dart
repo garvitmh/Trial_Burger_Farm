@@ -646,7 +646,7 @@ class _ProceedButtonState extends State<_ProceedButton>
         ),
         child: Container(
           width: double.infinity,
-          height: 56,
+          height: AppSpacing.buttonHeight,
           decoration: BoxDecoration(
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(AppRadius.button),

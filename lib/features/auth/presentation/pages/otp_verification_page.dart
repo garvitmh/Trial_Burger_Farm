@@ -363,7 +363,7 @@ class _VerifyButton extends StatelessWidget {
         onTap: enabled ? onTap : null,
         child: Container(
           width: double.infinity,
-          height: 56,
+          height: AppSpacing.buttonHeight,
           decoration: BoxDecoration(
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(AppRadius.button),

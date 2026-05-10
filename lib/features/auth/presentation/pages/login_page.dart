@@ -638,7 +638,7 @@ class _PrimaryButtonState extends State<_PrimaryButton>
         ),
         child: Container(
           width: double.infinity,
-          height: 56,
+          height: AppSpacing.buttonHeight,
           decoration: BoxDecoration(
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(AppRadius.button),
