@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
-// Google Sign-In will require the `google_sign_in` package, which we will add next.
-// We'll prepare the architecture for it now.
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import '../../domain/value_objects/auth_failures.dart';
@@ -13,10 +12,24 @@ import '../dto/auth_user_dto.dart';
 /// Handles raw Firebase communication, mapping responses to DTOs,
 /// and catching exceptions to map them to Domain failures.
 class FirebaseAuthRepository implements IAuthRepository {
-  FirebaseAuthRepository(this._firebaseAuth, this._secureStorage);
+  FirebaseAuthRepository(
+    this._firebaseAuth,
+    this._secureStorage, {
+    GoogleSignIn? googleSignIn,
+  }) : _googleSignIn = googleSignIn ??
+            GoogleSignIn(
+              // Web client ID from android/app/google-services.json
+              // (oauth_client entry with client_type: 3). Required by
+              // Firebase Auth so the returned idToken is accepted as a
+              // GoogleAuthProvider credential on Android.
+              serverClientId:
+                  '284811640366-1hgtvm0t56dfgsu3sqa4fm67v79obvu5.apps.googleusercontent.com',
+              scopes: const ['email', 'profile'],
+            );
 
   final fb.FirebaseAuth _firebaseAuth;
   final SecureStorageService _secureStorage;
+  final GoogleSignIn _googleSignIn;
 
   @override
   Stream<AuthUser?> get authStateChanges {
@@ -95,9 +108,48 @@ class FirebaseAuthRepository implements IAuthRepository {
 
   @override
   Future<AuthUser> signInWithGoogle() async {
-    // TODO(phase-3): Implement actual Google Sign-In flow using google_sign_in package.
-    // This is structurally prepared, awaiting package integration.
-    throw UnimplementedError('Google Sign-In is not yet fully integrated.');
+    try {
+      // Sign out any cached Google account first so the account picker always
+      // shows; without this, switching accounts is impossible on Android.
+      await _googleSignIn.signOut();
+
+      final account = await _googleSignIn.signIn();
+      if (account == null) {
+        // User dismissed the account picker — domain failure, not exception.
+        throw const SignInCancelledFailure();
+      }
+
+      final auth = await account.authentication;
+      final idToken = auth.idToken;
+      final accessToken = auth.accessToken;
+      if (idToken == null || accessToken == null) {
+        throw const CredentialFailure(
+          'Google returned an empty credential. Check the OAuth web client ID.',
+        );
+      }
+
+      final credential = fb.GoogleAuthProvider.credential(
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+      final userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
+      final user = userCredential.user;
+      if (user == null) {
+        throw const UnknownAuthFailure(
+          'Firebase returned a null user after Google sign-in.',
+        );
+      }
+
+      final token = await user.getIdToken();
+      if (token != null) {
+        await _secureStorage.saveAuthToken(token);
+      }
+
+      return AuthUserDto.fromFirebaseUser(user);
+    } catch (e) {
+      throw AuthExceptionMapper.map(e);
+    }
   }
 
   @override

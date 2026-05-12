@@ -10,6 +10,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../shared/widgets/brand_painters.dart';
+import '../../domain/value_objects/auth_failures.dart';
+import '../controllers/auth_session_manager.dart';
+import '../controllers/otp_controller.dart';
 
 /// LoginPage — Premium phone-auth entry screen.
 ///
@@ -28,6 +31,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _phoneController = TextEditingController();
   final _phoneFocus = FocusNode();
   final bool _isLoading = false;
+  bool _googleLoading = false;
 
   @override
   void initState() {
@@ -46,14 +50,42 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _sendOtp() {
-    if (_phoneController.text.trim().length < 10) return;
+    final national = _phoneController.text.trim();
+    if (national.length < 10) return;
     HapticFeedback.lightImpact();
-    context.go(RoutePaths.otpVerification);
+    final e164 = '+91$national';
+    // Fire the actual phone-auth call so verificationId is populated before
+    // the OTP page mounts. The controller transitions through Loading and
+    // back to Initial in its codeSent callback; the OTP page consumes it
+    // from there.
+    ref.read(otpControllerProvider.notifier).sendOtp(e164);
+    context.push(RoutePaths.otpVerification, extra: {'phone': e164});
   }
 
   void _continueAsGuest() {
     HapticFeedback.lightImpact();
     context.go(RoutePaths.preferences);
+  }
+
+  Future<void> _signInWithGoogle() async {
+    if (_googleLoading) return;
+    HapticFeedback.lightImpact();
+    setState(() => _googleLoading = true);
+    try {
+      await ref.read(authStateProvider.notifier).signInWithGoogle();
+      // On success the auth stream flips state to Authenticated and the
+      // router redirects automatically — no navigation needed here.
+    } on SignInCancelledFailure {
+      // Silent — user dismissed the picker.
+    } on AuthFailure catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _googleLoading = false);
+    }
   }
 
   @override
@@ -100,9 +132,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       child: _LoginSheetContent(
                         phoneController: _phoneController,
                         phoneFocus: _phoneFocus,
-                        isLoading: _isLoading,
+                        isLoading: _isLoading || _googleLoading,
                         onSendOtp: _sendOtp,
-                        onGoogleSignIn: () {},
+                        onGoogleSignIn: _signInWithGoogle,
                         onAppleSignIn: () {},
                         onGuestContinue: _continueAsGuest,
                       ),

@@ -23,6 +23,7 @@ class SecureStorageService {
   // ─── Keys ─────────────────────────────────────────────────────────
   static const String _keyAuthToken = 'auth_token';
   static const String _keySessionState = 'session_state';
+  static const String _keyOtpVerificationId = 'otp_verification_id';
 
   // ─── Read/Write Methods ───────────────────────────────────────────
 
@@ -49,6 +50,38 @@ class SecureStorageService {
   Future<void> clearSession() async {
     await _storage.delete(key: _keyAuthToken, aOptions: _getAndroidOptions(), iOptions: _getIOSOptions());
     await _storage.delete(key: _keySessionState, aOptions: _getAndroidOptions(), iOptions: _getIOSOptions());
+    await clearVerificationId();
+  }
+
+  // ─── OTP verificationId persistence ───────────────────────────────
+  // Phone-auth flow on Android requires the user to leave the app to read
+  // the SMS. When the Dart isolate is suspended, the in-memory verificationId
+  // held by OtpController is lost. Persisting it here keeps the OTP step
+  // recoverable across backgrounding.
+
+  Future<void> saveVerificationId(String verificationId) async {
+    await _storage.write(
+      key: _keyOtpVerificationId,
+      value: verificationId,
+      aOptions: _getAndroidOptions(),
+      iOptions: _getIOSOptions(),
+    );
+  }
+
+  Future<String?> getVerificationId() async {
+    return _storage.read(
+      key: _keyOtpVerificationId,
+      aOptions: _getAndroidOptions(),
+      iOptions: _getIOSOptions(),
+    );
+  }
+
+  Future<void> clearVerificationId() async {
+    await _storage.delete(
+      key: _keyOtpVerificationId,
+      aOptions: _getAndroidOptions(),
+      iOptions: _getIOSOptions(),
+    );
   }
 
   /// Deletes all data. Use with caution (e.g., on first install or account deletion).

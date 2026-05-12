@@ -82,4 +82,13 @@ class AuthSessionManager extends AsyncNotifier<AuthState> {
       rethrow;
     }
   }
+
+  /// Initiates the Google Sign-In flow. The auth stream listener installed in
+  /// [_listenToAuthChanges] picks up the resulting user and the router
+  /// redirects automatically — callers do not need to navigate themselves.
+  /// Throws the typed [AuthFailure] from the repository on failure so the UI
+  /// can show a localized message.
+  Future<void> signInWithGoogle() async {
+    await _authRepo.signInWithGoogle();
+  }
 }

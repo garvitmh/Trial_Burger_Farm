@@ -2,23 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/bootstrap/bootstrap_manager.dart';
 import 'app/config/burger_farm_app.dart';
+import 'app/firebase/firebase_initializer.dart';
+import 'shared/providers/app_providers.dart';
 
 /// main() — Burger Farm application entry point.
 ///
-/// Boot sequence (PERFORMANCE_RULES.md compliance):
-///   1. BootstrapManager.bootstrap() — Tier 1 + Tier 2 initialization
-///   2. runApp() — First frame rendered ASAP
-///   3. Deferred tasks scheduled post-frame (already queued by bootstrap)
+/// Boot sequence:
+///   1. BootstrapManager.bootstrap()      — engine binding, system UI
+///   2. Firebase.initializeApp(...)       — BEFORE runApp so providers that
+///                                          read FirebaseAuth.instance from
+///                                          their build() (notably
+///                                          authStateProvider via the router
+///                                          notifier) never observe a missing
+///                                          [core/no-app] state.
+///   3. runApp(ProviderScope(...))        — first frame
+///   4. Deferred tasks                    — already queued by bootstrap()
 ///
-/// ProviderScope wraps the entire app as the Riverpod dependency root.
-/// All providers are created lazily on first access.
+/// Firebase init failure does NOT crash the app: the failure is captured in
+/// firebaseInitFailedProvider and surfaced by RouteGuards so the user lands on
+/// an inert splash instead of a black screen.
 Future<void> main() async {
-  // Tier 1 + 2: Engine binding, system UI, essential async init
   await BootstrapManager.bootstrap();
 
+  Object? firebaseInitError;
+  try {
+    await FirebaseInitializer.initialize(EnvConfig.current.environment);
+  } catch (e, stack) {
+    firebaseInitError = e;
+    debugPrint('[main] Firebase init failed — running in degraded mode: $e');
+    debugPrint('$stack');
+  }
+
   runApp(
-    const ProviderScope(
-      child: BurgerFarmApp(),
+    ProviderScope(
+      overrides: [
+        if (firebaseInitError != null)
+          firebaseInitFailedProvider.overrideWithValue(true),
+      ],
+      child: const BurgerFarmApp(),
     ),
   );
 }

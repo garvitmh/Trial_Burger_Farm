@@ -77,8 +77,10 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
     if (timerValue > 0) return;
     _pinController.clear();
     HapticFeedback.lightImpact();
-    // In a real app: ref.read(otpControllerProvider.notifier).resendOtp(phone)
-    ref.read(otpTimerProvider.notifier).startCooldown();
+    // Trigger a real resend through the controller so a fresh
+    // verificationId is requested from Firebase — restarting the timer
+    // alone would leave the OTP page wired to a stale verificationId.
+    ref.read(otpControllerProvider.notifier).resendOtp(_phone);
   }
 
   @override

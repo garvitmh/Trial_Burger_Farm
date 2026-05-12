@@ -39,64 +39,111 @@ abstract final class RouteGuards {
     RoutePaths.otpVerification,
   };
 
+  // Paths that should NOT be yanked back to splash when an async dependency
+  // momentarily re-enters AsyncLoading (e.g. after the user marks onboarding
+  // complete or while a refresh-token is being exchanged). The user is already
+  // mid-flow on these screens; pulling them to splash is destructive.
+  static const _inFlightSafePaths = {
+    RoutePaths.onboarding,
+    RoutePaths.login,
+    RoutePaths.otpVerification,
+    RoutePaths.preferences,
+    RoutePaths.locationSetup,
+    RoutePaths.addressSearch,
+  };
+
   static String? guardLogic(Ref ref, GoRouterState state) {
     final currentPath = state.uri.path;
 
     // ── Phase 1: Bootstrap gate ──────────────────────────────────────────────
-    // If bootstrap (Tier 2 init + session restore) is not done, block all
-    // navigation outside the splash screen.
+    // Block all navigation except splash until the splash widget has signalled
+    // bootstrap completion. Splash itself is allowed because that is where
+    // bootstrap actually runs.
     final bootstrapComplete = ref.read(bootstrapCompleteProvider);
     if (!bootstrapComplete) {
       return currentPath == RoutePaths.splash ? null : RoutePaths.splash;
     }
 
-    // ── Phase 2: Session loading gate ────────────────────────────────────────
-    // AuthSessionManager starts in AsyncLoading. Wait for it to resolve
-    // before any auth-based redirect decision.
-    final authAsync = ref.read(authStateProvider);
-    if (authAsync.isLoading) {
-      return currentPath == RoutePaths.splash ? null : RoutePaths.splash;
+    // ── Phase 1b: Firebase init failure gate ─────────────────────────────────
+    // If Firebase failed to initialize in main(), no auth provider is callable.
+    // Route the user to login as a safe terminal state instead of looping on
+    // splash. They'll see the inert auth screen rather than a hung splash.
+    if (ref.read(firebaseInitFailedProvider)) {
+      if (currentPath == RoutePaths.splash) return RoutePaths.login;
+      return null;
     }
 
-    // ── Phase 3: Onboarding completion gate ──────────────────────────────────
-    // Read onboarding flag. If still loading, conservatively stay on splash.
+    // ── Phase 2: Session loading gate ────────────────────────────────────────
+    // AuthSessionManager starts in AsyncLoading. Wait for it to resolve before
+    // any auth-based redirect decision. Only hold the user on splash; once
+    // they're past splash and onto another flow screen (login, OTP, etc.), do
+    // not yank them back just because auth is momentarily re-resolving.
+    final authAsync = ref.read(authStateProvider);
+    if (authAsync.isLoading) {
+      if (currentPath == RoutePaths.splash) return null;
+      if (_inFlightSafePaths.contains(currentPath)) return null;
+      return RoutePaths.splash;
+    }
+
+    // ── Phase 2b: Auth error gate (Bug A from forensic report) ───────────────
+    // If authStateProvider entered AsyncError (e.g. Firebase available but the
+    // session restoration call threw), do NOT treat the user as unauthenticated
+    // — `.value` would be null and we'd route a legitimately-session'd user to
+    // login. Instead, hold the current location (no redirect) so the user can
+    // retry on their current screen. Splash is the one exception: there's
+    // nothing actionable there, so push them to login as a terminal state.
+    if (authAsync.hasError) {
+      return currentPath == RoutePaths.splash ? RoutePaths.login : null;
+    }
+
+    // ── Phase 3: Onboarding completion gate (Bug B from forensic report) ────
+    // Read onboarding flag. While it's loading, only pull the user to splash
+    // during cold boot. If they're already on a flow screen (e.g. they just
+    // tapped "Done" on onboarding which triggers a momentary AsyncLoading),
+    // let them stay where they are until the new AsyncData arrives.
     final onboardingAsync = ref.read(onboardingCompleteProvider);
     final onboardingComplete = onboardingAsync.value ?? false;
     if (onboardingAsync.isLoading) {
-      return currentPath == RoutePaths.splash ? null : RoutePaths.splash;
+      if (currentPath == RoutePaths.splash) return null;
+      if (_inFlightSafePaths.contains(currentPath)) return null;
+      return RoutePaths.splash;
+    }
+    if (onboardingAsync.hasError) {
+      // Conservatively treat as not-complete so the user sees onboarding
+      // rather than being silently routed past it.
+      return currentPath == RoutePaths.splash ? RoutePaths.onboarding : null;
     }
 
     // ── Phase 4: Concrete routing decisions ──────────────────────────────────
     final session = authAsync.value;
     final isAuthenticated = session is AuthStateAuthenticated;
 
-    // -- Authenticated user: skip onboarding/login entirely --
+    // Authenticated user: skip onboarding/login entirely.
     if (isAuthenticated) {
       if (currentPath == RoutePaths.splash ||
           _authOnlySkipPaths.contains(currentPath)) {
         return '${RoutePaths.shell}/${RoutePaths.home}';
       }
-      return null; // Allow all other routes for authenticated users
+      return null;
     }
 
-    // -- Unauthenticated user --
-    // If on splash, decide where to go next
+    // Unauthenticated user on splash: decide where to go next.
     if (currentPath == RoutePaths.splash) {
       return onboardingComplete ? RoutePaths.login : RoutePaths.onboarding;
     }
 
-    // ── Phase 5: No redirect needed ──────────────────────────────────────────
-    // If onboarding not done yet, force it before login is accessible
+    // ── Phase 5: Other unauthenticated routing rules ─────────────────────────
+    // Force onboarding before login if the user has not completed it.
     if (!onboardingComplete && currentPath == RoutePaths.login) {
       return RoutePaths.onboarding;
     }
 
-    // Block unauthenticated users from app shell routes
+    // Block unauthenticated users from app shell routes.
     if (currentPath.startsWith(RoutePaths.shell)) {
       return onboardingComplete ? RoutePaths.login : RoutePaths.onboarding;
     }
 
-    // Allow all other routes (onboarding, preferences, location, otp)
+    // Allow all other routes (onboarding, preferences, location, otp).
     return null;
   }
 }

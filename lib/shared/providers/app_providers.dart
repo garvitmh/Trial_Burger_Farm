@@ -33,6 +33,15 @@ final bootstrapCompleteProvider =
   name: 'bootstrapCompleteProvider',
 );
 
+/// Set to true at boot if [FirebaseInitializer.initialize] threw in main().
+/// The router consumes this to short-circuit auth-based decisions when the
+/// Firebase runtime is unavailable, so the app never gets stuck on splash
+/// because providers can't reach FirebaseAuth.instance.
+final firebaseInitFailedProvider = Provider<bool>(
+  (ref) => false,
+  name: 'firebaseInitFailedProvider',
+);
+
 // ─── App Lifecycle State ──────────────────────────────────────────────────────
 
 /// Notifier that tracks the current [AppLifecycleState].

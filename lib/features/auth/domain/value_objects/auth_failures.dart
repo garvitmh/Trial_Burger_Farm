@@ -45,6 +45,23 @@ class OperationCanceledFailure extends AuthFailure {
   const OperationCanceledFailure() : super('The operation was canceled.');
 }
 
+class SignInCancelledFailure extends AuthFailure {
+  const SignInCancelledFailure() : super('Sign-in was cancelled.');
+}
+
+class GoogleSignInConfigurationFailure extends AuthFailure {
+  const GoogleSignInConfigurationFailure([
+    super.message =
+        'Google Sign-In is not configured correctly on this device.',
+  ]);
+}
+
+class CredentialFailure extends AuthFailure {
+  const CredentialFailure([
+    super.message = 'Could not obtain valid credentials for sign-in.',
+  ]);
+}
+
 class UnknownAuthFailure extends AuthFailure {
   const UnknownAuthFailure([super.message = 'An unexpected authentication error occurred. Please try again.']);
 }

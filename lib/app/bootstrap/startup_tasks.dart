@@ -2,6 +2,12 @@
 import '../firebase/firebase_initializer.dart';
 import '../environment/env_config.dart';
 
+// Firebase.initializeApp() is invoked from main() before runApp() (see
+// lib/main.dart). The essential-task list below intentionally does NOT
+// re-run it, since providers that read FirebaseAuth.instance subscribe
+// during the first build of the router — well before SplashPage runs
+// these Tier 2 tasks.
+
 // Startup task tier definitions and registry for the Burger Farm bootstrap sequence.
 
 ///
@@ -60,16 +66,9 @@ class StartupTask {
 /// Task implementations are added as SDK integrations complete in later phases.
 abstract final class StartupTaskRegistry {
   // ─── Tier 2: Essential Async Tasks ────────────────────────────────────────
-  static final List<StartupTask> essential = [
-    StartupTask(
-      name: 'Firebase Core Initialization',
-      tier: StartupTaskTier.essential,
-      isMandatory: true,
-      execute: () async {
-        final env = EnvConfig.current.environment;
-        await FirebaseInitializer.initialize(env);
-      },
-    ),
+  static final List<StartupTask> essential = <StartupTask>[
+    // Firebase core init moved to main() to eliminate the boot race against
+    // providers that depend on FirebaseAuth.instance.
     // TODO(phase-3): Add FlutterSecureStorage warm-up task
   ];
 
