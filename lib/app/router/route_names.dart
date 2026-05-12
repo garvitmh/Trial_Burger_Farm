@@ -17,6 +17,7 @@ abstract final class RouteNames {
   // ─── Location ─────────────────────────────────────────────────────────────
   static const String locationSetup = 'location-setup';
   static const String addressSearch = 'address-search';
+  static const String addressDetail = 'address-detail';
 
   // ─── Preferences ──────────────────────────────────────────────────────────
   static const String preferences = 'preferences';

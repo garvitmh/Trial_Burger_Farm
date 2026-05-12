@@ -88,8 +88,10 @@ class _AddressSearchPageState extends ConsumerState<AddressSearchPage> {
   void _onSuggestionTap(_Suggestion s) {
     HapticFeedback.selectionClick();
     FocusManager.instance.primaryFocus?.unfocus();
-    // TODO(phase-store): pass through GoRouter extra to detail screen.
-    context.pop();
+    context.push(
+      '/location/search/detail',
+      extra: {'title': s.primary, 'subtitle': s.secondary},
+    );
   }
 
   @override

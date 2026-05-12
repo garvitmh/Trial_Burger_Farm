@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../app/router/route_paths.dart';
 import '../../../../core/animations/app_animations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_durations.dart';
@@ -69,7 +71,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     setState(() => _step = next);
   }
 
-  Future<void> _sendOtp() async {
+  void _sendOtp() {
     final raw = _phoneController.text.trim();
     if (raw.replaceAll(RegExp(r'\D'), '').length < 10) {
       setState(() => _phoneError = 'Please enter a 10-digit mobile number.');
@@ -78,14 +80,18 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     setState(() => _phoneError = null);
     HapticFeedback.lightImpact();
     _phoneE164 = '+91${raw.replaceAll(RegExp(r'\D'), '')}';
-    await ref.read(otpControllerProvider.notifier).sendOtp(_phoneE164);
-    if (!mounted) return;
-    final state = ref.read(otpControllerProvider);
-    if (state is OtpStateError) {
-      setState(() => _phoneError = state.message);
-      return;
-    }
+    // Fire-and-forget: `OtpController.sendOtp` calls Firebase's
+    // `verifyPhoneNumber` which returns a Future that completes only when
+    // `codeAutoRetrievalTimeout` fires (up to 30s). Awaiting it here would
+    // strand the user on the phone screen. The OTP screen handles its own
+    // loading state via the controller's `OtpStateLoading`.
+    ref.read(otpControllerProvider.notifier).sendOtp(_phoneE164);
     _setStep(OnboardingFlowStep.otp);
+  }
+
+  void _continueAsGuest() {
+    HapticFeedback.lightImpact();
+    context.go(RoutePaths.preferences);
   }
 
   Future<void> _signInWithGoogle() async {
@@ -145,6 +151,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 padding: EdgeInsets.only(bottom: bottomInset),
                 child: _AuthPanel(
                   step: _step,
+                  phoneE164: _phoneE164,
                   phoneController: _phoneController,
                   phoneError: _phoneError,
                   googleLoading: _googleLoading,
@@ -152,6 +159,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   onSendOtp: _sendOtp,
                   onGoogle: _signInWithGoogle,
                   onAppleStub: () {},
+                  onGuestContinue: _continueAsGuest,
                   onBackToWelcome: () {
                     setState(() {
                       _step = OnboardingFlowStep.welcome;
@@ -400,6 +408,7 @@ class _MarqueeZone extends StatelessWidget {
 class _AuthPanel extends StatelessWidget {
   const _AuthPanel({
     required this.step,
+    required this.phoneE164,
     required this.phoneController,
     required this.phoneError,
     required this.googleLoading,
@@ -407,11 +416,13 @@ class _AuthPanel extends StatelessWidget {
     required this.onSendOtp,
     required this.onGoogle,
     required this.onAppleStub,
+    required this.onGuestContinue,
     required this.onBackToWelcome,
     required this.onEditNumber,
   });
 
   final OnboardingFlowStep step;
+  final String phoneE164;
   final TextEditingController phoneController;
   final String? phoneError;
   final bool googleLoading;
@@ -419,6 +430,7 @@ class _AuthPanel extends StatelessWidget {
   final VoidCallback onSendOtp;
   final VoidCallback onGoogle;
   final VoidCallback onAppleStub;
+  final VoidCallback onGuestContinue;
   final VoidCallback onBackToWelcome;
   final VoidCallback onEditNumber;
 
@@ -451,6 +463,7 @@ class _AuthPanel extends StatelessWidget {
               onContinueWithPhone: onContinueWithPhone,
               onGoogle: onGoogle,
               onApple: onAppleStub,
+              onGuestContinue: onGuestContinue,
               googleLoading: googleLoading,
             ),
           OnboardingFlowStep.phone => _PhonePanel(
@@ -462,6 +475,7 @@ class _AuthPanel extends StatelessWidget {
             ),
           OnboardingFlowStep.otp => _OtpPanel(
               key: const ValueKey('otp'),
+              phoneE164: phoneE164,
               onEditNumber: onEditNumber,
             ),
         },
@@ -478,12 +492,14 @@ class _WelcomePanel extends StatelessWidget {
     required this.onContinueWithPhone,
     required this.onGoogle,
     required this.onApple,
+    required this.onGuestContinue,
     required this.googleLoading,
   });
 
   final VoidCallback onContinueWithPhone;
   final VoidCallback onGoogle;
   final VoidCallback onApple;
+  final VoidCallback onGuestContinue;
   final bool googleLoading;
 
   @override
@@ -534,7 +550,37 @@ class _WelcomePanel extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         BlurFade(
-          delay: const Duration(milliseconds: 460),
+          delay: const Duration(milliseconds: 440),
+          child: GestureDetector(
+            onTap: onGuestContinue,
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Continue as Guest',
+                    style: AppTypography.buttonLabel.copyWith(
+                      color: AppColors.primary,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 16,
+                    color: AppColors.primary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        BlurFade(
+          delay: const Duration(milliseconds: 480),
           child: Text.rich(
             TextSpan(
               style: AppTypography.captionMd.copyWith(
@@ -743,7 +789,15 @@ class _IndiaFlagPainter extends CustomPainter {
 // ─── OTP panel ─────────────────────────────────────────────────────────────
 
 class _OtpPanel extends ConsumerStatefulWidget {
-  const _OtpPanel({super.key, required this.onEditNumber});
+  const _OtpPanel({
+    super.key,
+    required this.phoneE164,
+    required this.onEditNumber,
+  });
+
+  /// The phone number that was used to send the current OTP. Required so
+  /// the Resend tap can re-invoke `OtpController.resendOtp` correctly.
+  final String phoneE164;
   final VoidCallback onEditNumber;
 
   @override
@@ -841,7 +895,9 @@ class _OtpPanelState extends ConsumerState<_OtpPanel> {
     final state = ref.watch(otpControllerProvider);
     final timer = ref.watch(otpTimerProvider);
     final isError = state is OtpStateError;
-    final isVerifying = _joined.length == 6 || state is OtpStateLoading;
+    final hasCode = _joined.length == 6;
+    final isSending = state is OtpStateLoading && !hasCode;
+    final isVerifying = hasCode || state is OtpStateLoading;
     final errorMessage = state is OtpStateError ? state.message : null;
 
     return Column(
@@ -887,6 +943,13 @@ class _OtpPanelState extends ConsumerState<_OtpPanel> {
               textAlign: TextAlign.center,
             ),
           )
+        else if (isSending)
+          Center(
+            child: Text(
+              'Sending code…',
+              style: AppTypography.actionSm.copyWith(color: AppColors.textMuted),
+            ),
+          )
         else if (isVerifying)
           Center(
             child: Text(
@@ -916,11 +979,13 @@ class _OtpPanelState extends ConsumerState<_OtpPanel> {
                 )
               : GestureDetector(
                   onTap: () {
-                    final phone = ref.read(otpControllerProvider);
-                    if (phone is OtpStateLoading) return;
+                    if (state is OtpStateLoading) return;
+                    if (widget.phoneE164.isEmpty) return;
                     HapticFeedback.lightImpact();
-                    // Resend uses the phone number stored at send time —
-                    // OtpController handles it.
+                    _clearCells();
+                    ref
+                        .read(otpControllerProvider.notifier)
+                        .resendOtp(widget.phoneE164);
                   },
                   child: Text(
                     'Resend OTP',

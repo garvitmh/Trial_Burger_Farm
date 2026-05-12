@@ -16,6 +16,7 @@ abstract final class RoutePaths {
   // ─── Location ─────────────────────────────────────────────────────────────
   static const String locationSetup = '/location';
   static const String addressSearch = '/location/search';
+  static const String addressDetail = '/location/search/detail';
 
   // ─── Preferences ──────────────────────────────────────────────────────────
   static const String preferences = '/preferences';

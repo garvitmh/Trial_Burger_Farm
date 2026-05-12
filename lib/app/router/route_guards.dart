@@ -50,6 +50,7 @@ abstract final class RouteGuards {
     RoutePaths.preferences,
     RoutePaths.locationSetup,
     RoutePaths.addressSearch,
+    RoutePaths.addressDetail,
   };
 
   static String? guardLogic(Ref ref, GoRouterState state) {

@@ -10,6 +10,7 @@ import '../../features/auth/presentation/pages/otp_verification_page.dart';
 import '../../features/preferences/presentation/pages/preferences_page.dart';
 import '../../features/location/presentation/pages/location_setup_page.dart';
 import '../../features/location/presentation/pages/address_search_page.dart';
+import '../../features/location/presentation/pages/address_detail_page.dart';
 
 /// AppRouter — Burger Farm GoRouter Configuration
 ///
@@ -106,6 +107,16 @@ final appRouterProvider = Provider<GoRouter>(
                 state: state,
                 child: const AddressSearchPage(),
               ),
+              routes: [
+                GoRoute(
+                  path: RoutePaths.addressDetail,
+                  name: RouteNames.addressDetail,
+                  pageBuilder: (context, state) => _slideUpTransition(
+                    state: state,
+                    child: const AddressDetailPage(),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
