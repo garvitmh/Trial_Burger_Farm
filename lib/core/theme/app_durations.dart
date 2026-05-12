@@ -28,4 +28,19 @@ abstract final class AppDurations {
   static const Duration staggerSm = Duration(milliseconds: 60);
   static const Duration staggerMd = Duration(milliseconds: 100);
   static const Duration staggerLg = Duration(milliseconds: 150);
+  static const Duration staggerOtp = Duration(milliseconds: 75);
+
+  // ─── Reference-parity additions ─────────────────────────────────────────
+  static const Duration blurFade = Duration(milliseconds: 550);
+  static const Duration pulseRing = Duration(milliseconds: 2000);
+  static const Duration verifyDelay = Duration(milliseconds: 700);
+  static const Duration splashTotal = Duration(milliseconds: 4570); // logo-animation.mp4 length
+  static const Duration splashMin = Duration(milliseconds: 2500);   // earliest acceptable advance
+  static const Duration marqueeSlow = Duration(seconds: 40);
+  static const Duration marqueeFast = Duration(seconds: 28);
+  static const Duration marqueeBob = Duration(milliseconds: 2750);
+  static const Duration heroMorph = Duration(milliseconds: 420);
+  static const Duration panelEnter = Duration(milliseconds: 380);
+  static const Duration otpEnter = Duration(milliseconds: 320);
+  static const Duration otpSuccess = Duration(milliseconds: 550);
 }

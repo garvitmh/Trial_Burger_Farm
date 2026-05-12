@@ -1,38 +1,26 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/route_paths.dart';
+import '../../../../core/animations/app_animations.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
+import '../../../../core/theme/app_durations.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/blur_fade.dart';
 
-/// Preference data models — local-only, no backend persistence yet.
-enum DietPreference { veg, nonVeg }
+enum DietPreference { veg, nonVeg, both }
 
-class CravingTag {
-  const CravingTag({required this.emoji, required this.label});
-  final String emoji;
-  final String label;
-}
-
-const _cravings = [
-  CravingTag(emoji: '🍔', label: 'Burgers'),
-  CravingTag(emoji: '🍟', label: 'Sides'),
-  CravingTag(emoji: '🥤', label: 'Drinks'),
-  CravingTag(emoji: '🌶️', label: 'Spicy'),
-  CravingTag(emoji: '🥗', label: 'Light'),
-  CravingTag(emoji: '🧁', label: 'Desserts'),
-];
-
-/// PreferencesPage — User onboarding preferences scaffold.
+/// PreferencesPage — Burger Farm preferences capture screen, rebuilt to
+/// match the Next.js reference (white scaffold + translucent farmer art at
+/// the bottom + glass-backed white card with name/dob/phone/diet/terms).
 ///
-/// Collects: name, diet preference (veg/non-veg), craving tags.
-/// No backend persistence yet — architecture boundary is clean for future wiring.
-/// Progress: Step 3 of 3 (splash → onboarding → prefs → location).
+/// Architecture note: the form values stay in widget state for now.
+/// Firestore persistence is deferred per the briefing's Phase decision.
 class PreferencesPage extends ConsumerStatefulWidget {
   const PreferencesPage({super.key});
 
@@ -42,31 +30,76 @@ class PreferencesPage extends ConsumerStatefulWidget {
 
 class _PreferencesPageState extends ConsumerState<PreferencesPage> {
   final _nameController = TextEditingController();
-  final _nameFocus = FocusNode();
-  DietPreference _diet = DietPreference.veg;
-  final Set<String> _selectedCravings = {'Burgers'};
-  bool _nameFocused = false;
+  final _dobController = TextEditingController();
+  final _phoneController = TextEditingController();
+  DietPreference? _diet;
+  bool _acceptedTerms = false;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
     ));
-    _nameFocus.addListener(() {
-      setState(() => _nameFocused = _nameFocus.hasFocus);
-    });
+    // Pre-fill phone from any router extra value if available (matches
+    // the Next.js reference reading `?phone=` query param).
+    final state = GoRouterState.of(context);
+    final extra = state.extra;
+    if (extra is Map && extra['phone'] is String) {
+      _phoneController.text = (extra['phone'] as String)
+          .replaceFirst(RegExp(r'^\+91'), '');
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _nameFocus.dispose();
+    _dobController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
-  void _proceed() {
+  bool get _canContinue {
+    final phoneDigits = _phoneController.text.replaceAll(RegExp(r'\D'), '');
+    return _nameController.text.trim().length >= 2 &&
+        _dobController.text.isNotEmpty &&
+        phoneDigits.length >= 10 &&
+        _diet != null &&
+        _acceptedTerms;
+  }
+
+  Future<void> _pickDob() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(now.year - 25, now.month, now.day),
+      firstDate: DateTime(1925),
+      lastDate: now,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              surface: AppColors.surfaceWhite,
+              onSurface: AppColors.textPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _dobController.text =
+            '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      });
+    }
+  }
+
+  void _continue() {
+    if (!_canContinue) return;
     HapticFeedback.lightImpact();
     context.go(RoutePaths.locationSetup);
   }
@@ -75,156 +108,107 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     final size = MediaQuery.sizeOf(context);
-    final topHeight = size.height * 0.28;
 
     return Scaffold(
       backgroundColor: AppColors.surfaceWhite,
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // ─── Top Brand Header (orange) ────────────────────────────────────
+          // ─── Bottom farmer-art illustration + gradient wash ────────────────
           Positioned(
-            top: 0,
             left: 0,
             right: 0,
-            height: topHeight + 32,
-            child: _PrefsTopPanel(),
-          ),
-
-          // ─── Sheet Content ─────────────────────────────────────────────────
-          Positioned.fill(
-            child: Column(
-              children: [
-                SizedBox(height: topHeight - 24),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceWhite,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(AppRadius.sheet),
-                      ),
-                      boxShadow: AppShadows.float,
-                    ),
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.only(
-                        left: AppSpacing.pageH,
-                        right: AppSpacing.pageH,
-                        top: AppSpacing.lg,
-                        bottom: bottomInset + 120,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Progress bar
-                          _ProgressBar(step: 3, total: 3)
-                              .animate()
-                              .fadeIn(duration: 400.ms),
-
-                          const SizedBox(height: AppSpacing.xs),
-
-                          Text(
-                            'STEP 3 OF 3',
-                            style: AppTypography.labelMicro.copyWith(
-                              color: AppColors.primary,
-                              letterSpacing: 2.5,
-                            ),
-                          ).animate(delay: 80.ms).fadeIn(duration: 400.ms),
-
-                          const SizedBox(height: AppSpacing.lg),
-
-                          // Name input
-                          _SectionLabel(label: 'What do we call you?')
-                              .animate(delay: 150.ms)
-                              .fadeIn(duration: 400.ms),
-                          const SizedBox(height: AppSpacing.sm),
-                          _NameInputField(
-                            controller: _nameController,
-                            focusNode: _nameFocus,
-                            hasFocus: _nameFocused,
-                          ).animate(delay: 200.ms).fadeIn(duration: 400.ms),
-
-                          const SizedBox(height: AppSpacing.xl),
-
-                          // Diet toggle
-                          _SectionLabel(label: 'Food preference?')
-                              .animate(delay: 280.ms)
-                              .fadeIn(duration: 400.ms),
-                          const SizedBox(height: AppSpacing.sm),
-                          _DietToggle(
-                            selected: _diet,
-                            onChanged: (d) => setState(() => _diet = d),
-                          ).animate(delay: 330.ms).fadeIn(duration: 400.ms),
-
-                          const SizedBox(height: AppSpacing.xl),
-
-                          // Cravings
-                          _SectionLabel(label: 'Usually craving?')
-                              .animate(delay: 410.ms)
-                              .fadeIn(duration: 400.ms),
-                          const SizedBox(height: AppSpacing.sm),
-                          _CravingChips(
-                            selected: _selectedCravings,
-                            onToggle: (tag) {
-                              setState(() {
-                                if (_selectedCravings.contains(tag)) {
-                                  _selectedCravings.remove(tag);
-                                } else {
-                                  _selectedCravings.add(tag);
-                                }
-                              });
-                              HapticFeedback.selectionClick();
-                            },
-                          ).animate(delay: 460.ms).fadeIn(duration: 400.ms),
-                        ],
-                      ),
-                    ),
-                  ).animate().slideY(
-                        begin: 0.08,
-                        end: 0,
-                        duration: 650.ms,
-                        curve: const Cubic(0.16, 1, 0.3, 1),
-                      ).fadeIn(duration: 500.ms),
-                ),
-              ],
-            ),
-          ),
-
-          // ─── Fixed CTA at bottom ───────────────────────────────────────────
-          Positioned(
             bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                left: AppSpacing.pageH,
-                right: AppSpacing.pageH,
-                top: AppSpacing.md,
-                bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceWhite,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.textPrimary.withValues(alpha: 0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, -8),
+            height: size.height * 0.42,
+            child: const _FarmerArtBackground(),
+          ),
+          // ─── Brand-tinted radial wash (corners) ────────────────────────────
+          const Positioned.fill(child: _RadialBrandWash()),
+          // ─── Foreground content ───────────────────────────────────────────
+          SafeArea(
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              padding: EdgeInsets.only(bottom: bottomInset + AppSpacing.xl4),
+              child: Column(
+                children: [
+                  const SizedBox(height: AppSpacing.lg),
+                  BlurFade(
+                    delay: const Duration(milliseconds: 100),
+                    child: Image.asset(
+                      'assets/images/brand/logo.png',
+                      width: 88,
+                      height: 88,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  BlurFade(
+                    delay: const Duration(milliseconds: 200),
+                    child: Text(
+                      'Personalize your\nBurger Farm feed',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.displayHeroLg.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  BlurFade(
+                    delay: const Duration(milliseconds: 300),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xl4,
+                      ),
+                      child: Text(
+                        'Add your preferences to unlock a smoother ordering flow.',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.bodyMd.copyWith(
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xl,
+                    ),
+                    child: BlurFade(
+                      delay: const Duration(milliseconds: 350),
+                      child: _PreferencesCard(
+                        nameController: _nameController,
+                        dobController: _dobController,
+                        phoneController: _phoneController,
+                        diet: _diet,
+                        onDietChanged: (d) {
+                          HapticFeedback.selectionClick();
+                          setState(() => _diet = d);
+                        },
+                        acceptedTerms: _acceptedTerms,
+                        onTermsChanged: (v) {
+                          HapticFeedback.selectionClick();
+                          setState(() => _acceptedTerms = v ?? false);
+                        },
+                        onDobPick: _pickDob,
+                        onFieldChanged: () => setState(() {}),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xl,
+                    ),
+                    child: BlurFade(
+                      delay: const Duration(milliseconds: 500),
+                      child: _ContinueCta(
+                        enabled: _canContinue,
+                        onTap: _continue,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              child: _ProceedButton(onTap: _proceed)
-                  .animate(delay: 600.ms)
-                  .slideY(begin: 0.3, end: 0, duration: 500.ms)
-                  .fadeIn(duration: 400.ms),
-            ),
-          ),
-
-          // Home indicator
-          const Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: _HomeBar(),
             ),
           ),
         ],
@@ -233,84 +217,39 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
   }
 }
 
-class _PrefsTopPanel extends StatelessWidget {
+// ─── Background layers ────────────────────────────────────────────────────
+
+class _FarmerArtBackground extends StatelessWidget {
+  const _FarmerArtBackground();
+
   @override
   Widget build(BuildContext context) {
     return Stack(
+      fit: StackFit.expand,
       children: [
-        Container(color: AppColors.primary),
-        // Top-right glow
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: const Alignment(0.9, -0.8),
-                radius: 1.0,
-                colors: [
-                  Colors.white.withValues(alpha: 0.15),
-                  Colors.transparent,
-                ],
-              ),
-            ),
+        Opacity(
+          opacity: 0.52,
+          child: Image.asset(
+            'assets/images/preferences/farmer-art.png',
+            fit: BoxFit.cover,
+            alignment: Alignment.bottomCenter,
+            errorBuilder: (_, e, s) => const SizedBox.shrink(),
           ),
         ),
-        // Bottom-left glow
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: const Alignment(-0.8, 0.9),
-                radius: 1.0,
-                colors: [
-                  AppColors.textPrimary.withValues(alpha: 0.15),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-        ),
-        SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.md),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.18),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.30),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: const Icon(Icons.tune_rounded, color: Colors.white, size: 24),
-                  ).animate().scale(
-                        begin: const Offset(0.7, 0.7),
-                        duration: 600.ms,
-                        curve: const Cubic(0.16, 1, 0.3, 1),
-                      ).fadeIn(duration: 400.ms),
-                  const SizedBox(height: 10),
-                  Text(
-                    'BURGER FARM',
-                    style: AppTypography.headlineLg.copyWith(
-                      color: Colors.white,
-                      letterSpacing: 3.0,
-                    ),
-                  ).animate(delay: 100.ms).fadeIn(duration: 400.ms),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Tell us how you like it',
-                    style: AppTypography.body.copyWith(
-                      color: Colors.white.withValues(alpha: 0.80),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ).animate(delay: 180.ms).fadeIn(duration: 400.ms),
-                ],
-              ),
+        // Warm orange wash bottom → transparent top.
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              stops: [0.0, 0.28, 0.55, 0.78, 1.0],
+              colors: [
+                Color(0x38E8560A), // 22% brand
+                Color(0x8CFFE8D2), // 55% peach
+                Color(0x60FFF8F2), // 38% near-cream
+                Color(0x1FFFFFFF), // 12% white
+                Color(0x00FFFFFF),
+              ],
             ),
           ),
         ),
@@ -319,240 +258,282 @@ class _PrefsTopPanel extends StatelessWidget {
   }
 }
 
-class _ProgressBar extends StatelessWidget {
-  const _ProgressBar({required this.step, required this.total});
-  final int step;
-  final int total;
+class _RadialBrandWash extends StatelessWidget {
+  const _RadialBrandWash();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(total, (i) {
-        final isComplete = i < step;
-        final isCurrent = i == step - 1;
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(right: i < total - 1 ? 8 : 0),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 350),
-              curve: const Cubic(0.16, 1, 0.3, 1),
-              height: 8,
-              decoration: BoxDecoration(
-                color: isComplete ? AppColors.primary : AppColors.primary.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(4),
-                boxShadow: isCurrent
-                    ? [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.40),
-                          blurRadius: 8,
-                        ),
-                      ]
-                    : null,
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment(0.85, -0.95),
+                radius: 0.7,
+                colors: [Color(0x14E8560A), Color(0x00E8560A)],
               ),
             ),
           ),
-        );
-      }),
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel({required this.label});
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: AppTypography.bodyMd.copyWith(
-        color: AppColors.textPrimary,
-        fontWeight: FontWeight.w600,
-        fontSize: 15,
-      ),
-    );
-  }
-}
-
-class _NameInputField extends StatelessWidget {
-  const _NameInputField({
-    required this.controller,
-    required this.focusNode,
-    required this.hasFocus,
-  });
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final bool hasFocus;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      curve: const Cubic(0.16, 1, 0.3, 1),
-      decoration: BoxDecoration(
-        color: hasFocus ? AppColors.surfaceWhite : const Color(0xFFFAFAFA),
-        borderRadius: BorderRadius.circular(AppRadius.input),
-        border: Border.all(
-          color: hasFocus ? AppColors.primary : AppColors.border,
-          width: 1.5,
-        ),
-        boxShadow: hasFocus ? AppShadows.inputFocus : null,
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Icon(Icons.person_rounded,
-                size: 20, color: AppColors.primary),
-          ),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              focusNode: focusNode,
-              textCapitalization: TextCapitalization.words,
-              style: AppTypography.bodyMd.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Your first name',
-                hintStyle: AppTypography.bodyMd.copyWith(
-                  color: AppColors.textMuted.withValues(alpha: 0.5),
-                  fontSize: 16,
-                ),
-                border: InputBorder.none,
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment(-0.85, 0.95),
+                radius: 0.85,
+                colors: [Color(0x1FE8560A), Color(0x00E8560A)],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Glass card containing the form ───────────────────────────────────────
+
+class _PreferencesCard extends StatelessWidget {
+  const _PreferencesCard({
+    required this.nameController,
+    required this.dobController,
+    required this.phoneController,
+    required this.diet,
+    required this.onDietChanged,
+    required this.acceptedTerms,
+    required this.onTermsChanged,
+    required this.onDobPick,
+    required this.onFieldChanged,
+  });
+
+  final TextEditingController nameController;
+  final TextEditingController dobController;
+  final TextEditingController phoneController;
+  final DietPreference? diet;
+  final ValueChanged<DietPreference> onDietChanged;
+  final bool acceptedTerms;
+  final ValueChanged<bool?> onTermsChanged;
+  final VoidCallback onDobPick;
+  final VoidCallback onFieldChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.sheet),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceWhite.withValues(alpha: 0.86),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
+            borderRadius: BorderRadius.circular(AppRadius.sheet),
+            boxShadow: AppShadows.premium,
+          ),
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: AutofillGroup(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _FieldLabel(text: 'NAME'),
+                const SizedBox(height: AppSpacing.sm),
+                _StyledInput(
+                  controller: nameController,
+                  hint: 'Enter your full name',
+                  keyboardType: TextInputType.name,
+                  textCapitalization: TextCapitalization.words,
+                  autofillHints: const [AutofillHints.givenName],
+                  onChanged: (_) => onFieldChanged(),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _FieldLabel(text: 'DOB'),
+                          const SizedBox(height: AppSpacing.sm),
+                          _DateInputButton(
+                            controller: dobController,
+                            onTap: onDobPick,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _FieldLabel(text: 'PHONE'),
+                          const SizedBox(height: AppSpacing.sm),
+                          _StyledInput(
+                            controller: phoneController,
+                            hint: '98765 43210',
+                            keyboardType: TextInputType.phone,
+                            autofillHints: const [
+                              AutofillHints.telephoneNumberNational,
+                            ],
+                            onChanged: (_) => onFieldChanged(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _FieldLabel(text: 'FOOD PREFERENCE'),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _DietToggle(
+                        label: 'Veg',
+                        active: diet == DietPreference.veg,
+                        onTap: () => onDietChanged(DietPreference.veg),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: _DietToggle(
+                        label: 'Non-veg',
+                        active: diet == DietPreference.nonVeg,
+                        onTap: () => onDietChanged(DietPreference.nonVeg),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: _DietToggle(
+                        label: 'Both',
+                        active: diet == DietPreference.both,
+                        onTap: () => onDietChanged(DietPreference.both),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _TermsRow(
+                  accepted: acceptedTerms,
+                  onChanged: onTermsChanged,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: AppTypography.formLabelSm.copyWith(color: AppColors.primary),
+    );
+  }
+}
+
+class _StyledInput extends StatelessWidget {
+  const _StyledInput({
+    required this.controller,
+    required this.hint,
+    this.keyboardType,
+    this.textCapitalization = TextCapitalization.none,
+    this.autofillHints,
+    this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final String hint;
+  final TextInputType? keyboardType;
+  final TextCapitalization textCapitalization;
+  final List<String>? autofillHints;
+  final ValueChanged<String>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 52,
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(AppRadius.inputLg),
+        border: Border.all(
+          color: AppColors.border.withValues(alpha: 0.6),
+          width: 1.2,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      alignment: Alignment.centerLeft,
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        textCapitalization: textCapitalization,
+        autofillHints: autofillHints,
+        onChanged: onChanged,
+        style: AppTypography.inputLg.copyWith(color: AppColors.textPrimary),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: AppTypography.inputLg.copyWith(
+            color: AppColors.textMuted.withValues(alpha: 0.45),
+          ),
+          border: InputBorder.none,
+          isDense: true,
+          contentPadding: EdgeInsets.zero,
+        ),
+      ),
+    );
+  }
+}
+
+class _DateInputButton extends StatelessWidget {
+  const _DateInputButton({required this.controller, required this.onTap});
+  final TextEditingController controller;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = controller.text;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        decoration: BoxDecoration(
+          color: AppColors.surface.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(AppRadius.inputLg),
+          border: Border.all(
+            color: AppColors.border.withValues(alpha: 0.6),
+            width: 1.2,
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          value.isEmpty ? 'YYYY-MM-DD' : value,
+          style: AppTypography.inputLg.copyWith(
+            color: value.isEmpty
+                ? AppColors.textMuted.withValues(alpha: 0.45)
+                : AppColors.textPrimary,
+          ),
+        ),
       ),
     );
   }
 }
 
 class _DietToggle extends StatelessWidget {
-  const _DietToggle({required this.selected, required this.onChanged});
-  final DietPreference selected;
-  final ValueChanged<DietPreference> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _DietOption(
-          label: 'Pure Veg',
-          icon: '🟢',
-          isSelected: selected == DietPreference.veg,
-          selectedColor: AppColors.success,
-          onTap: () => onChanged(DietPreference.veg),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        _DietOption(
-          label: 'Non-Veg',
-          icon: '🔴',
-          isSelected: selected == DietPreference.nonVeg,
-          selectedColor: AppColors.error,
-          onTap: () => onChanged(DietPreference.nonVeg),
-        ),
-      ],
-    );
-  }
-}
-
-class _DietOption extends StatelessWidget {
-  const _DietOption({
+  const _DietToggle({
     required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.selectedColor,
+    required this.active,
     required this.onTap,
   });
   final String label;
-  final String icon;
-  final bool isSelected;
-  final Color selectedColor;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          onTap();
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: const Cubic(0.16, 1, 0.3, 1),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: isSelected ? selectedColor.withValues(alpha: 0.06) : Colors.transparent,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            border: Border.all(
-              color: isSelected ? selectedColor : AppColors.border,
-              width: 1.5,
-            ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: selectedColor.withValues(alpha: 0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(icon, style: const TextStyle(fontSize: 16)),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: AppTypography.bodyMd.copyWith(
-                  color: isSelected ? selectedColor : AppColors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CravingChips extends StatelessWidget {
-  const _CravingChips({required this.selected, required this.onToggle});
-  final Set<String> selected;
-  final ValueChanged<String> onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
-      children: _cravings
-          .map((c) => _CravingChip(
-                tag: c,
-                isSelected: selected.contains(c.label),
-                onTap: () => onToggle(c.label),
-              ))
-          .toList(),
-    );
-  }
-}
-
-class _CravingChip extends StatelessWidget {
-  const _CravingChip({
-    required this.tag,
-    required this.isSelected,
-    required this.onTap,
-  });
-  final CravingTag tag;
-  final bool isSelected;
+  final bool active;
   final VoidCallback onTap;
 
   @override
@@ -560,129 +541,148 @@ class _CravingChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: const Cubic(0.16, 1, 0.3, 1),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        duration: AppDurations.standard,
+        curve: AppCurves.material,
+        height: 44,
         decoration: BoxDecoration(
-          color: isSelected
+          color: active
               ? AppColors.primary.withValues(alpha: 0.08)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
+              : AppColors.surfaceWhite,
+          borderRadius: BorderRadius.circular(AppRadius.input),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
-            width: 1.5,
+            width: 2,
+            color: active ? AppColors.primary : AppColors.border,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
+          boxShadow: active ? AppShadows.glow : null,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(tag.emoji, style: const TextStyle(fontSize: 14)),
-            const SizedBox(width: 8),
-            Text(
-              tag.label,
-              style: AppTypography.bodyMd.copyWith(
-                color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-              ),
-            ),
-          ],
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: AppTypography.buttonLabel.copyWith(
+            color: active ? AppColors.primary : AppColors.textPrimary,
+            fontSize: 13,
+          ),
         ),
       ),
     );
   }
 }
 
-class _ProceedButton extends StatefulWidget {
-  const _ProceedButton({required this.onTap});
+class _TermsRow extends StatelessWidget {
+  const _TermsRow({required this.accepted, required this.onChanged});
+  final bool accepted;
+  final ValueChanged<bool?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 24,
+          height: 24,
+          child: Checkbox(
+            value: accepted,
+            onChanged: onChanged,
+            activeColor: AppColors.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+            side: BorderSide(color: AppColors.border, width: 1.5),
+            visualDensity: VisualDensity.compact,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text.rich(
+            TextSpan(
+              style: AppTypography.captionMd.copyWith(
+                color: AppColors.textMuted,
+                height: 1.4,
+              ),
+              children: [
+                const TextSpan(text: 'I agree to the '),
+                TextSpan(
+                  text: 'Terms',
+                  style: AppTypography.captionMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const TextSpan(text: ' and '),
+                TextSpan(
+                  text: 'Privacy Policy',
+                  style: AppTypography.captionMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const TextSpan(text: '.'),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ContinueCta extends StatefulWidget {
+  const _ContinueCta({required this.enabled, required this.onTap});
+  final bool enabled;
   final VoidCallback onTap;
 
   @override
-  State<_ProceedButton> createState() => _ProceedButtonState();
+  State<_ContinueCta> createState() => _ContinueCtaState();
 }
 
-class _ProceedButtonState extends State<_ProceedButton>
+class _ContinueCtaState extends State<_ContinueCta>
     with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this, duration: 120.ms);
-    _scale = Tween<double>(begin: 1.0, end: 0.97)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
-  }
+  late final AnimationController _press =
+      AnimationController(vsync: this, duration: AppDurations.fast);
 
   @override
   void dispose() {
-    _ctrl.dispose();
+    _press.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _ctrl.forward(),
-      onTapUp: (_) {
-        _ctrl.reverse();
-        widget.onTap();
-      },
-      onTapCancel: () => _ctrl.reverse(),
-      child: AnimatedBuilder(
-        animation: _scale,
-        builder: (context, child) => Transform.scale(
-          scale: _scale.value,
-          child: child,
-        ),
-        child: Container(
-          width: double.infinity,
-          height: AppSpacing.buttonHeight,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(AppRadius.button),
-            boxShadow: AppShadows.brandGlow,
+    return AnimatedOpacity(
+      duration: AppDurations.standard,
+      opacity: widget.enabled ? 1.0 : 0.45,
+      child: GestureDetector(
+        onTapDown: widget.enabled ? (_) => _press.forward() : null,
+        onTapUp: widget.enabled
+            ? (_) {
+                _press.reverse();
+                widget.onTap();
+              }
+            : null,
+        onTapCancel: () => _press.reverse(),
+        child: AnimatedBuilder(
+          animation: _press,
+          builder: (context, child) => Transform.scale(
+            scale: 1 - _press.value * 0.03,
+            child: child,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Let's Eat",
-                style: AppTypography.buttonLabel.copyWith(
-                  color: Colors.white,
-                  fontSize: 17,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
-            ],
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(AppRadius.ctaLg),
+              boxShadow: widget.enabled ? AppShadows.brandGlow : null,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              'Continue',
+              style:
+                  AppTypography.buttonLabelLg.copyWith(color: Colors.white),
+            ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _HomeBar extends StatelessWidget {
-  const _HomeBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 134,
-      height: 5,
-      decoration: BoxDecoration(
-        color: AppColors.textPrimary.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(3),
       ),
     );
   }

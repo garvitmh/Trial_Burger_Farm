@@ -9,6 +9,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/otp_verification_page.dart';
 import '../../features/preferences/presentation/pages/preferences_page.dart';
 import '../../features/location/presentation/pages/location_setup_page.dart';
+import '../../features/location/presentation/pages/address_search_page.dart';
 
 /// AppRouter — Burger Farm GoRouter Configuration
 ///
@@ -103,7 +104,7 @@ final appRouterProvider = Provider<GoRouter>(
               name: RouteNames.addressSearch,
               pageBuilder: (context, state) => _fadeTransition(
                 state: state,
-                child: const _PlaceholderPage(label: 'Address Search'),
+                child: const AddressSearchPage(),
               ),
             ),
           ],

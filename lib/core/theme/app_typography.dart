@@ -201,4 +201,120 @@ abstract final class AppTypography {
     fontWeight: FontWeight.w600,
     letterSpacing: 1.5,
   );
+
+  // ─── Reference-parity additions ─────────────────────────────────────────
+  // Sizes matched to Next.js reference's foundation flow.
+
+  /// Onboarding welcome hero (32px, w900, tight tracking).
+  /// `font-display text-[32px] font-black leading-tight tracking-tight`
+  static const TextStyle displayHeroLg = TextStyle(
+    fontFamily: fontDisplay,
+    fontSize: 32,
+    fontWeight: FontWeight.w900,
+    letterSpacing: -0.6,
+    height: 1.06,
+  );
+
+  /// Onboarding phone/otp hero (28px, w900).
+  static const TextStyle displayHeroMd = TextStyle(
+    fontFamily: fontDisplay,
+    fontSize: 28,
+    fontWeight: FontWeight.w900,
+    letterSpacing: -0.4,
+    height: 1.08,
+  );
+
+  /// OTP step heading (26px, w900).
+  static const TextStyle displayTitleMd = TextStyle(
+    fontFamily: fontDisplay,
+    fontSize: 26,
+    fontWeight: FontWeight.w900,
+    letterSpacing: -0.3,
+    height: 1.1,
+  );
+
+  /// OTP cell value (22px, w900, mono-feeling).
+  static const TextStyle otpDigit = TextStyle(
+    fontFamily: fontDisplay,
+    fontSize: 22,
+    fontWeight: FontWeight.w900,
+    letterSpacing: 0,
+  );
+
+  /// Large CTA label (16px, w700) — primary action buttons.
+  static const TextStyle buttonLabelLg = TextStyle(
+    fontFamily: fontUI,
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0.1,
+  );
+
+  /// Form section labels — uppercase, brand-orange (12px, w700, ls 1.5).
+  /// `text-[12px] font-bold uppercase tracking-widest text-brand`
+  static const TextStyle formLabel = TextStyle(
+    fontFamily: fontUI,
+    fontSize: 12,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 1.5,
+  );
+
+  /// Preferences field labels — slightly smaller (11px, w700).
+  static const TextStyle formLabelSm = TextStyle(
+    fontFamily: fontUI,
+    fontSize: 11,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 1.5,
+  );
+
+  /// Phone input display value (18px, w700, slight tracking).
+  /// `font-bold text-[18px] tracking-wide`
+  static const TextStyle inputDisplay = TextStyle(
+    fontFamily: fontUI,
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0.3,
+  );
+
+  /// Preferences input value (16px, w700).
+  static const TextStyle inputLg = TextStyle(
+    fontFamily: fontUI,
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0,
+  );
+
+  /// Reference hero subline (16px, w500, muted).
+  static const TextStyle bodyLg = TextStyle(
+    fontFamily: fontUI,
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    height: 1.4,
+  );
+
+  /// Back-button / "Verifying…" / Edit-number link text (13px, w700, brand).
+  static const TextStyle actionSm = TextStyle(
+    fontFamily: fontUI,
+    fontSize: 13,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0,
+  );
+
+  /// Decorative section label "from the farm lane" (10px, w900, very loose).
+  static const TextStyle decorMicro = TextStyle(
+    fontFamily: fontDisplay,
+    fontSize: 10,
+    fontWeight: FontWeight.w900,
+    letterSpacing: 3.5,
+  );
+
+  /// Splash logo wordmark — Montreux Black at 36-42px. The video uses a
+  /// proprietary wordmark glyph; for the Flutter splash we render the same
+  /// two words with the Montreux family to match weight and feel.
+  static const TextStyle splashWordmarkLg = TextStyle(
+    fontFamily: fontDisplay,
+    fontSize: 38,
+    fontWeight: FontWeight.w900,
+    height: 0.96,
+    letterSpacing: -0.8,
+  );
 }

@@ -23,6 +23,20 @@ abstract final class AppColors {
   static const Color primary = Color(0xFFE8560A);
   static const Color primaryDark = Color(0xFFC94208);
   static const Color primaryGlow = Color(0x38E8560A); // rgba(232,86,10,0.22)
+  static const Color brandLight = Color(0xFFFFF0E5);  // --color-brand-light
+  static const Color brownLight = Color(0x0F271200);  // rgba(39,18,0,0.06) — --color-brown-light
+  static const Color appBackground = Color(0xFFFAFAFA); // Next.js root --background
+
+  // ─── Burger Logo Palette (splash) ────────────────────────────────────────
+  // Colors extracted from the reference logo-animation.mp4 frames.
+  // Kept distinct from the brand-primary palette because they are
+  // *illustration* values, not UI tokens.
+  static const Color logoBunOrange = Color(0xFFEF7C2C);   // top + bottom bun fill
+  static const Color logoBunShade = Color(0xFFE05F1A);    // bun right-side shading
+  static const Color logoLettuce = Color(0xFF9BD24A);     // wavy lettuce slice
+  static const Color logoPattyBrown = Color(0xFF5C2A0A);  // patty + BURGER wordmark
+  static const Color logoCheese = Color(0xFFF7C843);      // cheese triangle peek
+  static const Color logoSesame = Color(0xFFFFFFFF);      // sesame seeds on top bun
 
   // ─── Surfaces ───────────────────────────────────────────────────────────
   static const Color surface = Color(0xFFFBF7F2);      // --cream

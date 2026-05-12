@@ -1,148 +1,238 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../app/router/route_paths.dart';
+import '../../../../core/animations/app_animations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_durations.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/brand_painters.dart';
+import '../../../../features/auth/domain/entities/auth_state.dart';
+import '../../../../features/auth/domain/value_objects/auth_failures.dart';
+import '../../../../features/auth/presentation/controllers/auth_session_manager.dart';
+import '../../../../features/auth/presentation/controllers/otp_controller.dart';
+import '../../../../features/auth/presentation/controllers/otp_timer_service.dart';
+import '../../../../features/auth/presentation/states/otp_state.dart';
+import '../../../../shared/widgets/blur_fade.dart';
+import '../../../../shared/widgets/marquee_row.dart';
+import '../../../../shared/widgets/otp_cell_entry.dart';
 import '../../data/onboarding_prefs_service.dart';
-import '../../domain/onboarding_slide.dart';
 
-/// OnboardingPage — True multi-screen progressive onboarding with PageView.
+/// Which morph state the onboarding flow renders.
 ///
-/// Architecture:
-///   - PageController drives both the PageView (swipe) and the indicator.
-///   - Each page renders from [kOnboardingSlides] data model.
-///   - Top brand panel (45%) is always stable; only the bottom sheet content
-///     transitions, giving a split-screen feel without full rebuilds.
-///   - Spring easing (0.16, 1, 0.3, 1) on all transitions.
-///   - Completion is persisted via OnboardingPrefsService when user exits.
-///
-/// Accessibility: Semantics wrapping per slide, announce page change.
+/// The same `OnboardingPage` widget hosts all three states; the route a
+/// user enters via decides the `initialStep`. Internal transitions
+/// update this without changing the URL.
+enum OnboardingFlowStep { welcome, phone, otp }
+
+/// OnboardingPage — single-page morph hosting the entire pre-home auth
+/// experience (welcome → phone → otp). Reconstructed from the Next.js
+/// reference's `app/onboarding/page.tsx` + `OnboardingAuthPanel`.
 class OnboardingPage extends ConsumerStatefulWidget {
-  const OnboardingPage({super.key});
+  const OnboardingPage({super.key, this.initialStep = OnboardingFlowStep.welcome});
+
+  final OnboardingFlowStep initialStep;
 
   @override
   ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends ConsumerState<OnboardingPage>
-    with SingleTickerProviderStateMixin {
-  final PageController _pageController = PageController();
-  late final AnimationController _panelPulseCtrl;
-  int _currentPage = 0;
-
-  static const _spring = Cubic(0.16, 1, 0.3, 1);
-  static const _pageDuration = Duration(milliseconds: 420);
+class _OnboardingPageState extends ConsumerState<OnboardingPage> {
+  late OnboardingFlowStep _step = widget.initialStep;
+  final _phoneController = TextEditingController();
+  String _phoneE164 = '';
+  bool _googleLoading = false;
+  String? _phoneError;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ));
-    _panelPulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 5),
-    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
-    _pageController.dispose();
-    _panelPulseCtrl.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
-  void _onPageChanged(int page) {
-    setState(() => _currentPage = page);
-    HapticFeedback.lightImpact();
+  // ─── State transitions ──────────────────────────────────────────────────
+
+  void _setStep(OnboardingFlowStep next) {
+    if (!mounted) return;
+    setState(() => _step = next);
   }
 
-  void _advance() {
-    HapticFeedback.lightImpact();
-    final isLast = _currentPage == kOnboardingSlides.length - 1;
-    if (isLast) {
-      // Persist completion, then route to login
-      ref.read(onboardingCompleteProvider.notifier).markComplete();
-      context.go(RoutePaths.login);
+  Future<void> _sendOtp() async {
+    final raw = _phoneController.text.trim();
+    if (raw.replaceAll(RegExp(r'\D'), '').length < 10) {
+      setState(() => _phoneError = 'Please enter a 10-digit mobile number.');
       return;
     }
-    _pageController.nextPage(
-      duration: _pageDuration,
-      curve: _spring,
-    );
+    setState(() => _phoneError = null);
+    HapticFeedback.lightImpact();
+    _phoneE164 = '+91${raw.replaceAll(RegExp(r'\D'), '')}';
+    await ref.read(otpControllerProvider.notifier).sendOtp(_phoneE164);
+    if (!mounted) return;
+    final state = ref.read(otpControllerProvider);
+    if (state is OtpStateError) {
+      setState(() => _phoneError = state.message);
+      return;
+    }
+    _setStep(OnboardingFlowStep.otp);
   }
 
-  void _skip() {
+  Future<void> _signInWithGoogle() async {
+    if (_googleLoading) return;
     HapticFeedback.lightImpact();
-    // Skipping also marks onboarding complete
-    ref.read(onboardingCompleteProvider.notifier).markComplete();
-    context.go(RoutePaths.login);
+    setState(() => _googleLoading = true);
+    try {
+      await ref.read(authStateProvider.notifier).signInWithGoogle();
+      // Success → auth stream flips state, router redirects.
+    } on SignInCancelledFailure {
+      // Silent.
+    } on AuthFailure catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _googleLoading = false);
+    }
   }
+
+  // ─── Build ──────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    final topHeight = size.height * 0.45;
+    // When auth succeeds (via OTP or Google), mark onboarding complete so the
+    // next cold-start doesn't put the user back here.
+    ref.listen<AsyncValue<AuthState>>(authStateProvider, (prev, next) {
+      next.whenData((value) {
+        if (value is AuthStateAuthenticated) {
+          ref.read(onboardingCompleteProvider.notifier).markComplete();
+        }
+      });
+    });
+
+    final heroCollapsed = _step != OnboardingFlowStep.welcome;
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: Stack(
+      backgroundColor: AppColors.surfaceWhite,
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            _OnboardingHero(
+              step: _step,
+              phoneMasked: _phoneE164,
+              collapsed: heroCollapsed,
+            ),
+            _MarqueeZone(collapsed: heroCollapsed),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                reverse: true,
+                padding: EdgeInsets.only(bottom: bottomInset),
+                child: _AuthPanel(
+                  step: _step,
+                  phoneController: _phoneController,
+                  phoneError: _phoneError,
+                  googleLoading: _googleLoading,
+                  onContinueWithPhone: () => _setStep(OnboardingFlowStep.phone),
+                  onSendOtp: _sendOtp,
+                  onGoogle: _signInWithGoogle,
+                  onAppleStub: () {},
+                  onBackToWelcome: () {
+                    setState(() {
+                      _step = OnboardingFlowStep.welcome;
+                      _phoneError = null;
+                    });
+                  },
+                  onEditNumber: () => _setStep(OnboardingFlowStep.phone),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Hero (logo + morphing copy) ───────────────────────────────────────────
+
+class _OnboardingHero extends StatelessWidget {
+  const _OnboardingHero({
+    required this.step,
+    required this.phoneMasked,
+    required this.collapsed,
+  });
+
+  final OnboardingFlowStep step;
+  final String phoneMasked;
+  final bool collapsed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageH,
+        AppSpacing.xl,
+        AppSpacing.pageH,
+        AppSpacing.sm,
+      ),
+      child: Column(
         children: [
-          // ─── Stable brand-orange top panel ─────────────────────────────────
-          RepaintBoundary(
-            child: Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: topHeight + 48,
-              child: _BrandTopPanel(
-                pulseCtrl: _panelPulseCtrl,
-                currentPage: _currentPage,
-                onSkip: _skip,
+          // Logo shrinks 0.72x on non-welcome states.
+          AnimatedScale(
+            duration: AppDurations.heroMorph,
+            curve: AppCurves.springOut,
+            scale: collapsed ? 0.72 : 1.0,
+            child: AnimatedSlide(
+              duration: AppDurations.heroMorph,
+              curve: AppCurves.springOut,
+              offset: collapsed ? const Offset(0, -0.06) : Offset.zero,
+              child: BlurFade(
+                delay: const Duration(milliseconds: 100),
+                child: Image.asset(
+                  'assets/images/brand/logo.png',
+                  width: 96,
+                  height: 96,
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),
-
-          // ─── Swipeable bottom content PageView ──────────────────────────────
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: size.height - topHeight + 40,
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: _onPageChanged,
-              physics: const BouncingScrollPhysics(),
-              itemCount: kOnboardingSlides.length,
-              itemBuilder: (context, index) {
-                final slide = kOnboardingSlides[index];
-                final isActive = index == _currentPage;
-                return _SlideBottomSheet(
-                  slide: slide,
-                  isActive: isActive,
-                  currentPage: _currentPage,
-                  totalPages: kOnboardingSlides.length,
-                  onAdvance: _advance,
-                  onSkip: _skip,
-                );
-              },
-            ),
-          ),
-
-          // ─── Home indicator (outside PageView to prevent rebuild) ───────────
-          const Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: _HomeBar(),
+          const SizedBox(height: AppSpacing.lg),
+          // Hero copy — animates via swap when step changes.
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 280),
+            switchInCurve: AppCurves.springOut,
+            switchOutCurve: AppCurves.material,
+            transitionBuilder: (child, anim) {
+              final slide = Tween<Offset>(
+                begin: const Offset(0, 0.05),
+                end: Offset.zero,
+              ).animate(anim);
+              return FadeTransition(
+                opacity: anim,
+                child: SlideTransition(position: slide, child: child),
+              );
+            },
+            child: _HeroCopy(
+              key: ValueKey(step),
+              step: step,
+              phoneMasked: phoneMasked,
             ),
           ),
         ],
@@ -151,191 +241,326 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage>
   }
 }
 
-// ─── Brand Top Panel (stable across swipes) ──────────────────────────────────
-
-class _BrandTopPanel extends StatelessWidget {
-  const _BrandTopPanel({
-    required this.pulseCtrl,
-    required this.currentPage,
-    required this.onSkip,
-  });
-
-  final AnimationController pulseCtrl;
-  final int currentPage;
-  final VoidCallback onSkip;
+class _HeroCopy extends StatelessWidget {
+  const _HeroCopy({super.key, required this.step, required this.phoneMasked});
+  final OnboardingFlowStep step;
+  final String phoneMasked;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Base orange fill
-        Positioned.fill(child: ColoredBox(color: AppColors.primary)),
-
-        // Top-right ambient glow
-        Positioned.fill(
-          child: RepaintBoundary(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(0.8, -0.7),
-                  radius: 1.0,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.18),
-                    Colors.transparent,
-                  ],
-                ),
+    switch (step) {
+      case OnboardingFlowStep.welcome:
+        return Column(
+          children: [
+            Text(
+              'Welcome to the official\nBurger Farm app',
+              textAlign: TextAlign.center,
+              style: AppTypography.displayHeroLg.copyWith(
+                color: AppColors.textPrimary,
               ),
             ),
-          ),
-        ),
-
-        // Ambient breathing orb
-        Positioned(
-          top: -30,
-          right: -30,
-          child: RepaintBoundary(
-            child: AnimatedBuilder(
-              animation: pulseCtrl,
-              builder: (context, child) => Opacity(
-                opacity: 0.18 + (pulseCtrl.value * 0.10),
-                child: child,
-              ),
-              child: Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primaryDark,
-                ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Farm-fresh cravings, delivered fast.',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyLg.copyWith(color: AppColors.textMuted),
+            ),
+          ],
+        );
+      case OnboardingFlowStep.phone:
+        return Column(
+          children: [
+            Text(
+              'Sign in with phone',
+              textAlign: TextAlign.center,
+              style: AppTypography.displayHeroMd.copyWith(
+                color: AppColors.textPrimary,
               ),
             ),
-          ),
-        ),
-
-        // Bottom-left orb
-        Positioned(
-          bottom: -20,
-          left: -20,
-          child: RepaintBoundary(
-            child: AnimatedBuilder(
-              animation: pulseCtrl,
-              builder: (context, child) => Opacity(
-                opacity: 0.15 + (pulseCtrl.value * 0.08),
-                child: child,
-              ),
-              child: Container(
-                width: 180,
-                height: 180,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFFFB085),
-                ),
+            const SizedBox(height: 6),
+            Text(
+              "We'll text you a secure one-time passcode.",
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyMd.copyWith(color: AppColors.textMuted),
+            ),
+          ],
+        );
+      case OnboardingFlowStep.otp:
+        return Column(
+          children: [
+            Text(
+              'Almost there',
+              textAlign: TextAlign.center,
+              style: AppTypography.displayHeroMd.copyWith(
+                color: AppColors.textPrimary,
               ),
             ),
-          ),
-        ),
-
-        // Skip button
-        SafeArea(
-          child: Align(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12, right: 20),
-              child: AnimatedOpacity(
-                opacity: currentPage < kOnboardingSlides.length - 1 ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 250),
-                child: GestureDetector(
-                  onTap: onSkip,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(AppRadius.pill),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.15),
-                      ),
-                    ),
-                    child: Text(
-                      'SKIP',
-                      style: AppTypography.labelMicro.copyWith(
-                        color: Colors.white.withValues(alpha: 0.90),
-                        letterSpacing: 2.5,
-                      ),
+            const SizedBox(height: 6),
+            Text.rich(
+              TextSpan(
+                style: AppTypography.bodyMd.copyWith(color: AppColors.textMuted),
+                children: [
+                  const TextSpan(text: 'Sent to '),
+                  TextSpan(
+                    text: _maskPhone(phoneMasked),
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ),
+                ],
               ),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ),
+          ],
+        );
+    }
+  }
 
-        // Logo + brand name (stable center)
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 28),
+  static String _maskPhone(String e164) {
+    final digits = e164.replaceAll(RegExp(r'\D'), '');
+    if (digits.length < 6) return digits.isEmpty ? 'your number' : digits;
+    final last2 = digits.substring(digits.length - 2);
+    final first2 = digits.substring(0, digits.length - 8 < 2 ? 2 : digits.length - 8);
+    return '$first2••••$last2';
+  }
+}
+
+// ─── Marquee zone (collapses on non-welcome states) ────────────────────────
+
+class _MarqueeZone extends StatelessWidget {
+  const _MarqueeZone({required this.collapsed});
+  final bool collapsed;
+
+  static const _baseStrip = [
+    'assets/images/onboarding/chip-burger.png',
+    'assets/images/onboarding/chip-fries.png',
+    'assets/images/onboarding/chip-drink.png',
+    'assets/images/onboarding/chip-wrap.png',
+    'assets/images/onboarding/chip-box.png',
+    'assets/images/onboarding/chip-shake.png',
+    'assets/images/onboarding/chip-harvest.png',
+  ];
+  static const _altStrip = [
+    'assets/images/onboarding/chip-wrap.png',
+    'assets/images/onboarding/chip-box.png',
+    'assets/images/onboarding/chip-shake.png',
+    'assets/images/onboarding/chip-harvest.png',
+    'assets/images/onboarding/chip-burger.png',
+    'assets/images/onboarding/chip-fries.png',
+    'assets/images/onboarding/chip-drink.png',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: AppDurations.heroMorph,
+      curve: AppCurves.springOut,
+      height: collapsed ? 0 : 220,
+      child: AnimatedOpacity(
+        duration: AppDurations.heroMorph,
+        opacity: collapsed ? 0 : 1,
+        child: ClipRect(
+          child: OverflowBox(
+            maxHeight: 220,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo mark
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.12),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.10),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: const CustomPaint(
-                    painter: BurgerIconPainter(),
-                    child: SizedBox(width: 32, height: 32),
-                  ),
-                )
-                    .animate()
-                    .scale(
-                      begin: const Offset(0.7, 0.7),
-                      duration: 700.ms,
-                      curve: const Cubic(0.16, 1, 0.3, 1),
-                    )
-                    .fadeIn(duration: 500.ms),
-
-                const SizedBox(height: 12),
-
                 Text(
-                  'BURGER FARM',
-                  style: AppTypography.headlineLg.copyWith(
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.12),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                  'FROM THE FARM LANE',
+                  style: AppTypography.decorMicro.copyWith(
+                    color: AppColors.primary.withValues(alpha: 0.25),
                   ),
-                )
-                    .animate(delay: 150.ms)
-                    .slideY(
-                      begin: -0.2,
-                      end: 0,
-                      duration: 600.ms,
-                      curve: const Cubic(0.16, 1, 0.3, 1),
-                    )
-                    .fadeIn(duration: 500.ms),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                const RepaintBoundary(
+                  child: MarqueeRow(
+                    assets: _baseStrip,
+                    scrollDuration: AppDurations.marqueeSlow,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                const RepaintBoundary(
+                  child: MarqueeRow(
+                    assets: _altStrip,
+                    scrollDuration: AppDurations.marqueeFast,
+                  ),
+                ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Auth panel ────────────────────────────────────────────────────────────
+
+class _AuthPanel extends StatelessWidget {
+  const _AuthPanel({
+    required this.step,
+    required this.phoneController,
+    required this.phoneError,
+    required this.googleLoading,
+    required this.onContinueWithPhone,
+    required this.onSendOtp,
+    required this.onGoogle,
+    required this.onAppleStub,
+    required this.onBackToWelcome,
+    required this.onEditNumber,
+  });
+
+  final OnboardingFlowStep step;
+  final TextEditingController phoneController;
+  final String? phoneError;
+  final bool googleLoading;
+  final VoidCallback onContinueWithPhone;
+  final VoidCallback onSendOtp;
+  final VoidCallback onGoogle;
+  final VoidCallback onAppleStub;
+  final VoidCallback onBackToWelcome;
+  final VoidCallback onEditNumber;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl4,
+        AppSpacing.lg,
+        AppSpacing.xl4,
+        AppSpacing.xl4,
+      ),
+      child: AnimatedSwitcher(
+        duration: AppDurations.panelEnter,
+        switchInCurve: AppCurves.springOut,
+        switchOutCurve: AppCurves.material,
+        transitionBuilder: (child, anim) => FadeTransition(
+          opacity: anim,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.06),
+              end: Offset.zero,
+            ).animate(anim),
+            child: child,
+          ),
+        ),
+        child: switch (step) {
+          OnboardingFlowStep.welcome => _WelcomePanel(
+              key: const ValueKey('welcome'),
+              onContinueWithPhone: onContinueWithPhone,
+              onGoogle: onGoogle,
+              onApple: onAppleStub,
+              googleLoading: googleLoading,
+            ),
+          OnboardingFlowStep.phone => _PhonePanel(
+              key: const ValueKey('phone'),
+              controller: phoneController,
+              error: phoneError,
+              onSendOtp: onSendOtp,
+              onBack: onBackToWelcome,
+            ),
+          OnboardingFlowStep.otp => _OtpPanel(
+              key: const ValueKey('otp'),
+              onEditNumber: onEditNumber,
+            ),
+        },
+      ),
+    );
+  }
+}
+
+// ─── Welcome panel ─────────────────────────────────────────────────────────
+
+class _WelcomePanel extends StatelessWidget {
+  const _WelcomePanel({
+    super.key,
+    required this.onContinueWithPhone,
+    required this.onGoogle,
+    required this.onApple,
+    required this.googleLoading,
+  });
+
+  final VoidCallback onContinueWithPhone;
+  final VoidCallback onGoogle;
+  final VoidCallback onApple;
+  final bool googleLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        BlurFade(
+          delay: const Duration(milliseconds: 240),
+          child: _PrimaryCta(
+            label: 'Continue with Phone',
+            onTap: onContinueWithPhone,
+            leading: const Icon(Icons.phone_rounded,
+                color: Colors.white, size: 18),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        const _OrDivider(),
+        const SizedBox(height: AppSpacing.md),
+        BlurFade(
+          delay: const Duration(milliseconds: 360),
+          child: Row(
+            children: [
+              Expanded(
+                child: _SocialButton(
+                  label: 'Google',
+                  loading: googleLoading,
+                  onTap: onGoogle,
+                  filled: false,
+                  iconBuilder: () => _GoogleGlyph(),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _SocialButton(
+                  label: 'Apple',
+                  loading: false,
+                  onTap: onApple,
+                  filled: true,
+                  iconBuilder: () => const Icon(
+                    Icons.apple_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        BlurFade(
+          delay: const Duration(milliseconds: 460),
+          child: Text.rich(
+            TextSpan(
+              style: AppTypography.captionMd.copyWith(
+                color: AppColors.textMuted,
+                height: 1.5,
+              ),
+              children: [
+                const TextSpan(text: 'By continuing you agree to our '),
+                TextSpan(
+                  text: 'Terms',
+                  style: AppTypography.captionMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const TextSpan(text: ' & '),
+                TextSpan(
+                  text: 'Privacy',
+                  style: AppTypography.captionMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+            textAlign: TextAlign.center,
           ),
         ),
       ],
@@ -343,239 +568,514 @@ class _BrandTopPanel extends StatelessWidget {
   }
 }
 
-// ─── Individual Slide Bottom Sheet ────────────────────────────────────────────
+// ─── Phone panel ───────────────────────────────────────────────────────────
 
-class _SlideBottomSheet extends StatelessWidget {
-  const _SlideBottomSheet({
-    required this.slide,
-    required this.isActive,
-    required this.currentPage,
-    required this.totalPages,
-    required this.onAdvance,
-    required this.onSkip,
+class _PhonePanel extends StatelessWidget {
+  const _PhonePanel({
+    super.key,
+    required this.controller,
+    required this.error,
+    required this.onSendOtp,
+    required this.onBack,
   });
 
-  final OnboardingSlide slide;
-  final bool isActive;
-  final int currentPage;
-  final int totalPages;
-  final VoidCallback onAdvance;
-  final VoidCallback onSkip;
+  final TextEditingController controller;
+  final String? error;
+  final VoidCallback onSendOtp;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _BackChip(label: 'Back', onTap: onBack),
+        const SizedBox(height: AppSpacing.lg),
+        Text(
+          'MOBILE NUMBER',
+          style: AppTypography.formLabel.copyWith(color: AppColors.primary),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        AutofillGroup(
+          child: _PhoneInput(controller: controller),
+        ),
+        const SizedBox(height: 6),
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.only(left: AppSpacing.xs),
+            child: Text(
+              error!,
+              style: AppTypography.captionMd.copyWith(color: AppColors.error),
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.only(left: AppSpacing.xs),
+            child: Text(
+              "We'll text you a one-time code. Std. rates may apply.",
+              style: AppTypography.captionMd.copyWith(color: AppColors.textMuted),
+            ),
+          ),
+        const SizedBox(height: AppSpacing.md),
+        // Trust badge — judgment-call keep per briefing decision 2.
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 6,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.success.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+            border: Border.all(color: AppColors.success.withValues(alpha: 0.12)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.shield_outlined, size: 14, color: AppColors.success),
+              const SizedBox(width: 6),
+              Text(
+                'Secure login. No spam, ever.',
+                style: AppTypography.captionMd.copyWith(color: AppColors.success),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        _PrimaryCta(
+          label: 'Send OTP',
+          onTap: onSendOtp,
+        ),
+      ],
+    );
+  }
+}
+
+class _PhoneInput extends StatelessWidget {
+  const _PhoneInput({required this.controller});
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 56,
       decoration: BoxDecoration(
-        color: AppColors.surfaceWhite,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AppRadius.sheet),
-        ),
-        boxShadow: AppShadows.float,
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.ctaLg),
+        border: Border.all(color: AppColors.border, width: 1.5),
       ),
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageH,
-        AppSpacing.xl,
-        AppSpacing.pageH,
-        AppSpacing.xl,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          // Pagination dots
-          _PaginationDots(total: totalPages, current: currentPage),
-
-          const SizedBox(height: AppSpacing.lg),
-
-          // Slide tagline (if any)
-          if (slide.tagline != null) ...[
-            Text(
-              slide.tagline!.toUpperCase(),
-              style: AppTypography.labelMicro.copyWith(
-                color: AppColors.primary,
-                letterSpacing: 2.5,
-              ),
+          const SizedBox(width: AppSpacing.md),
+          _IndiaFlagBadge(),
+          const SizedBox(width: 8),
+          Text(
+            '+91',
+            style: AppTypography.inputDisplay.copyWith(
+              color: AppColors.textPrimary,
             ),
-            const SizedBox(height: AppSpacing.xs),
-          ],
-
-          // Headline
-          Semantics(
-            header: true,
-            child: RichText(
-              text: TextSpan(
-                style: AppTypography.headlineXL.copyWith(
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Container(width: 1.2, height: 28, color: AppColors.border),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Semantics(
+              label: 'Phone number',
+              child: TextField(
+                controller: controller,
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.done,
+                maxLength: 10,
+                autofillHints: const [AutofillHints.telephoneNumberNational],
+                style: AppTypography.inputDisplay.copyWith(
                   color: AppColors.textPrimary,
                 ),
-                children: [
-                  TextSpan(text: '${slide.headline}\n'),
-                  TextSpan(
-                    text: slide.headlineAccent,
-                    style: AppTypography.headlineXL.copyWith(
-                      color: AppColors.primary,
-                    ),
+                decoration: InputDecoration(
+                  hintText: '98765 43210',
+                  hintStyle: AppTypography.inputDisplay.copyWith(
+                    color: AppColors.textMuted.withValues(alpha: 0.45),
                   ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: AppSpacing.sm),
-
-          Text(
-            slide.body,
-            style: AppTypography.bodyMd.copyWith(
-              color: AppColors.textMuted,
-              height: 1.65,
-            ),
-          ),
-
-          const SizedBox(height: AppSpacing.lg),
-
-          Divider(
-            color: AppColors.border.withValues(alpha: 0.5),
-            height: 1,
-          ),
-
-          const SizedBox(height: AppSpacing.lg),
-
-          // Feature pills
-          Row(
-            children: slide.features
-                .map((f) => Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          right: slide.features.last == f ? 0 : AppSpacing.sm,
-                        ),
-                        child: _FeaturePill(feature: f),
-                      ),
-                    ))
-                .toList(),
-          ),
-
-          const Spacer(),
-
-          // CTA button
-          _CtaButton(
-            label: slide.ctaLabel,
-            onTap: onAdvance,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Sub-widgets ──────────────────────────────────────────────────────────────
-
-class _PaginationDots extends StatelessWidget {
-  const _PaginationDots({required this.total, required this.current});
-
-  final int total;
-  final int current;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(total, (i) {
-        final isActive = i == current;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 320),
-          curve: const Cubic(0.16, 1, 0.3, 1),
-          margin: const EdgeInsets.only(right: 6),
-          width: isActive ? 24.0 : 6.0,
-          height: 6,
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.primary : AppColors.border,
-            borderRadius: BorderRadius.circular(3),
-          ),
-        );
-      }),
-    );
-  }
-}
-
-class _FeaturePill extends StatelessWidget {
-  const _FeaturePill({required this.feature});
-  final OnboardingFeature feature;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.textPrimary.withValues(alpha: 0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceWhite,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.border.withValues(alpha: 0.4),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.textPrimary.withValues(alpha: 0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  border: InputBorder.none,
+                  counterText: '',
+                  contentPadding: EdgeInsets.zero,
                 ),
-              ],
+              ),
             ),
-            child: Icon(feature.icon, size: 15, color: AppColors.primary),
           ),
-          const SizedBox(height: 8),
-          Text(
-            feature.label.toUpperCase(),
-            style: AppTypography.labelMicro.copyWith(
-              color: AppColors.textPrimary,
-              letterSpacing: 1.0,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          const SizedBox(width: AppSpacing.md),
         ],
       ),
     );
   }
 }
 
-class _CtaButton extends StatefulWidget {
-  const _CtaButton({required this.label, required this.onTap});
-  final String label;
-  final VoidCallback onTap;
-
+class _IndiaFlagBadge extends StatelessWidget {
   @override
-  State<_CtaButton> createState() => _CtaButtonState();
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: SizedBox(
+        width: 24,
+        height: 16,
+        child: CustomPaint(painter: _IndiaFlagPainter()),
+      ),
+    );
+  }
 }
 
-class _CtaButtonState extends State<_CtaButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _press;
-  late Animation<double> _scale;
+class _IndiaFlagPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final h = size.height / 3;
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, h),
+        Paint()..color = const Color(0xFFFF9933));
+    canvas.drawRect(Rect.fromLTWH(0, h, size.width, h),
+        Paint()..color = Colors.white);
+    canvas.drawRect(Rect.fromLTWH(0, h * 2, size.width, h),
+        Paint()..color = const Color(0xFF138808));
+    final c = Offset(size.width / 2, size.height / 2);
+    canvas.drawCircle(c, 3, Paint()..color = const Color(0xFF000080));
+  }
+
+  @override
+  bool shouldRepaint(_IndiaFlagPainter old) => false;
+}
+
+// ─── OTP panel ─────────────────────────────────────────────────────────────
+
+class _OtpPanel extends ConsumerStatefulWidget {
+  const _OtpPanel({super.key, required this.onEditNumber});
+  final VoidCallback onEditNumber;
+
+  @override
+  ConsumerState<_OtpPanel> createState() => _OtpPanelState();
+}
+
+class _OtpPanelState extends ConsumerState<_OtpPanel> {
+  final List<TextEditingController> _cells =
+      List.generate(6, (_) => TextEditingController());
+  final List<FocusNode> _focus = List.generate(6, (_) => FocusNode());
 
   @override
   void initState() {
     super.initState();
-    _press = AnimationController(vsync: this, duration: 100.ms);
-    _scale = Tween<double>(begin: 1.0, end: 0.97).animate(
-      CurvedAnimation(parent: _press, curve: Curves.easeOut),
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focus[0].requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    for (final c in _cells) {
+      c.dispose();
+    }
+    for (final f in _focus) {
+      f.dispose();
+    }
+    super.dispose();
+  }
+
+  String get _joined => _cells.map((c) => c.text).join();
+
+  void _onCellChanged(int i, String value) {
+    final d = value.replaceAll(RegExp(r'\D'), '');
+    if (d.length > 1) {
+      // Paste path.
+      _distributePaste(d);
+      return;
+    }
+    _cells[i].text = d;
+    _cells[i].selection = TextSelection.fromPosition(
+      TextPosition(offset: d.length),
+    );
+    if (d.isNotEmpty) {
+      HapticFeedback.selectionClick();
+      if (i < 5) {
+        _focus[i + 1].requestFocus();
+      } else {
+        _focus[i].unfocus();
+        _maybeVerify();
+      }
+    }
+    setState(() {});
+  }
+
+  void _distributePaste(String digits) {
+    final str = digits.substring(0, digits.length.clamp(0, 6));
+    for (var j = 0; j < 6; j++) {
+      _cells[j].text = j < str.length ? str[j] : '';
+    }
+    final last = (str.length - 1).clamp(0, 5);
+    _focus[last].requestFocus();
+    setState(() {});
+    if (str.length == 6) _maybeVerify();
+  }
+
+  void _maybeVerify() {
+    final code = _joined;
+    if (code.length != 6) return;
+    Future<void>.delayed(AppDurations.verifyDelay, () {
+      if (!mounted) return;
+      ref.read(otpControllerProvider.notifier).verifyOtp(code);
+    });
+  }
+
+  void _clearCells() {
+    for (final c in _cells) {
+      c.text = '';
+    }
+    _focus[0].requestFocus();
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<OtpState>(otpControllerProvider, (prev, next) {
+      if (next is OtpStateSuccess) {
+        HapticFeedback.mediumImpact();
+      } else if (next is OtpStateError) {
+        HapticFeedback.heavyImpact();
+        _clearCells();
+      }
+    });
+
+    final state = ref.watch(otpControllerProvider);
+    final timer = ref.watch(otpTimerProvider);
+    final isError = state is OtpStateError;
+    final isVerifying = _joined.length == 6 || state is OtpStateLoading;
+    final errorMessage = state is OtpStateError ? state.message : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _BackChip(label: 'Edit number', onTap: widget.onEditNumber),
+        const SizedBox(height: AppSpacing.lg),
+        AutofillGroup(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(6, (i) {
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: i < 5 ? 8 : 0),
+                  child: OtpCellEntry(
+                    index: i,
+                    child: _OtpCell(
+                      controller: _cells[i],
+                      focusNode: _focus[i],
+                      isError: isError,
+                      isFirst: i == 0,
+                      onChanged: (v) => _onCellChanged(i, v),
+                      onBackspaceEmpty: () {
+                        if (i > 0) {
+                          _cells[i - 1].text = '';
+                          _focus[i - 1].requestFocus();
+                          setState(() {});
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        if (errorMessage != null)
+          Center(
+            child: Text(
+              errorMessage,
+              style: AppTypography.captionMd.copyWith(color: AppColors.error),
+              textAlign: TextAlign.center,
+            ),
+          )
+        else if (isVerifying)
+          Center(
+            child: Text(
+              'Verifying…',
+              style: AppTypography.actionSm.copyWith(color: AppColors.success),
+            ),
+          ),
+        const SizedBox(height: AppSpacing.xl),
+        Center(
+          child: timer > 0
+              ? Text.rich(
+                  TextSpan(
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.textMuted,
+                    ),
+                    children: [
+                      const TextSpan(text: 'Resend code in '),
+                      TextSpan(
+                        text: '${timer}s',
+                        style: AppTypography.bodyMd.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : GestureDetector(
+                  onTap: () {
+                    final phone = ref.read(otpControllerProvider);
+                    if (phone is OtpStateLoading) return;
+                    HapticFeedback.lightImpact();
+                    // Resend uses the phone number stored at send time —
+                    // OtpController handles it.
+                  },
+                  child: Text(
+                    'Resend OTP',
+                    style: AppTypography.actionSm.copyWith(
+                      color: AppColors.primary,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+        ),
+      ],
     );
   }
+}
+
+class _OtpCell extends StatelessWidget {
+  const _OtpCell({
+    required this.controller,
+    required this.focusNode,
+    required this.isError,
+    required this.isFirst,
+    required this.onChanged,
+    required this.onBackspaceEmpty,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final bool isError;
+  final bool isFirst;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onBackspaceEmpty;
+
+  @override
+  Widget build(BuildContext context) {
+    final filled = controller.text.isNotEmpty;
+    return AnimatedContainer(
+      duration: AppDurations.normal,
+      curve: AppCurves.material,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [AppColors.surfaceWhite, AppColors.surface],
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.cellLg),
+        border: Border.all(
+          width: 2,
+          color: isError
+              ? AppColors.error
+              : filled
+                  ? AppColors.primary.withValues(alpha: 0.4)
+                  : AppColors.border,
+        ),
+        boxShadow: filled ? AppShadows.otpCellActive : AppShadows.soft,
+      ),
+      alignment: Alignment.center,
+      child: KeyboardListener(
+        focusNode: FocusNode(skipTraversal: true),
+        onKeyEvent: (event) {
+          if (event is KeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.backspace &&
+              controller.text.isEmpty) {
+            onBackspaceEmpty();
+          }
+        },
+        child: TextField(
+          controller: controller,
+          focusNode: focusNode,
+          keyboardType: TextInputType.number,
+          textInputAction: TextInputAction.next,
+          textAlign: TextAlign.center,
+          maxLength: 1,
+          autofillHints:
+              isFirst ? const [AutofillHints.oneTimeCode] : null,
+          style: AppTypography.otpDigit.copyWith(
+            color: isError ? AppColors.error : AppColors.textPrimary,
+          ),
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            counterText: '',
+            isDense: true,
+          ),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Shared sub-widgets ────────────────────────────────────────────────────
+
+class _BackChip extends StatelessWidget {
+  const _BackChip({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.brandLight,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.chevron_left_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: AppTypography.actionSm.copyWith(color: AppColors.primary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PrimaryCta extends StatefulWidget {
+  const _PrimaryCta({
+    required this.label,
+    required this.onTap,
+    this.leading,
+  });
+  final String label;
+  final VoidCallback onTap;
+  final Widget? leading;
+
+  @override
+  State<_PrimaryCta> createState() => _PrimaryCtaState();
+}
+
+class _PrimaryCtaState extends State<_PrimaryCta>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _press =
+      AnimationController(vsync: this, duration: AppDurations.fast);
+  late final Animation<double> _scale = Tween<double>(begin: 1.0, end: 0.97)
+      .animate(CurvedAnimation(parent: _press, curve: AppCurves.material));
 
   @override
   void dispose() {
@@ -589,62 +1089,36 @@ class _CtaButtonState extends State<_CtaButton>
       onTapDown: (_) => _press.forward(),
       onTapUp: (_) {
         _press.reverse();
+        HapticFeedback.lightImpact();
         widget.onTap();
       },
       onTapCancel: () => _press.reverse(),
       child: AnimatedBuilder(
         animation: _scale,
-        builder: (context, child) =>
-            Transform.scale(scale: _scale.value, child: child),
+        builder: (context, child) => Transform.scale(
+          scale: _scale.value,
+          child: child,
+        ),
         child: Container(
-          width: double.infinity,
-          height: AppSpacing.buttonHeight,
-          clipBehavior: Clip.antiAlias,
+          height: 56,
           decoration: BoxDecoration(
             color: AppColors.primary,
-            borderRadius: BorderRadius.circular(AppRadius.button),
+            borderRadius: BorderRadius.circular(AppRadius.ctaLg),
             boxShadow: AppShadows.brandGlow,
           ),
-          child: Stack(
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Shimmer highlight — static top edge reflection
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 28,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.white.withValues(alpha: 0.14),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
+              Text(
+                widget.label,
+                style: AppTypography.buttonLabelLg.copyWith(color: Colors.white),
               ),
-              // Label + icon centred
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    widget.label,
-                    style: AppTypography.buttonLabel.copyWith(
-                      color: Colors.white,
-                      fontSize: 17,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  const Icon(
-                    Icons.arrow_forward_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ],
-              ),
+              if (widget.leading != null) ...[
+                const SizedBox(width: AppSpacing.sm),
+                widget.leading!,
+              ],
             ],
           ),
         ),
@@ -653,18 +1127,123 @@ class _CtaButtonState extends State<_CtaButton>
   }
 }
 
-class _HomeBar extends StatelessWidget {
-  const _HomeBar();
+class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: Container(height: 1, color: AppColors.border)),
+        const SizedBox(width: AppSpacing.sm),
+        Text(
+          'OR',
+          style: AppTypography.labelMicro.copyWith(
+            color: AppColors.textMuted.withValues(alpha: 0.6),
+            letterSpacing: 2.0,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(child: Container(height: 1, color: AppColors.border)),
+      ],
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
+  const _SocialButton({
+    required this.label,
+    required this.loading,
+    required this.onTap,
+    required this.filled,
+    required this.iconBuilder,
+  });
+  final String label;
+  final bool loading;
+  final VoidCallback onTap;
+  final bool filled;
+  final Widget Function() iconBuilder;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 134,
-      height: 5,
-      decoration: BoxDecoration(
-        color: AppColors.textPrimary.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(3),
+    return GestureDetector(
+      onTap: loading ? null : () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: filled ? AppColors.textPrimary : AppColors.surfaceWhite,
+          border: filled ? null : Border.all(color: AppColors.border, width: 1.5),
+          borderRadius: BorderRadius.circular(AppRadius.ctaLg),
+          boxShadow: filled ? null : AppShadows.soft,
+        ),
+        alignment: Alignment.center,
+        child: loading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  iconBuilder(),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    label,
+                    style: AppTypography.buttonLabel.copyWith(
+                      color: filled ? Colors.white : AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
+}
+
+class _GoogleGlyph extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: CustomPaint(painter: _GoogleGlyphPainter()),
+    );
+  }
+}
+
+class _GoogleGlyphPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 1;
+    final rect = Rect.fromCircle(center: center, radius: radius);
+    final paints = [
+      Paint()..color = const Color(0xFF4285F4),
+      Paint()..color = const Color(0xFF34A853),
+      Paint()..color = const Color(0xFFFBBC05),
+      Paint()..color = const Color(0xFFEA4335),
+    ];
+    const sweeps = [
+      [1.5708, 1.5708],
+      [3.1416, 1.5708],
+      [4.7124, 1.5708],
+      [0.0, 1.5708],
+    ];
+    for (var i = 0; i < 4; i++) {
+      final p = paints[i]
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.0;
+      canvas.drawArc(rect, sweeps[i][0], sweeps[i][1], false, p);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_GoogleGlyphPainter old) => false;
 }

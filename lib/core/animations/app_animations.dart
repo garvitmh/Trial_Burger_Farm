@@ -16,15 +16,34 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 // ─── Timing Curves ─────────────────────────────────────────────────────────
 
-/// Standard enterprise easing curves
+/// Standard enterprise easing curves.
+///
+/// `spring` is retained for backward-compat but should be considered
+/// deprecated — `Curves.elasticOut` overshoots, and the Next.js reference
+/// uses a sharp deceleration cubic with no bounce. New work uses
+/// [springOut] (= cubic-bezier(0.16, 1, 0.3, 1)).
 abstract final class AppCurves {
   static const Curve standard = Curves.easeOutCubic;
   static const Curve enter = Curves.easeOutQuart;
   static const Curve exit = Curves.easeInCubic;
+  @Deprecated('Use AppCurves.springOut; elasticOut overshoots which the reference never does.')
   static const Curve spring = Curves.elasticOut;
   static const Curve smooth = Curves.easeInOutCubic;
   static const Curve decelerate = Curves.decelerate;
   static const Curve linear = Curves.linear;
+
+  // ─── Reference-parity curves ────────────────────────────────────────────
+  /// Reference `--ease-spring: cubic-bezier(0.16, 1, 0.3, 1)`.
+  /// Sharp deceleration, zero overshoot — used for hero morph, panel enter,
+  /// OTP cell entry, marquee collapse, and most "spring-like" entries.
+  static const Curve springOut = Cubic(0.16, 1, 0.3, 1);
+
+  /// Reference pulse-ring curve `cubic-bezier(0.215, 0.61, 0.355, 1)`.
+  static const Curve pulseRing = Cubic(0.215, 0.61, 0.355, 1);
+
+  /// Reference Material curve `cubic-bezier(0.4, 0, 0.2, 1)` — used for
+  /// hero copy exits.
+  static const Curve material = Cubic(0.4, 0, 0.2, 1);
 }
 
 // ─── flutter_animate Extension Presets ─────────────────────────────────────

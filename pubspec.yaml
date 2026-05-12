@@ -44,8 +44,9 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
-    - assets/icons/
+    - assets/images/brand/
+    - assets/images/onboarding/
+    - assets/images/preferences/
 
   fonts:
     # ─── Recoleta: Primary UI Font (--fu in CSS) ───────────────────────────

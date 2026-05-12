@@ -17,4 +17,11 @@ abstract final class AppRadius {
   static const double lg = card;        // Card / large component
   static const double xl = sheet;       // Bottom sheets / modals
   static const double circle = 999.0;   // Perfect circle fallback
+
+  // ─── Reference-parity additions ─────────────────────────────────────────
+  static const double inputLg = 18.0;   // preferences inputs `rounded-[18px]`
+  static const double cellLg = 16.0;    // OTP cells `rounded-2xl`
+  static const double nav = 32.0;       // bottom nav + outlet card `rounded-[32px]`
+  static const double ctaLg = 20.0;     // primary CTAs `rounded-[20px]` (alias of card)
+  static const double backChip = 16.0;  // round back-chip 32x32 → r=16
 }

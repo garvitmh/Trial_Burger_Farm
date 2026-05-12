@@ -104,4 +104,63 @@ abstract final class AppShadows {
       offset: Offset(0, -12),
     ),
   ];
+
+  // ─── Reference-parity additions ─────────────────────────────────────────
+
+  /// `--shadow-soft`: subtle elevation for chips, marquee tiles, list items.
+  static const List<BoxShadow> soft = [
+    BoxShadow(
+      color: Color(0x0A271200), // rgba(39,18,0,0.04)
+      blurRadius: 24,
+      offset: Offset(0, 4),
+    ),
+    BoxShadow(
+      color: Color(0x05271200), // rgba(39,18,0,0.02)
+      blurRadius: 2,
+      offset: Offset(0, 1),
+    ),
+  ];
+
+  /// `--shadow-premium`: glass-card lift for preferences card.
+  static const List<BoxShadow> premium = [
+    BoxShadow(
+      color: Color(0x14271200), // rgba(39,18,0,0.08)
+      blurRadius: 40,
+      spreadRadius: -10,
+      offset: Offset(0, 20),
+    ),
+    BoxShadow(
+      color: Color(0x0D271200), // rgba(39,18,0,0.05)
+      blurRadius: 3,
+      offset: Offset(0, 1),
+    ),
+  ];
+
+  /// `--shadow-glow`: ambient brand glow without offset.
+  static const List<BoxShadow> glow = [
+    BoxShadow(
+      color: Color(0x40E8560A), // rgba(232,86,10,0.25)
+      blurRadius: 24,
+      offset: Offset(0, 8),
+    ),
+  ];
+
+  /// OTP cell active shadow — `0 8px 24px rgba(232,86,10,0.14)`.
+  static const List<BoxShadow> otpCellActive = [
+    BoxShadow(
+      color: Color(0x24E8560A), // rgba(232,86,10,0.14)
+      blurRadius: 24,
+      offset: Offset(0, 8),
+    ),
+  ];
+
+  /// Marquee chip lift — `0 6px 20px rgba(39,18,0,0.06), inset 0 1px 0 rgba(255,255,255,0.85)`
+  /// (the inset highlight is approximated via a top-edge gradient at render time).
+  static const List<BoxShadow> marqueeChip = [
+    BoxShadow(
+      color: Color(0x0F271200), // rgba(39,18,0,0.06)
+      blurRadius: 20,
+      offset: Offset(0, 6),
+    ),
+  ];
 }

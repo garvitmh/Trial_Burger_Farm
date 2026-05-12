@@ -26,6 +26,17 @@ class BurgerFarmApp extends ConsumerWidget {
       // darkTheme: AppTheme.dark(),
       // themeMode: ThemeMode.system,
       routerConfig: router,
+      // Clamp accessibility text-scale to a sane maximum so the densely
+      // packed onboarding/auth screens never overflow on devices with
+      // very large system font settings.
+      builder: (context, child) {
+        final scaler = MediaQuery.textScalerOf(context);
+        final clamped = scaler.clamp(minScaleFactor: 0.9, maxScaleFactor: 1.3);
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: clamped),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

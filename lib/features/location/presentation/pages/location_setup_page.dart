@@ -1,17 +1,20 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/route_paths.dart';
+import '../../../../core/animations/app_animations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_durations.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/blur_fade.dart';
 
-/// LocationPermissionStatus — sealed set of all possible location outcomes.
+/// Permission state for the location request flow.
 enum _LocationStatus {
   idle,
   requesting,
@@ -20,23 +23,18 @@ enum _LocationStatus {
   deniedForever,
   serviceDisabled,
   unavailable,
+  timeout,
 }
 
-/// LocationSetupPage — Enterprise location permission rationale screen.
+/// LocationSetupPage — rebuilt against the Next.js reference's "Share
+/// Location" screen: concentric pulse rings + floating chip decorations +
+/// brand-glow CTA.
 ///
-/// Handles ALL permission states:
-///   - idle         → show rationale + CTA
-///   - requesting   → show loading indicator
-///   - granted      → proceed to next flow
-///   - denied       → show retry path with clear messaging
-///   - deniedForever→ show open-settings CTA
-///   - serviceDisabled → explain GPS is off, guide to settings
-///   - unavailable  → show graceful fallback (enter manually)
-///
-/// Architecture boundary:
-///   - No store data is loaded here.
-///   - No map pins or nearby stores are shown (dataset not yet available).
-///   - Location visualization and nearest-store logic is deferred.
+/// Adds enterprise extras that the reference omits but are right for a
+/// real product:
+///   - AppLifecycleState listener so a return-from-Settings refreshes state.
+///   - 15-second GPS acquisition timeout with retry CTA.
+///   - Distinct UI for every permission failure path.
 class LocationSetupPage extends ConsumerStatefulWidget {
   const LocationSetupPage({super.key});
 
@@ -45,739 +43,473 @@ class LocationSetupPage extends ConsumerStatefulWidget {
 }
 
 class _LocationSetupPageState extends ConsumerState<LocationSetupPage>
-    with TickerProviderStateMixin {
-  late AnimationController _ripple1Ctrl;
-  late AnimationController _ripple2Ctrl;
+    with TickerProviderStateMixin, WidgetsBindingObserver {
+  late final AnimationController _ring1;
+  late final AnimationController _ring2;
+  late final AnimationController _ring3;
+  late final AnimationController _emojiBob;
   _LocationStatus _status = _LocationStatus.idle;
-  String? _errorMessage;
+  String? _statusDetail;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
     ));
-    _ripple1Ctrl = AnimationController(
+    _ring1 = AnimationController(vsync: this, duration: AppDurations.pulseRing)
+      ..repeat();
+    _ring2 = AnimationController(vsync: this, duration: AppDurations.pulseRing);
+    _ring3 = AnimationController(vsync: this, duration: AppDurations.pulseRing);
+    _emojiBob = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat();
-    _ripple2Ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    );
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) _ripple2Ctrl.repeat();
+      duration: AppDurations.marqueeBob,
+    )..repeat(reverse: true);
+    Future<void>.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _ring2.repeat();
+    });
+    Future<void>.delayed(const Duration(seconds: 1), () {
+      if (mounted) _ring3.repeat();
     });
   }
 
   @override
   void dispose() {
-    _ripple1Ctrl.dispose();
-    _ripple2Ctrl.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _ring1.dispose();
+    _ring2.dispose();
+    _ring3.dispose();
+    _emojiBob.dispose();
     super.dispose();
   }
 
-  Future<void> _requestLocation() async {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    // User may have returned from device settings — re-evaluate permission.
+    if (_status == _LocationStatus.deniedForever ||
+        _status == _LocationStatus.serviceDisabled) {
+      _refreshPermission();
+    }
+  }
+
+  Future<void> _refreshPermission() async {
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _setStatus(_LocationStatus.serviceDisabled,
+          'Location services are turned off.\nEnable GPS in your device settings.');
+      return;
+    }
+    final p = await Geolocator.checkPermission();
+    if (p == LocationPermission.always || p == LocationPermission.whileInUse) {
+      _onGranted();
+    } else if (p == LocationPermission.deniedForever) {
+      _setStatus(_LocationStatus.deniedForever,
+          'Location is permanently denied. Open Settings to grant access.');
+    } else {
+      _setStatus(_LocationStatus.idle, null);
+    }
+  }
+
+  void _setStatus(_LocationStatus s, String? detail) {
+    if (!mounted) return;
+    setState(() {
+      _status = s;
+      _statusDetail = detail;
+    });
+  }
+
+  Future<void> _onShareLocation() async {
     if (_status == _LocationStatus.requesting) return;
     HapticFeedback.mediumImpact();
-    setState(() {
-      _status = _LocationStatus.requesting;
-      _errorMessage = null;
-    });
-
+    _setStatus(_LocationStatus.requesting, null);
     try {
-      // Check if location service is enabled on device
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        setState(() {
-          _status = _LocationStatus.serviceDisabled;
-          _errorMessage =
-              'Location services are turned off.\nPlease enable GPS in your device settings.';
-        });
+        _setStatus(_LocationStatus.serviceDisabled,
+            'Location services are turned off.\nEnable GPS in your device settings.');
         return;
       }
 
-      // Check current permission
-      LocationPermission permission = await Geolocator.checkPermission();
-
+      var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        // First-time request
         permission = await Geolocator.requestPermission();
       }
 
       switch (permission) {
         case LocationPermission.always:
         case LocationPermission.whileInUse:
-          // Granted — proceed
-          HapticFeedback.lightImpact();
-          setState(() => _status = _LocationStatus.granted);
-          await Future.delayed(const Duration(milliseconds: 400));
-          if (mounted) context.go('${RoutePaths.shell}/${RoutePaths.home}');
-
+          // Acquire a location with a strict 15s timeout so the user is
+          // never stranded waiting for GPS to warm up.
+          try {
+            await Geolocator.getCurrentPosition().timeout(
+              const Duration(seconds: 15),
+            );
+          } on TimeoutException {
+            _setStatus(_LocationStatus.timeout,
+                'Taking longer than expected to read GPS. Try again?');
+            return;
+          }
+          _onGranted();
         case LocationPermission.denied:
-          setState(() {
-            _status = _LocationStatus.denied;
-            _errorMessage =
-                'Location access was denied.\nYou can try again or enter your area manually.';
-          });
-
+          _setStatus(_LocationStatus.denied,
+              'We need your location to find the nearest Burger Farm.');
         case LocationPermission.deniedForever:
-          setState(() {
-            _status = _LocationStatus.deniedForever;
-            _errorMessage =
-                'Location access was permanently denied.\nPlease enable it in your device Settings.';
-          });
-
+          _setStatus(_LocationStatus.deniedForever,
+              'Location is permanently denied. Open Settings to grant access.');
         case LocationPermission.unableToDetermine:
-          setState(() {
-            _status = _LocationStatus.unavailable;
-            _errorMessage =
-                'Unable to determine location access.\nYou can still enter your area manually.';
-          });
+          _setStatus(_LocationStatus.unavailable,
+              "We couldn't determine your location. Try entering it manually.");
       }
     } catch (e) {
-      setState(() {
-        _status = _LocationStatus.unavailable;
-        _errorMessage =
-            'Something went wrong while accessing location.\nPlease try again or enter manually.';
-      });
+      _setStatus(_LocationStatus.unavailable,
+          'Could not access location services. Enter address manually?');
     }
   }
 
-  Future<void> _openAppSettings() async {
+  void _onGranted() {
     HapticFeedback.lightImpact();
-    await Geolocator.openAppSettings();
-    // After returning from settings, reset to idle for retry
-    if (mounted) {
-      setState(() {
-        _status = _LocationStatus.idle;
-        _errorMessage = null;
-      });
-    }
+    _setStatus(_LocationStatus.granted, null);
+    Future<void>.delayed(AppDurations.normal, () {
+      if (!mounted) return;
+      context.go('${RoutePaths.shell}/${RoutePaths.home}');
+    });
   }
 
-  void _enterManually() {
+  void _onEnterManually() {
     HapticFeedback.lightImpact();
-    context.go('${RoutePaths.shell}/${RoutePaths.home}');
+    context.push('${RoutePaths.locationSetup}/search');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: Stack(
-        children: [
-          // Dot-matrix pattern overlay
-          Positioned.fill(
-            child: RepaintBoundary(
-              child: CustomPaint(painter: _DotMatrixPainter()),
-            ),
+      backgroundColor: AppColors.surfaceWhite,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl4,
+            vertical: AppSpacing.xl,
           ),
-
-          // Top gradient
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.08),
-                    Colors.transparent,
-                  ],
-                  stops: const [0, 0.5],
+          child: Column(
+            children: [
+              const SizedBox(height: AppSpacing.xl),
+              BlurFade(
+                delay: const Duration(milliseconds: 100),
+                child: _LocationIconBadge(),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              BlurFade(
+                delay: const Duration(milliseconds: 200),
+                child: Text(
+                  'Find your closest\nBurger Farm',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.displayHeroLg.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
-            ),
-          ),
-
-          // Rotating ambient glow
-          IgnorePointer(
-            child: Center(child: const _RotatingGlow()),
-          ),
-
-          // Main content
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageH),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Spacer(flex: 2),
-
-                  // Animated pin
-                  RepaintBoundary(
-                    child: _AnimatedLocationPin(
-                      ripple1: _ripple1Ctrl,
-                      ripple2: _ripple2Ctrl,
-                      status: _status,
-                    ),
-                  )
-                      .animate()
-                      .scale(
-                        begin: const Offset(0.7, 0.7),
-                        duration: 700.ms,
-                        curve: const Cubic(0.16, 1, 0.3, 1),
-                      )
-                      .fadeIn(duration: 500.ms),
-
-                  const SizedBox(height: AppSpacing.xxl),
-
-                  // Dynamic headline based on status
-                  _StatusHeadline(status: _status)
-                      .animate(delay: 200.ms)
-                      .slideY(begin: 0.2, end: 0, duration: 600.ms)
-                      .fadeIn(duration: 500.ms),
-
-                  const SizedBox(height: AppSpacing.md),
-
-                  // Error/info message
-                  if (_errorMessage != null)
-                    _ErrorBanner(message: _errorMessage!)
-                        .animate()
-                        .fadeIn(duration: 300.ms)
-                        .slideY(begin: -0.1, end: 0),
-
-                  const Spacer(flex: 3),
-                ],
+              const SizedBox(height: AppSpacing.sm),
+              BlurFade(
+                delay: const Duration(milliseconds: 300),
+                child: Text(
+                  _statusDetail ??
+                      'Share your location so we can show outlets near you, your menu, and accurate delivery times.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodyMd.copyWith(
+                    color: AppColors.textMuted,
+                    height: 1.5,
+                  ),
+                ),
               ),
-            ),
-          ),
-
-          // Bottom CTA sheet
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: _BottomActions(
-              status: _status,
-              onAllowLocation: _requestLocation,
-              onEnterManually: _enterManually,
-              onOpenSettings: _openAppSettings,
-            )
-                .animate(delay: 450.ms)
-                .slideY(
-                  begin: 0.25,
-                  end: 0,
-                  duration: 600.ms,
-                  curve: const Cubic(0.16, 1, 0.3, 1),
-                )
-                .fadeIn(duration: 500.ms),
-          ),
-
-          // Home indicator
-          const Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: _HomeBar(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Status-aware headline ─────────────────────────────────────────────────
-
-class _StatusHeadline extends StatelessWidget {
-  const _StatusHeadline({required this.status});
-  final _LocationStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final (headline, body) = switch (status) {
-      _LocationStatus.denied => (
-          'Permission Denied',
-          'Try allowing access or enter\nyour area manually below.',
-        ),
-      _LocationStatus.deniedForever => (
-          'Access Blocked',
-          'Open your device Settings\nand enable location for Burger Farm.',
-        ),
-      _LocationStatus.serviceDisabled => (
-          'GPS is Off',
-          'Turn on Location Services in\nyour device settings to continue.',
-        ),
-      _LocationStatus.unavailable => (
-          'Location Unavailable',
-          'We couldn\'t access your location.\nYou can enter your area manually.',
-        ),
-      _LocationStatus.granted => (
-          'Location Found!',
-          'Great — we\'ll find the closest\nBurger Farm outlet near you.',
-        ),
-      _ => (
-          'Find your nearest\nBurger Farm',
-          "We'll show you the closest outlet\nand your estimated delivery time.",
-        ),
-    };
-
-    return Column(
-      children: [
-        Text(
-          headline,
-          textAlign: TextAlign.center,
-          style: AppTypography.headlineXL.copyWith(
-            color: Colors.white,
-            height: 1.15,
-            shadows: [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.15),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+              const SizedBox(height: AppSpacing.xl4),
+              Expanded(
+                child: _PulseRadar(
+                  ring1: _ring1,
+                  ring2: _ring2,
+                  ring3: _ring3,
+                  emojiBob: _emojiBob,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              BlurFade(
+                delay: const Duration(milliseconds: 700),
+                child: _ShareLocationCta(
+                  status: _status,
+                  onShare: _onShareLocation,
+                  onOpenSettings: () => Geolocator.openAppSettings(),
+                  onOpenLocationSettings: () =>
+                      Geolocator.openLocationSettings(),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              GestureDetector(
+                onTap: _onEnterManually,
+                child: Text(
+                  'Enter manually instead',
+                  style: AppTypography.actionSm.copyWith(
+                    color: AppColors.textMuted,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          body,
-          textAlign: TextAlign.center,
-          style: AppTypography.bodyMd.copyWith(
-            color: Colors.white.withValues(alpha: 0.80),
-            height: 1.6,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _ErrorBanner extends StatelessWidget {
-  const _ErrorBanner({required this.message});
-  final String message;
+// ─── Location icon badge ──────────────────────────────────────────────────
 
+class _LocationIconBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: AppSpacing.sm),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
+      width: 64,
+      height: 64,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+        color: AppColors.primary.withValues(alpha: 0.10),
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.18)),
+        boxShadow: AppShadows.glow,
       ),
-      child: Text(
-        message,
-        textAlign: TextAlign.center,
-        style: AppTypography.captionMd.copyWith(
-          color: Colors.white.withValues(alpha: 0.90),
-          height: 1.5,
-        ),
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.location_on_rounded,
+        color: AppColors.primary,
+        size: 30,
       ),
     );
   }
 }
 
-// ─── Bottom actions — adapt to permission status ───────────────────────────
+// ─── Pulse radar + floating chips ─────────────────────────────────────────
 
-class _BottomActions extends StatelessWidget {
-  const _BottomActions({
-    required this.status,
-    required this.onAllowLocation,
-    required this.onEnterManually,
-    required this.onOpenSettings,
+class _PulseRadar extends StatelessWidget {
+  const _PulseRadar({
+    required this.ring1,
+    required this.ring2,
+    required this.ring3,
+    required this.emojiBob,
   });
-  final _LocationStatus status;
-  final Future<void> Function() onAllowLocation;
-  final VoidCallback onEnterManually;
-  final VoidCallback onOpenSettings;
+
+  final AnimationController ring1;
+  final AnimationController ring2;
+  final AnimationController ring3;
+  final AnimationController emojiBob;
 
   @override
   Widget build(BuildContext context) {
-    final bottomPad = MediaQuery.paddingOf(context).bottom;
-
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.pageH,
-        AppSpacing.lg,
-        AppSpacing.pageH,
-        bottomPad + AppSpacing.lg,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.primary.withValues(alpha: 0.0),
-            AppColors.primary,
-            AppColors.primary,
-          ],
-          stops: const [0, 0.3, 1],
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Primary CTA — changes based on status
-          if (status == _LocationStatus.deniedForever ||
-              status == _LocationStatus.serviceDisabled)
-            _AllowButton(
-              label: 'Open Settings',
-              icon: Icons.settings_rounded,
-              isLoading: false,
-              onTap: () async => onOpenSettings(),
-            )
-          else
-            _AllowButton(
-              label: status == _LocationStatus.denied
-                  ? 'Try Again'
-                  : 'Allow Location',
-              icon: status == _LocationStatus.denied
-                  ? Icons.refresh_rounded
-                  : Icons.location_on_rounded,
-              isLoading: status == _LocationStatus.requesting,
-              onTap: onAllowLocation,
-            ),
-
-          const SizedBox(height: AppSpacing.sm),
-
-          // Ghost: Enter manually (always visible)
-          Semantics(
-            button: true,
-            label: 'Enter location manually',
-            child: GestureDetector(
-              onTap: onEnterManually,
-              child: Container(
-                width: double.infinity,
-                height: 52,
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final maxR = constraints.maxWidth * 0.55;
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              _PulseRing(controller: ring1, maxRadius: maxR),
+              _PulseRing(controller: ring2, maxRadius: maxR),
+              _PulseRing(controller: ring3, maxRadius: maxR),
+              // Center pin.
+              Container(
+                width: 76,
+                height: 76,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(AppRadius.button),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.20),
-                  ),
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                  boxShadow: AppShadows.brandGlow,
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  'Enter manually',
-                  style: AppTypography.buttonLabel.copyWith(
-                    color: Colors.white.withValues(alpha: 0.90),
-                    fontSize: 15,
-                  ),
+                child: const Icon(
+                  Icons.location_on_rounded,
+                  color: Colors.white,
+                  size: 36,
                 ),
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Animated location pin ─────────────────────────────────────────────────
-
-class _AnimatedLocationPin extends StatelessWidget {
-  const _AnimatedLocationPin({
-    required this.ripple1,
-    required this.ripple2,
-    required this.status,
-  });
-  final AnimationController ripple1;
-  final AnimationController ripple2;
-  final _LocationStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final pinColor = switch (status) {
-      _LocationStatus.granted => AppColors.success,
-      _LocationStatus.denied ||
-      _LocationStatus.deniedForever ||
-      _LocationStatus.serviceDisabled ||
-      _LocationStatus.unavailable =>
-        AppColors.error,
-      _ => Colors.white,
-    };
-
-    final icon = switch (status) {
-      _LocationStatus.granted => Icons.check_circle_rounded,
-      _LocationStatus.denied ||
-      _LocationStatus.deniedForever =>
-        Icons.location_off_rounded,
-      _LocationStatus.serviceDisabled => Icons.gps_off_rounded,
-      _LocationStatus.unavailable => Icons.location_searching_rounded,
-      _LocationStatus.requesting => Icons.location_searching_rounded,
-      _ => Icons.location_on_rounded,
-    };
-
-    return SizedBox(
-      width: 120,
-      height: 120,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Ripple ring 1
-          AnimatedBuilder(
-            animation: ripple1,
-            builder: (context, _) {
-              final v = CurvedAnimation(
-                parent: ripple1,
-                curve: Curves.easeOut,
-              ).value;
-              return Opacity(
-                opacity: (1 - v).clamp(0.0, 0.40),
-                child: Transform.scale(
-                  scale: 0.8 + v * 0.6,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
+              // Floating chips — burger top-left, fries top-right.
+              Positioned(
+                top: maxR * 0.4,
+                left: maxR * 0.2,
+                child: _FloatingChip(
+                  emoji: '🍔',
+                  delay: const Duration(milliseconds: 1000),
+                  controller: emojiBob,
+                  phase: 0,
                 ),
-              );
-            },
-          ),
-          // Ripple ring 2 — 600ms delayed
-          AnimatedBuilder(
-            animation: ripple2,
-            builder: (context, _) {
-              final v = CurvedAnimation(
-                parent: ripple2,
-                curve: Curves.easeOut,
-              ).value;
-              return Opacity(
-                opacity: (1 - v).clamp(0.0, 0.30),
-                child: Transform.scale(
-                  scale: 0.6 + v * 0.8,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.25),
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-          // Pin container
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 350),
-            curve: const Cubic(0.16, 1, 0.3, 1),
-            width: 88,
-            height: 88,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.12),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.25),
-                width: 1.5,
               ),
-              boxShadow: AppShadows.glowBrand,
-            ),
-            child: status == _LocationStatus.requesting
-                ? const Center(
-                    child: SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2.5,
-                      ),
-                    ),
-                  )
-                : Icon(icon, color: pinColor, size: 38),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── CTA button ────────────────────────────────────────────────────────────
-
-class _AllowButton extends StatefulWidget {
-  const _AllowButton({
-    required this.label,
-    required this.icon,
-    required this.isLoading,
-    required this.onTap,
-  });
-  final String label;
-  final IconData icon;
-  final bool isLoading;
-  final Future<void> Function() onTap;
-
-  @override
-  State<_AllowButton> createState() => _AllowButtonState();
-}
-
-class _AllowButtonState extends State<_AllowButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this, duration: 100.ms);
-    _scale = Tween<double>(begin: 1.0, end: 0.97)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: widget.label,
-      child: GestureDetector(
-        onTapDown: (_) => _ctrl.forward(),
-        onTapUp: (_) {
-          _ctrl.reverse();
-          widget.onTap();
+              Positioned(
+                top: maxR * 0.5,
+                right: maxR * 0.2,
+                child: _FloatingChip(
+                  emoji: '🍟',
+                  delay: const Duration(milliseconds: 1400),
+                  controller: emojiBob,
+                  phase: 0.5,
+                ),
+              ),
+            ],
+          );
         },
-        onTapCancel: () => _ctrl.reverse(),
-        child: AnimatedBuilder(
-          animation: _scale,
-          builder: (context, child) =>
-              Transform.scale(scale: _scale.value, child: child),
-          child: Container(
-            width: double.infinity,
-            height: 56,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppRadius.button),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.white.withValues(alpha: 0.25),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: widget.isLoading
-                ? Center(
-                    child: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                        strokeWidth: 2.5,
-                      ),
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(widget.icon, size: 20, color: AppColors.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        widget.label,
-                        style: AppTypography.buttonLabel.copyWith(
-                          color: AppColors.primary,
-                          fontSize: 17,
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-        ),
       ),
     );
   }
 }
 
-// ─── Support painters/widgets ──────────────────────────────────────────────
-
-class _DotMatrixPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.10)
-      ..style = PaintingStyle.fill;
-    const spacing = 32.0;
-    const dotRadius = 2.0;
-    for (double x = 0; x <= size.width; x += spacing) {
-      for (double y = 0; y <= size.height; y += spacing) {
-        canvas.drawCircle(Offset(x, y), dotRadius, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DotMatrixPainter oldDelegate) => false;
-}
-
-class _RotatingGlow extends StatefulWidget {
-  const _RotatingGlow();
-
-  @override
-  State<_RotatingGlow> createState() => _RotatingGlowState();
-}
-
-class _RotatingGlowState extends State<_RotatingGlow>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 40),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
+class _PulseRing extends StatelessWidget {
+  const _PulseRing({required this.controller, required this.maxRadius});
+  final AnimationController controller;
+  final double maxRadius;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _ctrl,
-      builder: (context, child) =>
-          Transform.rotate(angle: _ctrl.value * 6.28318, child: child),
-      child: Container(
-        width: MediaQuery.sizeOf(context).width * 1.4,
-        height: MediaQuery.sizeOf(context).width * 1.4,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            center: Alignment.topRight,
-            radius: 0.8,
-            colors: [
-              Colors.white.withValues(alpha: 0.12),
-              Colors.transparent,
-            ],
+      animation: controller,
+      builder: (context, _) {
+        final t = controller.value;
+        final curve = AppCurves.pulseRing.transform(t);
+        final scale = 0.8 + curve * 1.0; // 0.8 → 1.8
+        final opacity = (0.5 * (1 - t)).clamp(0.0, 0.5);
+        return Opacity(
+          opacity: opacity,
+          child: Transform.scale(
+            scale: scale,
+            child: Container(
+              width: maxRadius * 2,
+              height: maxRadius * 2,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.45),
+                  width: 2,
+                ),
+              ),
+            ),
           ),
-        ),
+        );
+      },
+    );
+  }
+}
+
+class _FloatingChip extends StatefulWidget {
+  const _FloatingChip({
+    required this.emoji,
+    required this.delay,
+    required this.controller,
+    required this.phase,
+  });
+  final String emoji;
+  final Duration delay;
+  final AnimationController controller;
+  final double phase;
+
+  @override
+  State<_FloatingChip> createState() => _FloatingChipState();
+}
+
+class _FloatingChipState extends State<_FloatingChip> {
+  bool _shown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(widget.delay, () {
+      if (mounted) setState(() => _shown = true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      opacity: _shown ? 1 : 0,
+      duration: AppDurations.blurFade,
+      curve: AppCurves.springOut,
+      child: AnimatedBuilder(
+        animation: widget.controller,
+        builder: (context, _) {
+          final raw = (widget.controller.value + widget.phase) % 1.0;
+          final dy = -6.0 * (1 - (2 * raw - 1).abs());
+          return Transform.translate(
+            offset: Offset(0, dy),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceWhite,
+                shape: BoxShape.circle,
+                boxShadow: AppShadows.soft,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                widget.emoji,
+                style: const TextStyle(fontSize: 24),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-class _HomeBar extends StatelessWidget {
-  const _HomeBar();
+// ─── CTA ─────────────────────────────────────────────────────────────────
+
+class _ShareLocationCta extends StatelessWidget {
+  const _ShareLocationCta({
+    required this.status,
+    required this.onShare,
+    required this.onOpenSettings,
+    required this.onOpenLocationSettings,
+  });
+
+  final _LocationStatus status;
+  final VoidCallback onShare;
+  final VoidCallback onOpenSettings;
+  final VoidCallback onOpenLocationSettings;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 134,
-      height: 5,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(3),
+    final loading = status == _LocationStatus.requesting;
+    final label = switch (status) {
+      _LocationStatus.requesting => 'Locating you…',
+      _LocationStatus.deniedForever => 'Open Settings',
+      _LocationStatus.serviceDisabled => 'Enable Location',
+      _LocationStatus.timeout => 'Retry',
+      _ => 'Share Location',
+    };
+    final onTap = switch (status) {
+      _LocationStatus.deniedForever => onOpenSettings,
+      _LocationStatus.serviceDisabled => onOpenLocationSettings,
+      _ => onShare,
+    };
+    return GestureDetector(
+      onTap: loading ? null : onTap,
+      child: Container(
+        width: double.infinity,
+        height: 56,
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(AppRadius.ctaLg),
+          boxShadow: AppShadows.brandGlow,
+        ),
+        alignment: Alignment.center,
+        child: loading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Text(
+                label,
+                style: AppTypography.buttonLabelLg.copyWith(color: Colors.white),
+              ),
       ),
     );
   }
