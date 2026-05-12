@@ -58,22 +58,44 @@ class SecureStorageService {
   // the SMS. When the Dart isolate is suspended, the in-memory verificationId
   // held by OtpController is lost. Persisting it here keeps the OTP step
   // recoverable across backgrounding.
+  //
+  // Audit fix I-5: stored alongside a UTC ISO timestamp so a stale id from
+  // a long-ago session can't be rehydrated. Firebase verification ids are
+  // typically valid for ~5 minutes; we use 10 minutes as a generous TTL.
+  static const Duration _verificationIdTtl = Duration(minutes: 10);
 
   Future<void> saveVerificationId(String verificationId) async {
+    final payload =
+        '${DateTime.now().toUtc().toIso8601String()}|$verificationId';
     await _storage.write(
       key: _keyOtpVerificationId,
-      value: verificationId,
+      value: payload,
       aOptions: _getAndroidOptions(),
       iOptions: _getIOSOptions(),
     );
   }
 
   Future<String?> getVerificationId() async {
-    return _storage.read(
+    final raw = await _storage.read(
       key: _keyOtpVerificationId,
       aOptions: _getAndroidOptions(),
       iOptions: _getIOSOptions(),
     );
+    if (raw == null) return null;
+    // Legacy values (pre-TTL upgrade) won't have a pipe — discard them so
+    // a corrupt rehydration is impossible.
+    final sep = raw.indexOf('|');
+    if (sep <= 0) return null;
+    final stamp = raw.substring(0, sep);
+    final id = raw.substring(sep + 1);
+    final saved = DateTime.tryParse(stamp);
+    if (saved == null) return null;
+    if (DateTime.now().toUtc().difference(saved) > _verificationIdTtl) {
+      // Stale; clean up to avoid retrying on future opens.
+      await clearVerificationId();
+      return null;
+    }
+    return id.isEmpty ? null : id;
   }
 
   Future<void> clearVerificationId() async {

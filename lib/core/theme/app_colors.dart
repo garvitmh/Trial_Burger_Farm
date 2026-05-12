@@ -26,6 +26,7 @@ abstract final class AppColors {
   static const Color brandLight = Color(0xFFFFF0E5);  // --color-brand-light
   static const Color brownLight = Color(0x0F271200);  // rgba(39,18,0,0.06) — --color-brown-light
   static const Color appBackground = Color(0xFFFAFAFA); // Next.js root --background
+  static const Color splashBg = Color(0xFF000000); // Next.js splash <PhoneShell bg="bg-black">.
 
   // ─── Burger Logo Palette (splash) ────────────────────────────────────────
   // Colors extracted from the reference logo-animation.mp4 frames.

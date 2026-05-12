@@ -1,8 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../app/router/route_paths.dart';
 import '../../../../core/animations/app_animations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_durations.dart';
@@ -45,7 +44,16 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final _phoneController = TextEditingController();
   String _phoneE164 = '';
   bool _googleLoading = false;
+  bool _guestLoading = false;
+  // Audit fix I-4: `_sendingOtp` tracks the in-flight phone→codeSent window.
+  // While true, the Send OTP button shows a spinner. The `ref.listen` in
+  // `build()` advances to the OTP step only when `OtpController` transitions
+  // OtpStateLoading → OtpStateInitial (signaling `codeSent` fired), or
+  // surfaces the error inline if it transitions to OtpStateError.
+  bool _sendingOtp = false;
   String? _phoneError;
+
+  static final RegExp _indianMobile = RegExp(r'^[6-9]\d{9}$');
 
   @override
   void initState() {
@@ -72,26 +80,44 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   void _sendOtp() {
-    final raw = _phoneController.text.trim();
-    if (raw.replaceAll(RegExp(r'\D'), '').length < 10) {
-      setState(() => _phoneError = 'Please enter a 10-digit mobile number.');
+    if (_sendingOtp) return;
+    final raw = _phoneController.text.trim().replaceAll(RegExp(r'\D'), '');
+    if (!_indianMobile.hasMatch(raw)) {
+      setState(() => _phoneError =
+          'Please enter a valid 10-digit Indian mobile number.');
       return;
     }
-    setState(() => _phoneError = null);
     HapticFeedback.lightImpact();
-    _phoneE164 = '+91${raw.replaceAll(RegExp(r'\D'), '')}';
-    // Fire-and-forget: `OtpController.sendOtp` calls Firebase's
-    // `verifyPhoneNumber` which returns a Future that completes only when
-    // `codeAutoRetrievalTimeout` fires (up to 30s). Awaiting it here would
-    // strand the user on the phone screen. The OTP screen handles its own
-    // loading state via the controller's `OtpStateLoading`.
+    setState(() {
+      _phoneError = null;
+      _sendingOtp = true;
+      _phoneE164 = '+91$raw';
+    });
+    // Fire-and-forget. The `ref.listen` in build() reacts to controller
+    // state to advance the step or surface a verificationFailed error.
     ref.read(otpControllerProvider.notifier).sendOtp(_phoneE164);
-    _setStep(OnboardingFlowStep.otp);
   }
 
-  void _continueAsGuest() {
+  Future<void> _continueAsGuest() async {
+    if (_guestLoading) return;
     HapticFeedback.lightImpact();
-    context.go(RoutePaths.preferences);
+    setState(() => _guestLoading = true);
+    try {
+      await ref.read(authStateProvider.notifier).signInAsGuest();
+      // On success: auth stream flips state → router redirects automatically.
+      // No need to navigate manually. But for users where shell routes are
+      // gated by onboarding-complete, also mark onboarding complete here
+      // (the listener does this too, but earlier is fine).
+      ref.read(onboardingCompleteProvider.notifier).markComplete();
+    } on AuthFailure catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _guestLoading = false);
+    }
   }
 
   Future<void> _signInWithGoogle() async {
@@ -128,6 +154,24 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       });
     });
 
+    // Audit fix I-4: advance to OTP step only when codeSent fires (Loading
+    // → Initial transition), or surface error inline if verificationFailed
+    // fires (Loading → Error transition).
+    ref.listen<OtpState>(otpControllerProvider, (prev, next) {
+      if (!_sendingOtp) return;
+      if (next is OtpStateInitial && prev is OtpStateLoading) {
+        if (!mounted) return;
+        setState(() => _sendingOtp = false);
+        _setStep(OnboardingFlowStep.otp);
+      } else if (next is OtpStateError) {
+        if (!mounted) return;
+        setState(() {
+          _sendingOtp = false;
+          _phoneError = next.message;
+        });
+      }
+    });
+
     final heroCollapsed = _step != OnboardingFlowStep.welcome;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
@@ -155,6 +199,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   phoneController: _phoneController,
                   phoneError: _phoneError,
                   googleLoading: _googleLoading,
+                  sendingOtp: _sendingOtp,
                   onContinueWithPhone: () => _setStep(OnboardingFlowStep.phone),
                   onSendOtp: _sendOtp,
                   onGoogle: _signInWithGoogle,
@@ -412,6 +457,7 @@ class _AuthPanel extends StatelessWidget {
     required this.phoneController,
     required this.phoneError,
     required this.googleLoading,
+    required this.sendingOtp,
     required this.onContinueWithPhone,
     required this.onSendOtp,
     required this.onGoogle,
@@ -426,6 +472,7 @@ class _AuthPanel extends StatelessWidget {
   final TextEditingController phoneController;
   final String? phoneError;
   final bool googleLoading;
+  final bool sendingOtp;
   final VoidCallback onContinueWithPhone;
   final VoidCallback onSendOtp;
   final VoidCallback onGoogle;
@@ -470,6 +517,7 @@ class _AuthPanel extends StatelessWidget {
               key: const ValueKey('phone'),
               controller: phoneController,
               error: phoneError,
+              sending: sendingOtp,
               onSendOtp: onSendOtp,
               onBack: onBackToWelcome,
             ),
@@ -621,12 +669,14 @@ class _PhonePanel extends StatelessWidget {
     super.key,
     required this.controller,
     required this.error,
+    required this.sending,
     required this.onSendOtp,
     required this.onBack,
   });
 
   final TextEditingController controller;
   final String? error;
+  final bool sending;
   final VoidCallback onSendOtp;
   final VoidCallback onBack;
 
@@ -690,6 +740,7 @@ class _PhonePanel extends StatelessWidget {
         _PrimaryCta(
           label: 'Send OTP',
           onTap: onSendOtp,
+          loading: sending,
         ),
       ],
     );
@@ -732,6 +783,10 @@ class _PhoneInput extends StatelessWidget {
                 textInputAction: TextInputAction.done,
                 maxLength: 10,
                 autofillHints: const [AutofillHints.telephoneNumberNational],
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
                 style: AppTypography.inputDisplay.copyWith(
                   color: AppColors.textPrimary,
                 ),
@@ -809,6 +864,11 @@ class _OtpPanelState extends ConsumerState<_OtpPanel> {
       List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focus = List.generate(6, (_) => FocusNode());
 
+  /// Audit fix I-6: the auto-verify Timer is cancelled and re-scheduled
+  /// whenever the cell content changes, so backspacing from the 6th cell
+  /// before the verify delay elapses doesn't fire a stale verify call.
+  Timer? _verifyTimer;
+
   @override
   void initState() {
     super.initState();
@@ -819,6 +879,7 @@ class _OtpPanelState extends ConsumerState<_OtpPanel> {
 
   @override
   void dispose() {
+    _verifyTimer?.cancel();
     for (final c in _cells) {
       c.dispose();
     }
@@ -831,6 +892,10 @@ class _OtpPanelState extends ConsumerState<_OtpPanel> {
   String get _joined => _cells.map((c) => c.text).join();
 
   void _onCellChanged(int i, String value) {
+    // Audit fix I-6: cancel any pending verify before mutating the row.
+    _verifyTimer?.cancel();
+    _verifyTimer = null;
+
     final d = value.replaceAll(RegExp(r'\D'), '');
     if (d.length > 1) {
       // Paste path.
@@ -867,13 +932,16 @@ class _OtpPanelState extends ConsumerState<_OtpPanel> {
   void _maybeVerify() {
     final code = _joined;
     if (code.length != 6) return;
-    Future<void>.delayed(AppDurations.verifyDelay, () {
+    _verifyTimer?.cancel();
+    _verifyTimer = Timer(AppDurations.verifyDelay, () {
       if (!mounted) return;
       ref.read(otpControllerProvider.notifier).verifyOtp(code);
     });
   }
 
   void _clearCells() {
+    _verifyTimer?.cancel();
+    _verifyTimer = null;
     for (final c in _cells) {
       c.text = '';
     }
@@ -1001,7 +1069,10 @@ class _OtpPanelState extends ConsumerState<_OtpPanel> {
   }
 }
 
-class _OtpCell extends StatelessWidget {
+/// Audit fix I-7: was a StatelessWidget that allocated a `FocusNode` inline
+/// every build. With six cells × frequent rebuilds, the leaked nodes
+/// accumulated. Now stateful with `_keyboardFocus` disposed in `dispose()`.
+class _OtpCell extends StatefulWidget {
   const _OtpCell({
     required this.controller,
     required this.focusNode,
@@ -1019,8 +1090,21 @@ class _OtpCell extends StatelessWidget {
   final VoidCallback onBackspaceEmpty;
 
   @override
+  State<_OtpCell> createState() => _OtpCellState();
+}
+
+class _OtpCellState extends State<_OtpCell> {
+  late final FocusNode _keyboardFocus = FocusNode(skipTraversal: true);
+
+  @override
+  void dispose() {
+    _keyboardFocus.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final filled = controller.text.isNotEmpty;
+    final filled = widget.controller.text.isNotEmpty;
     return AnimatedContainer(
       duration: AppDurations.normal,
       curve: AppCurves.material,
@@ -1034,7 +1118,7 @@ class _OtpCell extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.cellLg),
         border: Border.all(
           width: 2,
-          color: isError
+          color: widget.isError
               ? AppColors.error
               : filled
                   ? AppColors.primary.withValues(alpha: 0.4)
@@ -1044,32 +1128,35 @@ class _OtpCell extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: KeyboardListener(
-        focusNode: FocusNode(skipTraversal: true),
+        focusNode: _keyboardFocus,
         onKeyEvent: (event) {
           if (event is KeyDownEvent &&
               event.logicalKey == LogicalKeyboardKey.backspace &&
-              controller.text.isEmpty) {
-            onBackspaceEmpty();
+              widget.controller.text.isEmpty) {
+            widget.onBackspaceEmpty();
           }
         },
         child: TextField(
-          controller: controller,
-          focusNode: focusNode,
+          controller: widget.controller,
+          focusNode: widget.focusNode,
           keyboardType: TextInputType.number,
           textInputAction: TextInputAction.next,
           textAlign: TextAlign.center,
           maxLength: 1,
           autofillHints:
-              isFirst ? const [AutofillHints.oneTimeCode] : null,
+              widget.isFirst ? const [AutofillHints.oneTimeCode] : null,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
           style: AppTypography.otpDigit.copyWith(
-            color: isError ? AppColors.error : AppColors.textPrimary,
+            color: widget.isError ? AppColors.error : AppColors.textPrimary,
           ),
           decoration: const InputDecoration(
             border: InputBorder.none,
             counterText: '',
             isDense: true,
           ),
-          onChanged: onChanged,
+          onChanged: widget.onChanged,
         ),
       ),
     );
@@ -1126,10 +1213,12 @@ class _PrimaryCta extends StatefulWidget {
     required this.label,
     required this.onTap,
     this.leading,
+    this.loading = false,
   });
   final String label;
   final VoidCallback onTap;
   final Widget? leading;
+  final bool loading;
 
   @override
   State<_PrimaryCta> createState() => _PrimaryCtaState();
@@ -1150,13 +1239,16 @@ class _PrimaryCtaState extends State<_PrimaryCta>
 
   @override
   Widget build(BuildContext context) {
+    final disabled = widget.loading;
     return GestureDetector(
-      onTapDown: (_) => _press.forward(),
-      onTapUp: (_) {
-        _press.reverse();
-        HapticFeedback.lightImpact();
-        widget.onTap();
-      },
+      onTapDown: disabled ? null : (_) => _press.forward(),
+      onTapUp: disabled
+          ? null
+          : (_) {
+              _press.reverse();
+              HapticFeedback.lightImpact();
+              widget.onTap();
+            },
       onTapCancel: () => _press.reverse(),
       child: AnimatedBuilder(
         animation: _scale,
@@ -1164,27 +1256,42 @@ class _PrimaryCtaState extends State<_PrimaryCta>
           scale: _scale.value,
           child: child,
         ),
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(AppRadius.ctaLg),
-            boxShadow: AppShadows.brandGlow,
-          ),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.label,
-                style: AppTypography.buttonLabelLg.copyWith(color: Colors.white),
-              ),
-              if (widget.leading != null) ...[
-                const SizedBox(width: AppSpacing.sm),
-                widget.leading!,
-              ],
-            ],
+        child: AnimatedOpacity(
+          duration: AppDurations.standard,
+          opacity: disabled ? 0.85 : 1,
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(AppRadius.ctaLg),
+              boxShadow: AppShadows.brandGlow,
+            ),
+            alignment: Alignment.center,
+            child: widget.loading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.label,
+                        style: AppTypography.buttonLabelLg.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                      if (widget.leading != null) ...[
+                        const SizedBox(width: AppSpacing.sm),
+                        widget.leading!,
+                      ],
+                    ],
+                  ),
           ),
         ),
       ),

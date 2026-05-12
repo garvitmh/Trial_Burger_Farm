@@ -30,6 +30,12 @@ abstract interface class IAuthRepository {
   /// Authenticates using Google Sign-In.
   Future<AuthUser> signInWithGoogle();
 
+  /// Signs the user in as an anonymous Firebase user — used by the guest
+  /// flow. The resulting [AuthUser.isAnonymous] is true so downstream logic
+  /// can differentiate authenticated from anonymous when needed (e.g.,
+  /// gating profile features, order history).
+  Future<AuthUser> signInAsGuest();
+
   /// Signs out the current user and clears session tokens.
   Future<void> signOut();
 }

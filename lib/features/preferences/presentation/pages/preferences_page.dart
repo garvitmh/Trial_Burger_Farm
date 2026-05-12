@@ -342,6 +342,7 @@ class _PreferencesCard extends StatelessWidget {
                   keyboardType: TextInputType.name,
                   textCapitalization: TextCapitalization.words,
                   autofillHints: const [AutofillHints.givenName],
+                  maxLength: 60,
                   onChanged: (_) => onFieldChanged(),
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -375,6 +376,11 @@ class _PreferencesCard extends StatelessWidget {
                             autofillHints: const [
                               AutofillHints.telephoneNumberNational,
                             ],
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            maxLength: 10,
                             onChanged: (_) => onFieldChanged(),
                           ),
                         ],
@@ -446,6 +452,8 @@ class _StyledInput extends StatelessWidget {
     this.keyboardType,
     this.textCapitalization = TextCapitalization.none,
     this.autofillHints,
+    this.inputFormatters,
+    this.maxLength,
     this.onChanged,
   });
 
@@ -454,6 +462,8 @@ class _StyledInput extends StatelessWidget {
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
   final List<String>? autofillHints;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
   final ValueChanged<String>? onChanged;
 
   @override
@@ -475,6 +485,8 @@ class _StyledInput extends StatelessWidget {
         keyboardType: keyboardType,
         textCapitalization: textCapitalization,
         autofillHints: autofillHints,
+        inputFormatters: inputFormatters,
+        maxLength: maxLength,
         onChanged: onChanged,
         style: AppTypography.inputLg.copyWith(color: AppColors.textPrimary),
         decoration: InputDecoration(
@@ -485,6 +497,7 @@ class _StyledInput extends StatelessWidget {
           border: InputBorder.none,
           isDense: true,
           contentPadding: EdgeInsets.zero,
+          counterText: '',
         ),
       ),
     );

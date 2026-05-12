@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:video_player/video_player.dart';
 import '../../../../app/bootstrap/app_initializer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_durations.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/providers/app_providers.dart';
-import '../../../../shared/widgets/burger_logo.dart';
 
-/// SplashPage — Burger Farm splash, hand-rebuilt from `logo-animation.mp4`.
-///
-/// The reference is a 4.57s video where the brand logo assembles
-/// layer-by-layer (bottom bun → patty → lettuce → top bun → wordmark →
-/// ® badge + cheese peek → fade-out). This screen reconstructs the same
-/// timeline natively via [BurgerLogo] + a single [AnimationController].
+/// SplashPage — plays the client-provided `logo-animation.mp4` while the
+/// app boots, then yields control to the router.
 ///
 /// Bootstrap contract:
-///   - This screen observes [bootstrapCompleteProvider]. It never performs
-///     initialization itself; that lives in `main()`. The render is purely
-///     a visual hold while the rest of the app warms up.
-///   - When `bootstrapComplete && elapsed >= splashMin`, the screen stops
-///     drawing the animation and the router redirect takes over.
-///   - If bootstrap is still pending after 6 seconds, a subtle retry hint
-///     fades in beneath the logo. The screen never gets stuck visibly idle.
+///   - Never performs initialization itself; that lives in `main()`.
+///   - Holds the user here until BOTH bootstrap is complete AND the video
+///     has played for at least `AppDurations.splashMin` (2.5s) — so a
+///     fast boot doesn't cut off the brand reveal awkwardly.
+///   - If bootstrap is still pending after 6s, a subtle "Still loading…"
+///     hint fades in so the user never sees a frozen screen.
+///   - If the video asset fails to load, falls back to a static logo.
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
 
@@ -30,40 +26,56 @@ class SplashPage extends ConsumerStatefulWidget {
   ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends ConsumerState<SplashPage>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _master;
+class _SplashPageState extends ConsumerState<SplashPage> {
+  VideoPlayerController? _controller;
+  bool _videoReady = false;
+  bool _videoFailed = false;
   bool _slowBootHint = false;
 
   @override
   void initState() {
     super.initState();
+    // Splash bg is black (matches Next.js reference). Status bar + nav bar
+    // need light icons over the dark frame.
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.light,
     ));
-
-    _master = AnimationController(
-      vsync: this,
-      duration: AppDurations.splashTotal,
-    )..forward();
-
-    // After 6 seconds of waiting, surface a subtle hint so the user never
-    // sits on a frozen-looking screen.
+    _initVideo();
     Future<void>.delayed(const Duration(seconds: 6), () {
       if (!mounted) return;
       final done = ref.read(bootstrapCompleteProvider);
       if (!done) setState(() => _slowBootHint = true);
     });
-
-    // Precache marquee/preferences assets after first frame so the
-    // onboarding/preferences screens don't decode on first paint.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) AppInitializer.precacheAssets(context);
+      if (!mounted) return;
+      AppInitializer.precacheAssets(context);
       _precacheBrandAssets();
     });
+  }
+
+  Future<void> _initVideo() async {
+    final controller = VideoPlayerController.asset(
+      'assets/videos/logo-animation.mp4',
+    );
+    _controller = controller;
+    try {
+      await controller.initialize();
+      if (!mounted) {
+        await controller.dispose();
+        return;
+      }
+      await controller.setVolume(0);
+      await controller.setLooping(false);
+      await controller.play();
+      setState(() => _videoReady = true);
+    } catch (e, st) {
+      debugPrint('[SplashPage] Video init failed: $e\n$st');
+      if (!mounted) return;
+      setState(() => _videoFailed = true);
+    }
   }
 
   Future<void> _precacheBrandAssets() async {
@@ -83,37 +95,31 @@ class _SplashPageState extends ConsumerState<SplashPage>
       try {
         await precacheImage(AssetImage(path), context);
       } catch (_) {
-        // Asset missing or already cached — splash must not block on this.
+        // Splash must never block on asset cache failure.
       }
     }
   }
 
   @override
   void dispose() {
-    _master.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.splashBg,
       body: Semantics(
         label: 'Burger Farm splash screen',
         child: SafeArea(
           child: Stack(
             children: [
-              // The hero logo, choreographed against the 4.57s timeline.
-              Center(
-                child: AnimatedBuilder(
-                  animation: _master,
-                  builder: (context, _) => BurgerLogo(
-                    t: _master.value,
-                    size: _logoSize(context),
-                  ),
-                ),
-              ),
-              // Bottom retry hint, only after a slow bootstrap.
+              Center(child: _Hero(
+                controller: _controller,
+                ready: _videoReady,
+                failed: _videoFailed,
+              )),
               if (_slowBootHint)
                 Positioned(
                   left: 0,
@@ -137,9 +143,48 @@ class _SplashPageState extends ConsumerState<SplashPage>
       ),
     );
   }
+}
 
-  double _logoSize(BuildContext context) {
+class _Hero extends StatelessWidget {
+  const _Hero({required this.controller, required this.ready, required this.failed});
+  final VideoPlayerController? controller;
+  final bool ready;
+  final bool failed;
+
+  @override
+  Widget build(BuildContext context) {
+    if (failed || controller == null) {
+      return _StaticFallback();
+    }
+    if (!ready) {
+      // Pre-init: show static fallback so we never flash a black frame.
+      return _StaticFallback();
+    }
+    final aspect = controller!.value.aspectRatio;
+    // Constrain to a sensible max width so we don't stretch on tablets.
     final shortest = MediaQuery.sizeOf(context).shortestSide;
-    return shortest.clamp(240.0, 360.0);
+    final width = shortest.clamp(240.0, 360.0);
+    return AspectRatio(
+      aspectRatio: aspect == 0 ? 9 / 16 : aspect,
+      child: SizedBox(
+        width: width,
+        child: VideoPlayer(controller!),
+      ),
+    );
+  }
+}
+
+class _StaticFallback extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final shortest = MediaQuery.sizeOf(context).shortestSide;
+    final size = shortest.clamp(160.0, 240.0);
+    return Image.asset(
+      'assets/images/brand/logo.png',
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      errorBuilder: (_, e, s) => SizedBox(width: size, height: size),
+    );
   }
 }

@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../app/firebase/firebase_providers.dart';
+import '../../../../core/security/secure_storage_service.dart';
 import '../../domain/entities/auth_state.dart';
+import '../../domain/entities/auth_user.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import '../providers/auth_repository_provider.dart';
 
@@ -18,32 +22,47 @@ final authStateProvider = AsyncNotifierProvider<AuthSessionManager, AuthState>(
 ///
 /// Prevents splash rerender loops by maintaining an `AsyncLoading` state until
 /// the initial session is fully restored and verified from secure storage/Firebase.
+///
+/// Lifecycle hygiene:
+///   - Cancels both the auth-state and id-token subscriptions when the
+///     provider is disposed (audit fix I-1). Without this, hot-reload and
+///     `ref.invalidate(authStateProvider)` orphan listeners that then
+///     mutate a disposed notifier.
+///   - Listens to `idTokenChanges()` and re-persists the fresh JWT to
+///     secure storage every time Firebase rotates it (audit fix I-2).
+///     Firebase ID tokens expire after 1 hour; without this, backend
+///     calls reading the stored token would 401 silently.
 class AuthSessionManager extends AsyncNotifier<AuthState> {
   late final IAuthRepository _authRepo;
-  StreamSubscription? _authStateSub;
+  late final fb.FirebaseAuth _firebaseAuth;
+  late final SecureStorageService _secureStorage;
+
+  StreamSubscription<AuthUser?>? _authStateSub;
+  StreamSubscription<fb.User?>? _idTokenSub;
 
   @override
   FutureOr<AuthState> build() async {
     _authRepo = ref.watch(authRepositoryProvider);
-    
-    // Begin session restoration process.
-    // This blocks the provider in AsyncLoading, preventing the router from
-    // making premature redirect decisions.
+    _firebaseAuth = ref.watch(firebaseAuthProvider);
+    _secureStorage = ref.watch(secureStorageProvider);
+
+    // Critical: cancel subscriptions on dispose so a rebuilt notifier
+    // doesn't orphan listeners that then race on a disposed state.
+    ref.onDispose(() {
+      _authStateSub?.cancel();
+      _idTokenSub?.cancel();
+    });
+
     final initialState = await _restoreSession();
-    
-    // Once initial state is resolved, listen to future Firebase token changes.
+
     _listenToAuthChanges();
+    _listenToIdTokenRefresh();
 
     return initialState;
   }
 
   Future<AuthState> _restoreSession() async {
     debugPrint('[AuthSessionManager] Restoring session...');
-    
-    // Add artificial minimum delay if desired for brand presence, 
-    // though typically we want this to be as fast as possible.
-    // await Future.delayed(const Duration(milliseconds: 800));
-
     try {
       final user = _authRepo.currentUser;
       if (user != null) {
@@ -72,13 +91,37 @@ class AuthSessionManager extends AsyncNotifier<AuthState> {
     });
   }
 
+  /// Subscribes to Firebase's id-token rotation stream and re-persists the
+  /// fresh token to secure storage. This is the only correct way to keep
+  /// the stored token live across the 1-hour Firebase token expiry.
+  void _listenToIdTokenRefresh() {
+    _idTokenSub?.cancel();
+    _idTokenSub = _firebaseAuth.idTokenChanges().listen((user) async {
+      if (user == null) {
+        // User signed out → token cache is cleared by the repository's
+        // signOut() path. Defensive: best-effort clear here too.
+        try {
+          await _secureStorage.clearSession();
+        } catch (_) {/* secure storage failures are non-fatal */}
+        return;
+      }
+      try {
+        final token = await user.getIdToken();
+        if (token != null) {
+          await _secureStorage.saveAuthToken(token);
+        }
+      } catch (e) {
+        debugPrint('[AuthSessionManager] Token refresh persist failed: $e');
+      }
+    });
+  }
+
   Future<void> signOut() async {
     try {
       await _authRepo.signOut();
       // The stream listener will automatically update the state to Unauthenticated.
     } catch (e) {
       debugPrint('[AuthSessionManager] Sign out failed: $e');
-      // Rethrow to UI to show error toast if needed
       rethrow;
     }
   }
@@ -90,5 +133,16 @@ class AuthSessionManager extends AsyncNotifier<AuthState> {
   /// can show a localized message.
   Future<void> signInWithGoogle() async {
     await _authRepo.signInWithGoogle();
+  }
+
+  /// Starts an anonymous Firebase session so the user can proceed through
+  /// the pre-home flow as a guest. The id-token listener re-persists the
+  /// anonymous user's token so downstream API calls can still attribute
+  /// the request to a stable UID. The router's authenticated branch
+  /// admits anonymous users (Firebase reports `isAnonymous: true` on the
+  /// domain entity, but `AuthStateAuthenticated` doesn't differentiate —
+  /// guard rules can read `currentUser.isAnonymous` if they later need to).
+  Future<void> signInAsGuest() async {
+    await _authRepo.signInAsGuest();
   }
 }
